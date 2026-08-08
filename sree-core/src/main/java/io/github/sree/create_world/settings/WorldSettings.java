@@ -1,4 +1,4 @@
-package io.github.sree;
+package io.github.sree.create_world.settings;
 
 import org.bukkit.GameMode;
 import org.bukkit.NamespacedKey;

@@ -1,5 +1,7 @@
-package io.github.sree;
+package io.github.sree.create_world;
 
+import io.github.sree.create_world.settings.DimensionSetSettings;
+import io.github.sree.create_world.settings.WorldSettings;
 import org.bukkit.World;
 import org.mvplugins.multiverse.core.MultiverseCoreApi;
 import org.mvplugins.multiverse.core.world.options.CreateWorldOptions;
@@ -8,7 +10,6 @@ import org.mvplugins.multiverse.inventories.profile.group.WorldGroup;
 import org.mvplugins.multiverse.inventories.profile.group.WorldGroupManager;
 import org.mvplugins.multiverse.inventories.share.Sharables;
 
-import java.awt.*;
 import java.util.Collection;
 import java.util.concurrent.CompletableFuture;
 import java.util.logging.Logger;

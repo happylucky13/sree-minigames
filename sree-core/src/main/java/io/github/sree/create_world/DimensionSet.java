@@ -1,4 +1,4 @@
-package io.github.sree;
+package io.github.sree.create_world;
 
 import org.bukkit.World;
 

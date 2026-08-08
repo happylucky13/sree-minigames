@@ -1,4 +1,4 @@
-package io.github.sree.pregenerate_world;
+package io.github.sree.pregenerate_world.enums;
 
 public enum Pattern {
     REGION("region"),

@@ -39,7 +39,7 @@ dependencies {
     compileOnly("io.papermc.paper:paper-api:26.2.build.+")
     compileOnly("org.mvplugins.multiverse.core:multiverse-core:5.7.3")
     compileOnly("org.mvplugins.multiverse.inventories:multiverse-inventories:5.0.1")
-    compileOnly("org.popcraft:chunky-paper:1.5.3")
+    compileOnly("org.popcraft:chunky-common:1.3.38")
 }
 
 tasks.test {

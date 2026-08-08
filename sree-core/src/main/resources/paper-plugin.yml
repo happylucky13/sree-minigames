@@ -1,0 +1,4 @@
+name: sree-core
+version: '${version}'
+api-version: '26.2'
+main: io.github.sree.SreeCorePlugin

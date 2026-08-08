@@ -3,21 +3,29 @@ package io.github.sree;
 import org.bukkit.World;
 import org.mvplugins.multiverse.core.MultiverseCoreApi;
 import org.mvplugins.multiverse.core.world.options.CreateWorldOptions;
+import org.mvplugins.multiverse.inventories.MultiverseInventoriesApi;
+import org.mvplugins.multiverse.inventories.profile.group.WorldGroup;
+import org.mvplugins.multiverse.inventories.profile.group.WorldGroupManager;
+import org.mvplugins.multiverse.inventories.share.Sharables;
 
 import java.awt.*;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.Collection;
 import java.util.concurrent.CompletableFuture;
 import java.util.logging.Logger;
 
 public class WorldService {
 
     private final MultiverseCoreApi multiverse;
+    private final MultiverseInventoriesApi inventories;
+    private final WorldGroupManager groupManager;
     private final Logger logger;
 
-    public WorldService(MultiverseCoreApi multiverse, Logger logger) {
+    public WorldService(MultiverseCoreApi multiverse, MultiverseInventoriesApi inventories, Logger logger) {
         this.multiverse = multiverse;
+        this.inventories = inventories;
         this.logger = logger;
+        this.groupManager = inventories.getWorldGroupManager();
+
     }
 
     public CompletableFuture<World> createWorld(WorldSettings settings) {
@@ -52,5 +60,14 @@ public class WorldService {
                         nether.join(),
                         end.join()
                 ));
+    }
+
+    public void linkWorlds(Collection<World> worlds, String groupName) {
+        WorldGroup worldGroup = groupManager.newEmptyGroup(groupName);
+
+        worlds.forEach(worldGroup::addWorld);
+        worldGroup.getShares().addAll(Sharables.allOf());
+
+        groupManager.updateGroup(worldGroup);
     }
 }

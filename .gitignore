@@ -42,5 +42,6 @@ bin/
 ### Mac OS ###
 .DS_Store
 
-### Molecore ###
-/molecore/run
+### Build and Run ###
+**/build/
+**/run/

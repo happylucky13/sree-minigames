@@ -1,0 +1,33 @@
+{
+  "stats": {
+    "minecraft:dropped": {
+      "minecraft:beacon": 1
+    },
+    "minecraft:used": {
+      "minecraft:wither_skeleton_spawn_egg": 23
+    },
+    "minecraft:custom": {
+      "minecraft:time_since_rest": 19905,
+      "minecraft:walk_one_cm": 25071,
+      "minecraft:leave_game": 12,
+      "minecraft:play_time": 164864,
+      "minecraft:damage_dealt": 10,
+      "minecraft:jump": 146,
+      "minecraft:time_since_death": 19877,
+      "minecraft:drop": 1,
+      "minecraft:sprint_one_cm": 20152,
+      "minecraft:total_world_time": 164864,
+      "minecraft:fly_one_cm": 58917,
+      "minecraft:crouch_one_cm": 154,
+      "minecraft:sneak_time": 249,
+      "minecraft:deaths": 2
+    },
+    "minecraft:picked_up": {
+      "minecraft:wither_skeleton_skull": 3,
+      "minecraft:coal": 7,
+      "minecraft:beacon": 1,
+      "minecraft:bone": 22
+    }
+  },
+  "DataVersion": 4671
+}

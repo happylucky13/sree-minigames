@@ -55,6 +55,24 @@ public class GameManager {
         }
     }
 
+    public void assignRoles() {
+        List<Player> shuffledPlayers = new ArrayList<>(Bukkit.getOnlinePlayers());
+        Collections.shuffle(shuffledPlayers);
+
+        for(int i = 0; i < shuffledPlayers.size(); i++) {
+            UUID id = shuffledPlayers.get(i).getUniqueId();
+
+            if(i < gameState.getSettings().moleCount()) {
+                gameState.getRoleMap().put(shuffledPlayers.get(i).getUniqueId(), Role.MOLE);
+                continue;
+            }
+
+            gameState.getRoleMap().put(shuffledPlayers.get(i).getUniqueId(), Role.SURVIVOR);
+        }
+
+        gameState.setAlivePlayers();
+    }
+
     public void startGame(NamespacedKey worldKey) {
         prepareDimensionSet.prepareDimensionSet(worldKey, plugin.getLogger())
                 .thenAccept(worlds -> {
@@ -62,7 +80,8 @@ public class GameManager {
                     Map<Player, Role> players = new HashMap<>();
                     Collections.shuffle(shuffledPlayers);
 
-                    gameState.assignRoles();
+                    gameState.resetGame();
+                    assignRoles();
 
                     for (UUID uuid : gameState.getRoleMap().keySet()) {
                         Player player = Bukkit.getPlayer(uuid);
@@ -104,7 +123,7 @@ public class GameManager {
         }
 
         player.setGameMode(GameMode.SPECTATOR);
-        gameState.getAlivePlayers().remove(player.getUniqueId());
+        gameState.markDead(player.getUniqueId());
         winConditions.checkWinCondition().ifPresent(this::endGame);
 
         event.deathMessage(null);

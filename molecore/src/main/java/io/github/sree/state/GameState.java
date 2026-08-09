@@ -32,16 +32,29 @@ public class GameState {
         this.gameStarted = gameStarted;
     }
 
+    public void setAlivePlayers() {
+        alivePlayers.addAll(roleMap.keySet());
+    }
+
     public boolean isGameStarted() {
         return gameStarted;
     }
 
-    public Set<UUID> getAlivePlayers() {
-        return alivePlayers;
+    public void markDead(UUID uuid) {
+        alivePlayers.remove(uuid);
+    }
+
+    public boolean isAlive(Player player) {
+        return alivePlayers.contains(player.getUniqueId());
     }
 
     public Map<UUID, Role> getRoleMap() {
-        return roleMap;
+        return Collections.unmodifiableMap(roleMap);
+    }
+
+    public void resetGame() {
+        roleMap.clear();
+        alivePlayers.clear();
     }
 
     public Role getRole(Player player) {
@@ -54,26 +67,5 @@ public class GameState {
                 .map(entry -> Bukkit.getPlayer(entry.getKey()))
                 .filter(Objects::nonNull)
                 .collect(Collectors.toSet());
-    }
-
-    public void assignRoles() {
-        List<Player> shuffledPlayers = new ArrayList<>(Bukkit.getOnlinePlayers());
-        Collections.shuffle(shuffledPlayers);
-
-        roleMap.clear();
-        alivePlayers.clear();
-
-        for(int i = 0; i < shuffledPlayers.size(); i++) {
-            UUID id = shuffledPlayers.get(i).getUniqueId();
-
-            if(i < settings.moleCount()) {
-                roleMap.put(shuffledPlayers.get(i).getUniqueId(), Role.MOLE);
-                continue;
-            }
-
-            roleMap.put(shuffledPlayers.get(i).getUniqueId(), Role.SURVIVOR);
-        }
-
-        alivePlayers.addAll(roleMap.keySet());
     }
 }

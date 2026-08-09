@@ -3,6 +3,7 @@ package io.github.sree.state;
 import io.github.sree.enums.Objective;
 import io.github.sree.enums.Role;
 import io.github.sree.enums.Winner;
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 
@@ -17,8 +18,7 @@ public class WinConditions {
     }
 
     public Optional<Winner> checkWinCondition() {
-        boolean survivorsAlive = gameState.getAlivePlayers().stream()
-                .anyMatch(uuid -> gameState.getRoleMap().get(uuid) == Role.SURVIVOR);
+        boolean survivorsAlive = gameState.getPlayersWithRole(Role.SURVIVOR).stream().anyMatch(gameState::isAlive);
 
         return survivorsAlive ? Optional.empty() : Optional.of(Winner.MOLES);
     }
@@ -29,5 +29,4 @@ public class WinConditions {
 
         return survivorsWin ? Optional.of(Winner.SURVIVORS) : Optional.empty();
     }
-
 }

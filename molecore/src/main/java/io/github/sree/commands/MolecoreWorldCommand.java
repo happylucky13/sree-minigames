@@ -27,8 +27,7 @@ public class MolecoreWorldCommand {
 
     private int createWorld(CommandContext<CommandSourceStack> ctx) {
         String worldName = ctx.getArgument("world-name", String.class);
-
-
+        gameManager.prepareWorld(gameManager.getWorldKey(worldName));
         return Command.SINGLE_SUCCESS;
     }
 }

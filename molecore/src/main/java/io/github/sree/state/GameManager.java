@@ -7,13 +7,13 @@ import io.github.sree.create_world.settings.WorldSettings;
 import io.github.sree.enums.Role;
 import io.github.sree.enums.Objective;
 import io.github.sree.enums.Winner;
+import io.github.sree.pregenerate_world.ChunkGenerationSettings;
 import io.github.sree.pregenerate_world.PregenerateChunksService;
+import io.github.sree.pregenerate_world.enums.Pattern;
+import io.github.sree.pregenerate_world.enums.Shape;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
-import org.bukkit.Bukkit;
-import org.bukkit.GameMode;
-import org.bukkit.Material;
-import org.bukkit.NamespacedKey;
+import org.bukkit.*;
 import org.bukkit.entity.Player;
 import org.bukkit.event.entity.PlayerDeathEvent;
 
@@ -58,9 +58,9 @@ public class GameManager {
         return roleMap.get(player.getUniqueId());
     }
 
-    public void teleportPlayers(String worldName) {
+    public void teleportPlayers(NamespacedKey worldKey) {
         for (Player player : Bukkit.getOnlinePlayers()) {
-            player.teleportAsync(Bukkit.getWorld(worldName).getSpawnLocation());
+            player.teleportAsync(Bukkit.getWorld(worldKey).getSpawnLocation());
         }
     }
 
@@ -84,7 +84,7 @@ public class GameManager {
             }
         }
 
-        animationManager.startGameSequence(players, () -> teleportPlayers(worldName));
+        animationManager.startGameSequence(players, () -> teleportPlayers(worldKey));
         gameStarted = true;
     }
 
@@ -162,19 +162,48 @@ public class GameManager {
             return;
         }
 
+        DimensionKeys keys = DimensionKeys.from(worldKey);
+
         worldService.createDimensionSet(
                 new DimensionSetSettings(
                         new WorldSettings(
-                                worldKey,
-
+                                keys.overworld(),
+                                WorldType.NORMAL,
+                                World.Environment.NORMAL,
+                                GameMode.SURVIVAL
                         ),
                         new WorldSettings(
-
+                                keys.nether(),
+                                WorldType.NORMAL,
+                                World.Environment.NETHER,
+                                GameMode.SURVIVAL
                         ),
                         new WorldSettings(
-
+                                keys.theEnd(),
+                                WorldType.NORMAL,
+                                World.Environment.THE_END,
+                                GameMode.SURVIVAL
                         )
                 )
-        );
+        )
+                .thenCompose(
+                        dimensionSet -> dimensionSet.worlds().forEach(
+                                world -> pregenerateChunksService.pregenerate(
+                                        world,
+                                        new ChunkGenerationSettings(
+                                                Shape.CIRCLE,
+                                                0.0,
+                                                0.0,
+                                                1500,
+                                                1500,
+                                                Pattern.REGION
+                                        ),
+                                        Bukkit.getOnlinePlayers()
+                                                .stream()
+                                                .filter(player -> player.isOp())
+                                                .collect(Collectors.toSet())
+                                )
+                        )
+                );
     }
 }

@@ -2,11 +2,12 @@ package io.github.sree.pregenerate_world;
 
 import net.kyori.adventure.bossbar.BossBar;
 import net.kyori.adventure.text.Component;
+import org.bukkit.Bukkit;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.popcraft.chunky.api.ChunkyAPI;
 
-import java.util.Collection;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.logging.Logger;
 
@@ -20,11 +21,15 @@ public class PregenerateChunksService {
         this.logger = logger;
     }
 
-    public CompletableFuture<World> pregenerate(World world, ChunkGenerationSettings settings, Collection<Player> viewers) {
-        CompletableFuture<World> future = new CompletableFuture<>();
+    public CompletableFuture<Set<World>> pregenerate(Set<World> worlds, ChunkGenerationSettings settings, Collection<Player> viewers) {
+        CompletableFuture<Set<World>> future = new CompletableFuture<>();
+        Set<World> completedWorlds = new HashSet<>();
+
+        Map<World, Float> progress = new HashMap<>();
+        worlds.forEach(world -> progress.put(world, 0.0f));
 
         final BossBar progressBar = BossBar.bossBar(
-                Component.text("0 chunks loaded"),
+                Component.text("Generating worlds... 0.0% complete"),
                 0.0f,
                 BossBar.Color.GREEN,
                 BossBar.Overlay.PROGRESS
@@ -33,23 +38,48 @@ public class PregenerateChunksService {
         viewers.forEach(progressBar::addViewer);
 
         chunky.onGenerationProgress(event -> {
-            progressBar.name(Component.text(event.chunks() + " chunks loaded"));
-            progressBar.progress(event.progress());
+            World world = Bukkit.getWorld(event.world());
+
+            if (world == null || !worlds.contains(world)) {
+                return;
+            }
+
+            progress.put(world, event.progress());
+
+            float overallProgress = (float) progress.values().stream()
+                                    .mapToDouble(Float::doubleValue)
+                                    .average()
+                                    .orElse(0.0);
+
+            progressBar.progress(overallProgress);
+            progressBar.name(Component.text(
+                    String.format("Generating worlds... %.1f%% complete", overallProgress * 100)
+            ));
         });
 
         chunky.onGenerationComplete(event -> {
             logger.info("Chunk generation complete.");
-            future.complete(world);
+            World world = Bukkit.getWorld(event.world());
+
+            if (world == null || !worlds.contains(world)) {
+                return;
+            }
+
+            completedWorlds.add(world);
+
+            if (completedWorlds.size() == worlds.size()) {
+                future.complete(completedWorlds);
+            }
         });
 
-        chunky.startTask(
+        worlds.forEach(world -> chunky.startTask(
                 world.getName(),
                 settings.shape().getName(),
                 settings.centerX(), settings.centerZ(),
                 settings.radiusX(),
                 settings.radiusZ(),
                 settings.pattern().getName()
-        );
+        ));
 
         return future;
     }

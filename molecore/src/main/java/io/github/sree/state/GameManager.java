@@ -18,6 +18,8 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.entity.PlayerDeathEvent;
 
 import java.util.*;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionException;
 import java.util.stream.Collectors;
 
 public class GameManager {
@@ -65,27 +67,31 @@ public class GameManager {
     }
 
     public void startGame(NamespacedKey worldKey) {
-        List<Player> shuffledPlayers = new ArrayList<>(Bukkit.getOnlinePlayers());
-        Map<Player, Role> players = new HashMap<>();
-        Collections.shuffle(shuffledPlayers);
+        prepareWorld(worldKey)
+                .thenAccept(worlds -> {
+                    List<Player> shuffledPlayers = new ArrayList<>(Bukkit.getOnlinePlayers());
+                    Map<Player, Role> players = new HashMap<>();
+                    Collections.shuffle(shuffledPlayers);
 
-        assignRoles(shuffledPlayers);
+                    assignRoles(shuffledPlayers);
 
-        if (Bukkit.getWorld(worldKey) == null) {
-            prepareWorld(worldKey);
-            return;
-        }
+                    for (UUID uuid : roleMap.keySet()) {
+                        Player player = Bukkit.getPlayer(uuid);
 
-        for (UUID uuid : roleMap.keySet()) {
-            Player player = Bukkit.getPlayer(uuid);
+                        if (player != null) {
+                            players.put(player, roleMap.get(uuid));
+                        }
+                    }
 
-            if (player != null) {
-                players.put(player, roleMap.get(uuid));
-            }
-        }
-
-        animationManager.startGameSequence(players, () -> teleportPlayers(worldKey));
-        gameStarted = true;
+                    animationManager.startGameSequence(players, () -> teleportPlayers(worldKey));
+                    gameStarted = true;
+                })
+                .exceptionally(throwable -> {
+                    plugin.getLogger().severe(
+                            "Cannot start Molecore: " + throwable.getMessage()
+                    );
+                    return null;
+                });
     }
 
     private void assignRoles(List<Player> shuffledPlayers) {
@@ -156,15 +162,27 @@ public class GameManager {
         gameStarted = false;
     }
 
-    public void prepareWorld(NamespacedKey worldKey) {
-        if (Bukkit.getWorld(worldKey) != null) {
-            plugin.getLogger().info("World already exists.");
-            return;
-        }
+    public CompletableFuture<Set<World>> prepareWorld(NamespacedKey worldKey) {
 
         DimensionKeys keys = DimensionKeys.from(worldKey);
+        World overworld = Bukkit.getWorld(keys.overworld());
+        World nether = Bukkit.getWorld(keys.nether());
+        World theEnd = Bukkit.getWorld(keys.theEnd());
 
-        worldService.createDimensionSet(
+        if (overworld != null && nether != null && theEnd != null) {
+            plugin.getLogger().info("Worlds already exist.");
+            return CompletableFuture.completedFuture(Set.of(overworld, nether, theEnd));
+        }
+
+        if (overworld != null || nether != null || theEnd != null) {
+            return CompletableFuture.failedFuture(
+                    new IllegalStateException(
+                            "Dimension set is only partially loaded."
+                    )
+            );
+        }
+
+        return worldService.createDimensionSet(
                 new DimensionSetSettings(
                         new WorldSettings(
                                 keys.overworld(),
@@ -186,24 +204,33 @@ public class GameManager {
                         )
                 )
         )
-                .thenCompose(
-                        dimensionSet -> dimensionSet.worlds().forEach(
-                                world -> pregenerateChunksService.pregenerate(
-                                        world,
-                                        new ChunkGenerationSettings(
-                                                Shape.CIRCLE,
-                                                0.0,
-                                                0.0,
-                                                1500,
-                                                1500,
-                                                Pattern.REGION
-                                        ),
-                                        Bukkit.getOnlinePlayers()
-                                                .stream()
-                                                .filter(player -> player.isOp())
-                                                .collect(Collectors.toSet())
-                                )
+                .thenCompose(dimensionSet ->
+                        pregenerateChunksService.pregenerate(
+                                dimensionSet.worlds(),
+                                new ChunkGenerationSettings(
+                                        Shape.CIRCLE,
+                                        0.0,
+                                        0.0,
+                                        1500,
+                                        1500,
+                                        Pattern.REGION
+                                ),
+                                Bukkit.getOnlinePlayers().stream()
+                                        .filter(Player::isOp)
+                                        .collect(Collectors.toSet())
                         )
-                );
+                )
+                .thenApply(
+                        worlds -> {
+                            worldService.linkWorlds(worlds, worldKey.getKey() + "_group");
+                            return worlds;
+                        }
+                )
+                .exceptionally(throwable -> {
+                    plugin.getLogger().severe(
+                            "Failed to prepare world " + worldKey + ": " + throwable.getMessage()
+                    );
+                    throw new CompletionException(throwable);
+                });
     }
 }

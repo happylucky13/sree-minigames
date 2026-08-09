@@ -25,7 +25,7 @@ public class MolecoreStartCommand {
 
     private int startGame(CommandContext<CommandSourceStack> ctx) {
         String worldName = ctx.getArgument("world", String.class);
-        gameManager.startGame(worldName);
+        gameManager.startGame(gameManager.getWorldKey(worldName));
         return Command.SINGLE_SUCCESS;
     }
 }

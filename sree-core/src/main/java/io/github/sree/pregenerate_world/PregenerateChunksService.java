@@ -21,7 +21,7 @@ public class PregenerateChunksService {
         this.logger = logger;
     }
 
-    public CompletableFuture<Set<World>> pregenerate(Set<World> worlds, ChunkGenerationSettings settings, Collection<Player> viewers) {
+    public CompletableFuture<Set<World>> pregenerate(Collection<World> worlds, ChunkGenerationSettings settings, Collection<Player> viewers) {
         CompletableFuture<Set<World>> future = new CompletableFuture<>();
         Set<World> completedWorlds = new HashSet<>();
 

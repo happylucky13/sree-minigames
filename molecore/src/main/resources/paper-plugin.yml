@@ -1,6 +1,6 @@
 name: Molecore
 version: '${version}'
-api-version: '1.21.11'
+api-version: '26.2'
 main: io.github.sree.MolecorePlugin
 
 dependencies:

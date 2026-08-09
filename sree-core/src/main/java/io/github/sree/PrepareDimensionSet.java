@@ -27,21 +27,12 @@ public class PrepareDimensionSet {
         this.pregenerateChunksService = pregenerateChunksService;
     }
 
-    public CompletableFuture<Set<World>> prepareDimensionSet(NamespacedKey worldKey, Logger logger) {
+    public CompletableFuture<World> prepareDimensionSet(NamespacedKey worldKey, Logger logger) {
 
         DimensionKeys keys = DimensionKeys.from(worldKey);
-        World overworld = Bukkit.getWorld(new NamespacedKey("minecraft", keys.overworld().getKey()));
-        World nether = Bukkit.getWorld(new NamespacedKey("minecraft", keys.nether().getKey()));
-        World theEnd = Bukkit.getWorld(new NamespacedKey("minecraft", keys.theEnd().getKey()));
-
-        logger.info("Overworld: " + overworld);
-        logger.info("Nether: " + nether);
-        logger.info("The End: " + theEnd);
-
-        logger.info("Expected keys:");
-        logger.info("" + keys.overworld());
-        logger.info("" + keys.nether());
-        logger.info("" + keys.theEnd());
+        World overworld = Bukkit.getWorld(keys.getBukkitWorldKey(keys.overworld()));
+        World nether = Bukkit.getWorld(keys.getBukkitWorldKey(keys.nether()));
+        World theEnd = Bukkit.getWorld(keys.getBukkitWorldKey(keys.theEnd()));
 
         Bukkit.getWorlds().forEach(world ->
                 logger.info(
@@ -52,7 +43,7 @@ public class PrepareDimensionSet {
 
         if (overworld != null && nether != null && theEnd != null) {
             logger.info("Worlds already exist.");
-            return CompletableFuture.completedFuture(Set.of(overworld, nether, theEnd));
+            return CompletableFuture.completedFuture(overworld);
         }
 
         if (overworld != null || nether != null || theEnd != null) {
@@ -104,7 +95,10 @@ public class PrepareDimensionSet {
                 .thenApply(
                         worlds -> {
                             worldService.linkWorlds(worlds, worldKey.getKey() + "_group");
-                            return worlds;
+                            return worlds.stream()
+                                    .filter(world -> world.getEnvironment() == World.Environment.NORMAL)
+                                    .findFirst()
+                                    .orElseThrow(() -> new IllegalStateException("Dimension set has no overworld."));
                         }
                 )
                 .exceptionally(throwable -> {

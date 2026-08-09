@@ -39,7 +39,7 @@ public class GameManager {
         return new NamespacedKey(plugin, worldName);
     }
 
-    public CompletableFuture<Set<World>> prepareDimensionSet(NamespacedKey worldKey) {
+    public CompletableFuture<World> prepareDimensionSet(NamespacedKey worldKey) {
         return prepareDimensionSet.prepareDimensionSet(worldKey, plugin.getLogger());
     }
 
@@ -53,9 +53,9 @@ public class GameManager {
         winner.ifPresent(this::endGame);
     }
 
-    private void teleportPlayers(NamespacedKey worldKey) {
+    private void teleportPlayers(World world) {
         for (Player player : Bukkit.getOnlinePlayers()) {
-            player.teleportAsync(Bukkit.getWorld(new NamespacedKey("minecraft", worldKey.getKey())).getSpawnLocation());
+            player.teleportAsync(world.getSpawnLocation());
         }
     }
 
@@ -79,7 +79,7 @@ public class GameManager {
 
     public void startGame(NamespacedKey worldKey) {
         prepareDimensionSet(worldKey)
-                .thenAccept(ignored -> {
+                .thenAccept(overworld -> {
                     plugin.getLogger().info("PREPARE WORLDS COMPLETE!");
                     List<Player> shuffledPlayers = new ArrayList<>(Bukkit.getOnlinePlayers());
                     Map<Player, Role> players = new HashMap<>();
@@ -101,7 +101,7 @@ public class GameManager {
                     plugin.getLogger().info("Starting game animation...");
 
                     gameState.setGameStarted(true);
-                    animationManager.startGameSequence(players, () -> teleportPlayers(worldKey));
+                    animationManager.startGameSequence(players, () -> teleportPlayers(overworld));
 
                     plugin.getLogger().info("Game STARTED!");
                 })

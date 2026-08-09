@@ -10,4 +10,8 @@ public record DimensionKeys(NamespacedKey overworld, NamespacedKey nether, Names
                 new NamespacedKey(base.getNamespace(), base.getKey() + "_the_end")
         );
     }
+
+    public NamespacedKey getBukkitWorldKey(NamespacedKey key) {
+        return new NamespacedKey("minecraft", key.getKey());
+    }
 }

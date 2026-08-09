@@ -2,3 +2,9 @@ name: Molecore
 version: '${version}'
 api-version: '1.21.11'
 main: io.github.sree.MolecorePlugin
+
+dependencies:
+  server:
+    sree-core:
+      load: AFTER
+      required: true

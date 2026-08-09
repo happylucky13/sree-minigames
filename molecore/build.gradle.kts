@@ -29,6 +29,7 @@ dependencies {
     testImplementation("org.junit.jupiter:junit-jupiter")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
     compileOnly("io.papermc.paper:paper-api:1.21.11-rc3-R0.1-SNAPSHOT")
+    compileOnly(":sree-core")
 }
 
 tasks.test {

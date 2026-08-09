@@ -29,7 +29,7 @@ dependencies {
     testImplementation("org.junit.jupiter:junit-jupiter")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
     compileOnly("io.papermc.paper:paper-api:26.2.build.+")
-    compileOnly(":sree-core")
+    compileOnly(project(":sree-core"))
 }
 
 tasks.test {
@@ -42,6 +42,15 @@ java {
 
 tasks {
     runServer {
-        minecraftVersion("26.2")
+        dependsOn(":sree-core:jar")
+
+        doFirst {
+            copy {
+                from(project(":sree-core").tasks.jar)
+                into(runDirectory.dir("plugins"))
+            }
+        }
+
+        version("26.2")
     }
 }

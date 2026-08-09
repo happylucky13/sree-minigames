@@ -11,6 +11,6 @@ dependencies:
     Multiverse-Inventories:
       required: true
       load: AFTER
-    chunky:
+    Chunky:
       required: true
       load: AFTER

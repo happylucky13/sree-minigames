@@ -40,6 +40,10 @@ public class GameManager {
     }
 
     public void checkObjective(Player player) {
+        if (!gameState.isGameStarted()) {
+            return;
+        }
+
         Optional<Winner> winner = winConditions.checkObjectiveCompletion(player);
 
         winner.ifPresent(this::endGame);

@@ -20,10 +20,6 @@ public class ObjectiveListener extends GameListener {
 
     @EventHandler
     public void onItemPickup(EntityPickupItemEvent event) {
-        if (!gameState.isGameStarted()) {
-            return;
-        }
-
         if (event.getEntity() instanceof Player player) {
             gameManager.checkObjective(player);
         }
@@ -31,10 +27,6 @@ public class ObjectiveListener extends GameListener {
 
     @EventHandler
     public void onInventoryClick(InventoryClickEvent event) {
-        if (!gameState.isGameStarted()) {
-            return;
-        }
-
         if (event.getWhoClicked() instanceof Player player) {
             gameManager.checkObjective(player);
         }
@@ -42,10 +34,6 @@ public class ObjectiveListener extends GameListener {
 
     @EventHandler
     public void onItemCraft(CraftItemEvent event) {
-        if (!gameState.isGameStarted()) {
-            return;
-        }
-
         if (event.getWhoClicked() instanceof Player player) {
             gameManager.checkObjective(player);
         }
@@ -53,10 +41,6 @@ public class ObjectiveListener extends GameListener {
 
     @EventHandler
     public void onInventoryClose(InventoryCloseEvent event) {
-        if (!gameState.isGameStarted()) {
-            return;
-        }
-
         if (event.getPlayer() instanceof Player player) {
             gameManager.checkObjective(player);
         }

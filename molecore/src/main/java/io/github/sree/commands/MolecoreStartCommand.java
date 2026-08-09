@@ -7,6 +7,7 @@ import com.mojang.brigadier.context.CommandContext;
 import io.github.sree.state.GameManager;
 import io.papermc.paper.command.brigadier.CommandSourceStack;
 import io.papermc.paper.command.brigadier.Commands;
+import org.bukkit.NamespacedKey;
 
 public class MolecoreStartCommand {
     private final GameManager gameManager;

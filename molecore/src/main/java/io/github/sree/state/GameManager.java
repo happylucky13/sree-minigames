@@ -2,6 +2,8 @@ package io.github.sree.state;
 
 import io.github.sree.MolecorePlugin;
 import io.github.sree.create_world.WorldService;
+import io.github.sree.create_world.settings.DimensionSetSettings;
+import io.github.sree.create_world.settings.WorldSettings;
 import io.github.sree.enums.Role;
 import io.github.sree.enums.Objective;
 import io.github.sree.enums.Winner;
@@ -11,6 +13,7 @@ import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.Material;
+import org.bukkit.NamespacedKey;
 import org.bukkit.entity.Player;
 import org.bukkit.event.entity.PlayerDeathEvent;
 
@@ -39,6 +42,10 @@ public class GameManager {
         return settings;
     }
 
+    public NamespacedKey getWorldKey(String worldName) {
+        return new NamespacedKey(plugin, worldName);
+    }
+
     public boolean isGameStarted() {
         return gameStarted;
     }
@@ -57,15 +64,15 @@ public class GameManager {
         }
     }
 
-    public void startGame(String worldName) {
+    public void startGame(NamespacedKey worldKey) {
         List<Player> shuffledPlayers = new ArrayList<>(Bukkit.getOnlinePlayers());
         Map<Player, Role> players = new HashMap<>();
         Collections.shuffle(shuffledPlayers);
 
         assignRoles(shuffledPlayers);
 
-        if (Bukkit.getWorld(worldName) == null) {
-            prepareWorld(worldName);
+        if (Bukkit.getWorld(worldKey) == null) {
+            prepareWorld(worldKey);
             return;
         }
 
@@ -149,10 +156,25 @@ public class GameManager {
         gameStarted = false;
     }
 
-    public void prepareWorld(String worldName) {
-        if (Bukkit.getWorld(worldName) != null) {
+    public void prepareWorld(NamespacedKey worldKey) {
+        if (Bukkit.getWorld(worldKey) != null) {
             plugin.getLogger().info("World already exists.");
             return;
         }
+
+        worldService.createDimensionSet(
+                new DimensionSetSettings(
+                        new WorldSettings(
+                                worldKey,
+
+                        ),
+                        new WorldSettings(
+
+                        ),
+                        new WorldSettings(
+
+                        )
+                )
+        );
     }
 }

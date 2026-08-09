@@ -6,5 +6,5 @@ main: io.github.sree.MolecorePlugin
 dependencies:
   server:
     sree-core:
-      load: AFTER
+      load: BEFORE
       required: true

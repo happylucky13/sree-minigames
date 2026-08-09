@@ -7,10 +7,10 @@ dependencies:
   server:
     Multiverse-Core:
       required: true
-      load: AFTER
+      load: BEFORE
     Multiverse-Inventories:
       required: true
-      load: AFTER
+      load: BEFORE
     Chunky:
       required: true
-      load: AFTER
+      load: BEFORE

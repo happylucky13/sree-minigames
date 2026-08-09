@@ -2,3 +2,12 @@ name: sree-core
 version: '${version}'
 api-version: '26.2'
 main: io.github.sree.SreeCorePlugin
+
+dependencies:
+  server:
+    Multiverse-Core:
+      required: true
+      load: AFTER
+    chunky:
+      required: true
+      load: AFTER

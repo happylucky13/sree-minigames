@@ -1,6 +1,5 @@
 plugins {
     id("java")
-    id("xyz.jpenilla.run-paper") version "3.0.2"
 }
 
 group = "io.github.sree"
@@ -48,10 +47,4 @@ tasks.test {
 
 java {
     toolchain.languageVersion.set(JavaLanguageVersion.of(25))
-}
-
-tasks {
-    runServer {
-        minecraftVersion("26.2")
-    }
 }

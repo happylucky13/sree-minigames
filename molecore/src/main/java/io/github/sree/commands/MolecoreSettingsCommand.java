@@ -7,6 +7,7 @@ import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
 import io.github.sree.state.GameManager;
 import io.github.sree.enums.Objective;
+import io.github.sree.state.GameState;
 import io.papermc.paper.command.brigadier.CommandSourceStack;
 import io.papermc.paper.command.brigadier.Commands;
 import net.kyori.adventure.text.Component;
@@ -14,10 +15,10 @@ import org.bukkit.command.CommandSender;
 
 public class MolecoreSettingsCommand {
 
-    final GameManager gameManager;
+    final GameState gameState;
 
-    public MolecoreSettingsCommand(GameManager gameManager) {
-        this.gameManager = gameManager;
+    public MolecoreSettingsCommand(GameState gameState) {
+        this.gameState = gameState;
     }
 
     public LiteralArgumentBuilder<CommandSourceStack> createCommand() {
@@ -37,7 +38,7 @@ public class MolecoreSettingsCommand {
         int moleCount = ctx.getArgument("mole_count", Integer.class);
         String worldName = ctx.getArgument("world", String.class);
 
-        gameManager.setSettings(moleCount, Objective.WITHER);
+        gameState.setSettings(moleCount, Objective.WITHER);
 
         sender.sendMessage(Component.text("Settings updated!"));
 
@@ -49,7 +50,7 @@ public class MolecoreSettingsCommand {
         int moleCount = ctx.getArgument("mole_count", Integer.class);
         String worldName = ctx.getArgument("world", String.class);
 
-        gameManager.setSettings(moleCount, Objective.DRAGON);
+        gameState.setSettings(moleCount, Objective.DRAGON);
 
         sender.sendMessage(Component.text("Settings updated!"));
 

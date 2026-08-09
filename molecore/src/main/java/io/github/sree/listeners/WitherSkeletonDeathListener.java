@@ -2,6 +2,7 @@ package io.github.sree.listeners;
 
 import io.github.sree.enums.Objective;
 import io.github.sree.state.GameManager;
+import io.github.sree.state.GameState;
 import org.bukkit.Material;
 import org.bukkit.entity.WitherSkeleton;
 import org.bukkit.event.EventHandler;
@@ -10,17 +11,17 @@ import org.bukkit.inventory.ItemStack;
 
 public class WitherSkeletonDeathListener extends GameListener {
 
-    public WitherSkeletonDeathListener(GameManager gameManager) {
-        super(gameManager);
+    public WitherSkeletonDeathListener(GameState gameState) {
+        super(gameState);
     }
 
     @EventHandler
     public void onWitherSkeletonDeath(EntityDeathEvent event) {
-        if (!gameManager.isGameStarted()) {
+        if (!gameState.isGameStarted()) {
             return;
         }
 
-        if (gameManager.getSettings().objective() != Objective.WITHER) {
+        if (gameState.getSettings().objective() != Objective.WITHER) {
             return;
         }
 

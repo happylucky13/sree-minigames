@@ -25,13 +25,13 @@ import java.util.stream.Collectors;
 public class GameManager {
     private final MolecorePlugin plugin;
     private final GameAnimationManager animationManager;
+
+    private final GameState gameState = new GameState();
+    private final WinConditions winConditions = new WinConditions(gameState);
+
     private final WorldService worldService;
     private final PregenerateChunksService pregenerateChunksService;
 
-    private GameSettings settings = new GameSettings(2, Objective.WITHER);
-    private final Map<UUID, Role> roleMap = new HashMap<>();
-    private final Set<UUID> alivePlayers = new HashSet<>();
-    private boolean gameStarted;
 
     public GameManager(MolecorePlugin plugin, GameAnimationManager animationManager, WorldService worldService, PregenerateChunksService pregenerateChunksService) {
         this.plugin = plugin;
@@ -40,27 +40,21 @@ public class GameManager {
         this.pregenerateChunksService = pregenerateChunksService;
     }
 
-    public GameSettings getSettings() {
-        return settings;
+    public GameState getGameState() {
+        return gameState;
     }
 
     public NamespacedKey getWorldKey(String worldName) {
         return new NamespacedKey(plugin, worldName);
     }
 
-    public boolean isGameStarted() {
-        return gameStarted;
+    public void checkObjective(Player player) {
+        Optional<Winner> winner = winConditions.checkObjectiveCompletion(player);
+
+        winner.ifPresent(this::endGame);
     }
 
-    public void setSettings(int moleCount, Objective objective) {
-        settings = new GameSettings(moleCount, objective);
-    }
-
-    public Role getRole(Player player) {
-        return roleMap.get(player.getUniqueId());
-    }
-
-    public void teleportPlayers(NamespacedKey worldKey) {
+    private void teleportPlayers(NamespacedKey worldKey) {
         for (Player player : Bukkit.getOnlinePlayers()) {
             player.teleportAsync(Bukkit.getWorld(worldKey).getSpawnLocation());
         }
@@ -73,18 +67,18 @@ public class GameManager {
                     Map<Player, Role> players = new HashMap<>();
                     Collections.shuffle(shuffledPlayers);
 
-                    assignRoles(shuffledPlayers);
+                    gameState.assignRoles();
 
-                    for (UUID uuid : roleMap.keySet()) {
+                    for (UUID uuid : gameState.getRoleMap().keySet()) {
                         Player player = Bukkit.getPlayer(uuid);
 
                         if (player != null) {
-                            players.put(player, roleMap.get(uuid));
+                            players.put(player, gameState.getRoleMap().get(uuid));
                         }
                     }
 
+                    gameState.setGameStarted(true);
                     animationManager.startGameSequence(players, () -> teleportPlayers(worldKey));
-                    gameStarted = true;
                 })
                 .exceptionally(throwable -> {
                     plugin.getLogger().severe(
@@ -94,21 +88,16 @@ public class GameManager {
                 });
     }
 
-    private void assignRoles(List<Player> shuffledPlayers) {
-        roleMap.clear();
-        alivePlayers.clear();
-
-        for(int i = 0; i < shuffledPlayers.size(); i++) {
-            UUID id = shuffledPlayers.get(i).getUniqueId();
-            alivePlayers.add(id);
-
-            if(i < settings.moleCount()) {
-                roleMap.put(shuffledPlayers.get(i).getUniqueId(), Role.MOLE);
-                continue;
-            }
-
-            roleMap.put(shuffledPlayers.get(i).getUniqueId(), Role.SURVIVOR);
+    private void endGame(Winner winner) {
+        switch (winner) {
+            case Winner.MOLES:
+                animationManager.endGameSequence(winner, gameState.getPlayersWithRole(Role.MOLE));
+                break;
+            case Winner.SURVIVORS:
+                animationManager.endGameSequence(winner, gameState.getPlayersWithRole(Role.SURVIVOR));
         }
+
+        gameState.setGameStarted(false);
     }
 
     public void handlePlayerDeath(PlayerDeathEvent event) {
@@ -120,46 +109,10 @@ public class GameManager {
         }
 
         player.setGameMode(GameMode.SPECTATOR);
-        alivePlayers.remove(player.getUniqueId());
-        checkWinCondition();
+        gameState.getAlivePlayers().remove(player.getUniqueId());
+        winConditions.checkWinCondition().ifPresent(this::endGame);
 
         event.deathMessage(null);
-    }
-
-    private void checkWinCondition() {
-        boolean survivorsAlive = alivePlayers.stream()
-                .anyMatch(uuid -> roleMap.get(uuid) == Role.SURVIVOR);
-
-        if (!survivorsAlive) {
-            endGame(Winner.MOLES);
-        }
-    }
-
-    public void checkObjectiveCompletion(Player player) {
-        Material objective = settings.objective() == Objective.WITHER ? Material.BEACON : Material.DRAGON_EGG;
-        if (player.getInventory().contains(objective) && getRole(player) == Role.SURVIVOR) {
-            endGame(Winner.SURVIVORS);
-        }
-    }
-
-    public Set<Player> getPlayersWithRole(Role role) {
-        return roleMap.entrySet().stream()
-                .filter(entry -> entry.getValue() == role)
-                .map(entry -> Bukkit.getPlayer(entry.getKey()))
-                .filter(Objects::nonNull)
-                .collect(Collectors.toSet());
-    }
-
-    private void endGame(Winner winner) {
-        switch (winner) {
-            case Winner.MOLES:
-                animationManager.endGameSequence(winner, getPlayersWithRole(Role.MOLE));
-                break;
-            case Winner.SURVIVORS:
-                animationManager.endGameSequence(winner, getPlayersWithRole(Role.SURVIVOR));
-        }
-
-        gameStarted = false;
     }
 
     public CompletableFuture<Set<World>> prepareWorld(NamespacedKey worldKey) {

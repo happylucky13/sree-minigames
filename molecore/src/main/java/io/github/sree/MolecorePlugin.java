@@ -30,17 +30,17 @@ public class MolecorePlugin extends JavaPlugin {
 
 
         List<GameListener> listeners = List.of(
-                new EndermanDeathListener(gameManager),
-                new ObjectiveListener(gameManager),
-                new PiglinBarterListener(gameManager),
-                new PlayerDeathListener(gameManager),
-                new WitherSkeletonDeathListener(gameManager)
+                new EndermanDeathListener(gameManager.getGameState()),
+                new ObjectiveListener(gameManager.getGameState(), gameManager),
+                new PiglinBarterListener(gameManager.getGameState()),
+                new PlayerDeathListener(gameManager.getGameState(), gameManager),
+                new WitherSkeletonDeathListener(gameManager.getGameState())
         );
 
         listeners.forEach(gameListener ->
                 getServer().getPluginManager().registerEvents(gameListener, this));
 
-        MolecoreSettingsCommand settingsCommand = new MolecoreSettingsCommand(gameManager);
+        MolecoreSettingsCommand settingsCommand = new MolecoreSettingsCommand(gameManager.getGameState());
         MolecoreStartCommand startCommand = new MolecoreStartCommand(gameManager);
 
         LiteralCommandNode<CommandSourceStack> molecoreCommand = Commands.literal("molecore")

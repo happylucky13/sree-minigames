@@ -2,18 +2,22 @@ package io.github.sree.listeners;
 
 import io.github.sree.state.GameManager;
 
+import io.github.sree.state.GameState;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.entity.PlayerDeathEvent;
 
 public class PlayerDeathListener extends GameListener {
 
-    public PlayerDeathListener(GameManager gameManager) {
-        super(gameManager);
+    private final GameManager gameManager;
+
+    public PlayerDeathListener(GameState gameState, GameManager gameManager) {
+        super(gameState);
+        this.gameManager = gameManager;
     }
 
     @EventHandler
     public void onPlayerDeath(PlayerDeathEvent event) {
-        if (!gameManager.isGameStarted()) {
+        if (!gameState.isGameStarted()) {
             return;
         }
 

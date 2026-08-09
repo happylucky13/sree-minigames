@@ -61,7 +61,13 @@ public class PregenerateChunksService {
             logger.info("Chunk generation complete.");
             World world = Bukkit.getWorld(event.world());
 
-            if (world == null || !worlds.contains(world)) {
+            if (world == null) {
+                logger.warning("Could not find Bukkit world for: " + event.world());
+                return;
+            }
+
+            if (!worlds.contains(world)) {
+                logger.warning("Completed world wasn't in requested set: " + world.getName());
                 return;
             }
 
@@ -69,6 +75,7 @@ public class PregenerateChunksService {
 
             if (completedWorlds.size() == worlds.size()) {
                 future.complete(completedWorlds);
+                viewers.forEach(progressBar::removeViewer);
             }
         });
 

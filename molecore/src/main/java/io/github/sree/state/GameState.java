@@ -52,6 +52,10 @@ public class GameState {
         return Collections.unmodifiableMap(roleMap);
     }
 
+    public void addPlayerToRoleMap(UUID id, Role role) {
+        roleMap.put(id, role);
+    }
+
     public void resetGame() {
         roleMap.clear();
         alivePlayers.clear();

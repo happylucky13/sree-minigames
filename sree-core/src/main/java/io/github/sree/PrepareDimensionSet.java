@@ -30,9 +30,25 @@ public class PrepareDimensionSet {
     public CompletableFuture<Set<World>> prepareDimensionSet(NamespacedKey worldKey, Logger logger) {
 
         DimensionKeys keys = DimensionKeys.from(worldKey);
-        World overworld = Bukkit.getWorld(keys.overworld());
-        World nether = Bukkit.getWorld(keys.nether());
-        World theEnd = Bukkit.getWorld(keys.theEnd());
+        World overworld = Bukkit.getWorld(new NamespacedKey("minecraft", keys.overworld().getKey()));
+        World nether = Bukkit.getWorld(new NamespacedKey("minecraft", keys.nether().getKey()));
+        World theEnd = Bukkit.getWorld(new NamespacedKey("minecraft", keys.theEnd().getKey()));
+
+        logger.info("Overworld: " + overworld);
+        logger.info("Nether: " + nether);
+        logger.info("The End: " + theEnd);
+
+        logger.info("Expected keys:");
+        logger.info("" + keys.overworld());
+        logger.info("" + keys.nether());
+        logger.info("" + keys.theEnd());
+
+        Bukkit.getWorlds().forEach(world ->
+                logger.info(
+                        "Loaded world: name=" + world.getName()
+                                + ", key=" + world.getKey()
+                )
+        );
 
         if (overworld != null && nether != null && theEnd != null) {
             logger.info("Worlds already exist.");

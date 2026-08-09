@@ -55,7 +55,7 @@ public class GameManager {
 
     private void teleportPlayers(NamespacedKey worldKey) {
         for (Player player : Bukkit.getOnlinePlayers()) {
-            player.teleportAsync(Bukkit.getWorld(worldKey).getSpawnLocation());
+            player.teleportAsync(Bukkit.getWorld(new NamespacedKey("minecraft", worldKey.getKey())).getSpawnLocation());
         }
     }
 
@@ -67,11 +67,11 @@ public class GameManager {
             UUID id = shuffledPlayers.get(i).getUniqueId();
 
             if(i < gameState.getSettings().moleCount()) {
-                gameState.getRoleMap().put(id, Role.MOLE);
+                gameState.addPlayerToRoleMap(id, Role.MOLE);
                 continue;
             }
 
-            gameState.getRoleMap().put(shuffledPlayers.get(i).getUniqueId(), Role.SURVIVOR);
+            gameState.addPlayerToRoleMap(id, Role.SURVIVOR);
         }
 
         gameState.setAlivePlayers();
@@ -80,9 +80,12 @@ public class GameManager {
     public void startGame(NamespacedKey worldKey) {
         prepareDimensionSet(worldKey)
                 .thenAccept(ignored -> {
+                    plugin.getLogger().info("PREPARE WORLDS COMPLETE!");
                     List<Player> shuffledPlayers = new ArrayList<>(Bukkit.getOnlinePlayers());
                     Map<Player, Role> players = new HashMap<>();
                     Collections.shuffle(shuffledPlayers);
+
+                    plugin.getLogger().info("Assigning roles...");
 
                     gameState.resetGame();
                     assignRoles();
@@ -95,8 +98,12 @@ public class GameManager {
                         }
                     }
 
+                    plugin.getLogger().info("Starting game animation...");
+
                     gameState.setGameStarted(true);
                     animationManager.startGameSequence(players, () -> teleportPlayers(worldKey));
+
+                    plugin.getLogger().info("Game STARTED!");
                 })
                 .exceptionally(throwable -> {
                     plugin.getLogger().severe(

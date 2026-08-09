@@ -21,7 +21,12 @@ public class MolecorePlugin extends JavaPlugin {
 
     @Override
     public void onEnable() {
-        final SreeCorePlugin sreeCore = new SreeCorePlugin();
+        final SreeCorePlugin sreeCore = (SreeCorePlugin) getServer().getPluginManager().getPlugin("sree-core");
+
+        if (sreeCore == null) {
+            throw new IllegalStateException("sree-core is not loaded!");
+        }
+
         PrepareDimensionSet prepareDimensionSet = sreeCore.getPrepareDimensionSet();
 
         getLogger().info("Plugin started.");

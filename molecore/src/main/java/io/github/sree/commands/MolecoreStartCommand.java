@@ -1,6 +1,7 @@
 package io.github.sree.commands;
 
 import com.mojang.brigadier.Command;
+import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
 import io.github.sree.state.GameManager;
@@ -16,11 +17,14 @@ public class MolecoreStartCommand {
 
     public LiteralArgumentBuilder<CommandSourceStack> createCommand() {
         return Commands.literal("start")
-                .executes(this::startGame);
+                .then(Commands.argument("world", StringArgumentType.word())
+                        .executes(this::startGame)
+                );
     }
 
     private int startGame(CommandContext<CommandSourceStack> ctx) {
-        gameManager.startGame();
+        String worldName = ctx.getArgument("world", String.class);
+        gameManager.startGame(worldName);
         return Command.SINGLE_SUCCESS;
     }
 }

@@ -51,7 +51,7 @@ public class GameManager {
         }
     }
 
-    public void startGame() {
+    public void startGame(String worldName) {
         List<Player> shuffledPlayers = new ArrayList<>(Bukkit.getOnlinePlayers());
         Map<Player, Role> players = new HashMap<>();
         Collections.shuffle(shuffledPlayers);

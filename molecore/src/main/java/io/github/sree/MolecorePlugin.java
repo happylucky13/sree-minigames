@@ -3,7 +3,9 @@ package io.github.sree;
 import com.mojang.brigadier.tree.LiteralCommandNode;
 import io.github.sree.commands.MolecoreSettingsCommand;
 import io.github.sree.commands.MolecoreStartCommand;
+import io.github.sree.create_world.WorldService;
 import io.github.sree.listeners.*;
+import io.github.sree.pregenerate_world.PregenerateChunksService;
 import io.github.sree.state.GameAnimationManager;
 import io.github.sree.state.GameManager;
 import io.papermc.paper.command.brigadier.CommandSourceStack;
@@ -15,11 +17,17 @@ import java.util.List;
 
 public class MolecorePlugin extends JavaPlugin {
 
+
     @Override
     public void onEnable() {
+        final SreeCorePlugin sreeCore = new SreeCorePlugin();
+        WorldService worldService = sreeCore.getWorldService();
+        PregenerateChunksService pregenerateChunksService = sreeCore.getPregenerateChunksService();
+
         getLogger().info("Plugin started.");
         GameAnimationManager animationManager = new GameAnimationManager(this);
-        GameManager gameManager = new GameManager(this, animationManager);
+        GameManager gameManager = new GameManager(this, animationManager, worldService, pregenerateChunksService);
+
 
         List<GameListener> listeners = List.of(
                 new EndermanDeathListener(gameManager),
@@ -31,7 +39,6 @@ public class MolecorePlugin extends JavaPlugin {
 
         listeners.forEach(gameListener ->
                 getServer().getPluginManager().registerEvents(gameListener, this));
-
 
         MolecoreSettingsCommand settingsCommand = new MolecoreSettingsCommand(gameManager);
         MolecoreStartCommand startCommand = new MolecoreStartCommand(gameManager);

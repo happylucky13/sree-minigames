@@ -25,5 +25,8 @@ public class SreeCorePlugin extends JavaPlugin {
     public WorldService getWorldService() {
         return worldService;
     }
+    public PregenerateChunksService getPregenerateChunksService() {
+        return pregenerateChunksService;
+    }
 
 }

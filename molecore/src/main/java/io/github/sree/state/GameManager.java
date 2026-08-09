@@ -1,9 +1,11 @@
 package io.github.sree.state;
 
 import io.github.sree.MolecorePlugin;
+import io.github.sree.create_world.WorldService;
 import io.github.sree.enums.Role;
 import io.github.sree.enums.Objective;
 import io.github.sree.enums.Winner;
+import io.github.sree.pregenerate_world.PregenerateChunksService;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import org.bukkit.Bukkit;
@@ -18,15 +20,19 @@ import java.util.stream.Collectors;
 public class GameManager {
     private final MolecorePlugin plugin;
     private final GameAnimationManager animationManager;
+    private final WorldService worldService;
+    private final PregenerateChunksService pregenerateChunksService;
 
     private GameSettings settings = new GameSettings(2, Objective.WITHER);
     private final Map<UUID, Role> roleMap = new HashMap<>();
     private final Set<UUID> alivePlayers = new HashSet<>();
     private boolean gameStarted;
 
-    public GameManager(MolecorePlugin plugin, GameAnimationManager animationManager) {
+    public GameManager(MolecorePlugin plugin, GameAnimationManager animationManager, WorldService worldService, PregenerateChunksService pregenerateChunksService) {
         this.plugin = plugin;
         this.animationManager = animationManager;
+        this.worldService = worldService;
+        this.pregenerateChunksService = pregenerateChunksService;
     }
 
     public GameSettings getSettings() {

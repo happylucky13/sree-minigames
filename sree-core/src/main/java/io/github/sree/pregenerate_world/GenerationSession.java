@@ -1,6 +1,5 @@
-package io.github.sree.pregenerate_world.enums;
+package io.github.sree.pregenerate_world;
 
-import io.github.sree.pregenerate_world.ChunkGenerationSettings;
 import net.kyori.adventure.bossbar.BossBar;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;

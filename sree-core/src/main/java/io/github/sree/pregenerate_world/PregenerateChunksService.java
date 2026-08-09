@@ -1,6 +1,5 @@
 package io.github.sree.pregenerate_world;
 
-import io.github.sree.pregenerate_world.enums.GenerationSession;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.popcraft.chunky.api.ChunkyAPI;

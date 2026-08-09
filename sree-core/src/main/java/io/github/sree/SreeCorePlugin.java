@@ -12,12 +12,14 @@ public class SreeCorePlugin extends JavaPlugin {
 
     private WorldService worldService;
     private PregenerateChunksService pregenerateChunksService;
+    private PrepareDimensionSet prepareDimensionSet;
 
     @Override
     public void onEnable() {
         getLogger().info("sree-core initiated");
         worldService = new WorldService(MultiverseCoreApi.get(), MultiverseInventoriesApi.get(), getLogger());
         pregenerateChunksService = new PregenerateChunksService(Bukkit.getServer().getServicesManager().load(ChunkyAPI.class), getLogger());
+        prepareDimensionSet = new PrepareDimensionSet(worldService, pregenerateChunksService);
 
 
     }
@@ -28,5 +30,7 @@ public class SreeCorePlugin extends JavaPlugin {
     public PregenerateChunksService getPregenerateChunksService() {
         return pregenerateChunksService;
     }
-
+    public PrepareDimensionSet getPrepareDimensionSet() {
+        return prepareDimensionSet;
+    }
 }

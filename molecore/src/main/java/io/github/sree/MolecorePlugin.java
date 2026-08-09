@@ -21,12 +21,11 @@ public class MolecorePlugin extends JavaPlugin {
     @Override
     public void onEnable() {
         final SreeCorePlugin sreeCore = new SreeCorePlugin();
-        WorldService worldService = sreeCore.getWorldService();
-        PregenerateChunksService pregenerateChunksService = sreeCore.getPregenerateChunksService();
+        PrepareDimensionSet prepareDimensionSet = sreeCore.getPrepareDimensionSet();
 
         getLogger().info("Plugin started.");
         GameAnimationManager animationManager = new GameAnimationManager(this);
-        GameManager gameManager = new GameManager(this, animationManager, worldService, pregenerateChunksService);
+        GameManager gameManager = new GameManager(this, animationManager, prepareDimensionSet);
 
 
         List<GameListener> listeners = List.of(

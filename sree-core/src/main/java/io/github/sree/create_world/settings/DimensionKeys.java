@@ -1,4 +1,4 @@
-package io.github.sree.state;
+package io.github.sree.create_world.settings;
 
 import org.bukkit.NamespacedKey;
 

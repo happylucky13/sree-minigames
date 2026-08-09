@@ -16,10 +16,6 @@ public class GameState {
 
     private boolean gameStarted;
 
-    public GameState() {
-
-    }
-
     public void setSettings(int moleCount, Objective objective) {
         settings = new GameSettings(moleCount, objective);
     }
@@ -44,8 +40,12 @@ public class GameState {
         alivePlayers.remove(uuid);
     }
 
-    public boolean isAlive(Player player) {
-        return alivePlayers.contains(player.getUniqueId());
+    public boolean hasAlivePlayersWithRole(Role role) {
+        return roleMap.entrySet().stream()
+                .anyMatch(entry ->
+                        entry.getValue() == role &&
+                        alivePlayers.contains(entry.getKey())
+                );
     }
 
     public Map<UUID, Role> getRoleMap() {

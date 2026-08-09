@@ -2,10 +2,8 @@ package io.github.sree.state;
 
 import io.github.sree.MolecorePlugin;
 import io.github.sree.PrepareDimensionSet;
-import io.github.sree.create_world.WorldService;
 import io.github.sree.enums.Role;
 import io.github.sree.enums.Winner;
-import io.github.sree.pregenerate_world.PregenerateChunksService;
 
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
@@ -14,6 +12,8 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.entity.PlayerDeathEvent;
 
 import java.util.*;
+import java.util.concurrent.CompletableFuture;
+import java.util.logging.Logger;
 
 public class GameManager {
     private final MolecorePlugin plugin;
@@ -37,6 +37,10 @@ public class GameManager {
 
     public NamespacedKey getWorldKey(String worldName) {
         return new NamespacedKey(plugin, worldName);
+    }
+
+    public CompletableFuture<Set<World>> prepareDimensionSet(NamespacedKey worldKey) {
+        return prepareDimensionSet.prepareDimensionSet(worldKey, plugin.getLogger());
     }
 
     public void checkObjective(Player player) {
@@ -63,7 +67,7 @@ public class GameManager {
             UUID id = shuffledPlayers.get(i).getUniqueId();
 
             if(i < gameState.getSettings().moleCount()) {
-                gameState.getRoleMap().put(shuffledPlayers.get(i).getUniqueId(), Role.MOLE);
+                gameState.getRoleMap().put(id, Role.MOLE);
                 continue;
             }
 
@@ -74,8 +78,8 @@ public class GameManager {
     }
 
     public void startGame(NamespacedKey worldKey) {
-        prepareDimensionSet.prepareDimensionSet(worldKey, plugin.getLogger())
-                .thenAccept(worlds -> {
+        prepareDimensionSet(worldKey)
+                .thenAccept(ignored -> {
                     List<Player> shuffledPlayers = new ArrayList<>(Bukkit.getOnlinePlayers());
                     Map<Player, Role> players = new HashMap<>();
                     Collections.shuffle(shuffledPlayers);

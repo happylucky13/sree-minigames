@@ -1,7 +1,6 @@
 package io.github.sree.listeners;
 
 import io.github.sree.enums.Objective;
-import io.github.sree.state.GameManager;
 import io.github.sree.state.GameState;
 import org.bukkit.Material;
 import org.bukkit.entity.Enderman;

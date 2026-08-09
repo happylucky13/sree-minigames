@@ -19,7 +19,7 @@ public class GameManager {
     private final MolecorePlugin plugin;
     private final GameAnimationManager animationManager;
 
-    private GameSettings settings = new GameSettings(2, Objective.WITHER, "world");
+    private GameSettings settings = new GameSettings(2, Objective.WITHER);
     private final Map<UUID, Role> roleMap = new HashMap<>();
     private final Set<UUID> alivePlayers = new HashSet<>();
     private boolean gameStarted;
@@ -37,17 +37,17 @@ public class GameManager {
         return gameStarted;
     }
 
-    public void setSettings(int moleCount, Objective objective, String worldName) {
-        settings = new GameSettings(moleCount, objective, worldName);
+    public void setSettings(int moleCount, Objective objective) {
+        settings = new GameSettings(moleCount, objective);
     }
 
     public Role getRole(Player player) {
         return roleMap.get(player.getUniqueId());
     }
 
-    public void teleportPlayers() {
+    public void teleportPlayers(String worldName) {
         for (Player player : Bukkit.getOnlinePlayers()) {
-            player.teleportAsync(Bukkit.getWorld(settings.worldName()).getSpawnLocation());
+            player.teleportAsync(Bukkit.getWorld(worldName).getSpawnLocation());
         }
     }
 
@@ -58,6 +58,11 @@ public class GameManager {
 
         assignRoles(shuffledPlayers);
 
+        if (Bukkit.getWorld(worldName) == null) {
+            prepareWorld(worldName);
+            return;
+        }
+
         for (UUID uuid : roleMap.keySet()) {
             Player player = Bukkit.getPlayer(uuid);
 
@@ -66,7 +71,7 @@ public class GameManager {
             }
         }
 
-        animationManager.startGameSequence(players, this::teleportPlayers);
+        animationManager.startGameSequence(players, () -> teleportPlayers(worldName));
         gameStarted = true;
     }
 
@@ -136,5 +141,12 @@ public class GameManager {
         }
 
         gameStarted = false;
+    }
+
+    public void prepareWorld(String worldName) {
+        if (Bukkit.getWorld(worldName) != null) {
+            plugin.getLogger().info("World already exists.");
+            return;
+        }
     }
 }

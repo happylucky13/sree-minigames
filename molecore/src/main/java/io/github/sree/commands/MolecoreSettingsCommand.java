@@ -23,13 +23,11 @@ public class MolecoreSettingsCommand {
     public LiteralArgumentBuilder<CommandSourceStack> createCommand() {
         return Commands.literal("settings")
                 .then(Commands.argument("mole_count", IntegerArgumentType.integer(0, 3))
-                        .then(Commands.argument("world", StringArgumentType.string())
-                                .then(Commands.literal("beacon")
-                                        .executes(this::setBeaconSettings)
-                                )
-                                .then(Commands.literal("dragon_egg")
-                                        .executes(this::setEggSettings)
-                                )
+                        .then(Commands.literal("beacon")
+                                .executes(this::setBeaconSettings)
+                        )
+                        .then(Commands.literal("dragon_egg")
+                                .executes(this::setEggSettings)
                         )
                 );
     }
@@ -39,7 +37,7 @@ public class MolecoreSettingsCommand {
         int moleCount = ctx.getArgument("mole_count", Integer.class);
         String worldName = ctx.getArgument("world", String.class);
 
-        gameManager.setSettings(moleCount, Objective.WITHER, worldName);
+        gameManager.setSettings(moleCount, Objective.WITHER);
 
         sender.sendMessage(Component.text("Settings updated!"));
 
@@ -51,7 +49,7 @@ public class MolecoreSettingsCommand {
         int moleCount = ctx.getArgument("mole_count", Integer.class);
         String worldName = ctx.getArgument("world", String.class);
 
-        gameManager.setSettings(moleCount, Objective.DRAGON, worldName);
+        gameManager.setSettings(moleCount, Objective.DRAGON);
 
         sender.sendMessage(Component.text("Settings updated!"));
 

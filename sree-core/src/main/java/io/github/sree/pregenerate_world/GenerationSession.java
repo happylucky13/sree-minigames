@@ -30,7 +30,7 @@ public class GenerationSession {
 
         worlds.forEach(world -> progress.put(world, 0.0f));
 
-         progressBar = BossBar.bossBar(
+        progressBar = BossBar.bossBar(
                 Component.text("Generating worlds... 0.0% complete"),
                 0.0f,
                 BossBar.Color.GREEN,
@@ -65,7 +65,8 @@ public class GenerationSession {
             return;
         }
 
-        progress.put(world, event.progress());
+        float worldProgress = event.progress() / 100.0f;
+        progress.put(world, worldProgress);
 
         float overallProgress = (float) progress.values().stream()
                 .mapToDouble(Float::doubleValue)

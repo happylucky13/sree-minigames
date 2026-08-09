@@ -17,13 +17,11 @@ import java.util.logging.Logger;
 public class WorldService {
 
     private final MultiverseCoreApi multiverse;
-    private final MultiverseInventoriesApi inventories;
     private final WorldGroupManager groupManager;
     private final Logger logger;
 
     public WorldService(MultiverseCoreApi multiverse, MultiverseInventoriesApi inventories, Logger logger) {
         this.multiverse = multiverse;
-        this.inventories = inventories;
         this.logger = logger;
         this.groupManager = inventories.getWorldGroupManager();
 

@@ -2,10 +2,8 @@ package io.github.sree.commands;
 
 import com.mojang.brigadier.Command;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
-import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
-import io.github.sree.state.GameManager;
 import io.github.sree.enums.Objective;
 import io.github.sree.state.GameState;
 import io.papermc.paper.command.brigadier.CommandSourceStack;
@@ -36,7 +34,6 @@ public class MolecoreSettingsCommand {
     private int setBeaconSettings(CommandContext<CommandSourceStack> ctx) {
         CommandSender sender = ctx.getSource().getSender();
         int moleCount = ctx.getArgument("mole_count", Integer.class);
-        String worldName = ctx.getArgument("world", String.class);
 
         gameState.setSettings(moleCount, Objective.WITHER);
 
@@ -48,7 +45,6 @@ public class MolecoreSettingsCommand {
     private int setEggSettings(CommandContext<CommandSourceStack> ctx) {
         CommandSender sender = ctx.getSource().getSender();
         int moleCount = ctx.getArgument("mole_count", Integer.class);
-        String worldName = ctx.getArgument("world", String.class);
 
         gameState.setSettings(moleCount, Objective.DRAGON);
 

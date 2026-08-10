@@ -135,6 +135,10 @@ public class GameManager {
     }
 
     public void handleObjectiveCompletion(Event event) {
+        if (!gameState.isGameStarted()) {
+            return;
+        }
+
         switch (gameState.getSettings().objective()) {
             case BEACON:
                 if (event instanceof BeaconActivatedEvent beaconActivatedEvent) {

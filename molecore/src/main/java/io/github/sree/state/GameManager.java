@@ -152,12 +152,6 @@ public class GameManager {
         }
     }
 
-    public void handleSpectatorDimensionChange(PlayerChangedWorldEvent event) {
-        if (gameState.getDeadPlayers().contains(event.getPlayer())) {
-            event.getPlayer().setGameMode(GameMode.SPECTATOR);
-        }
-    }
-
     private Optional<Winner> checkWinCondition() {
         return gameState.hasAlivePlayersWithRole(Role.SURVIVOR) ? Optional.empty() : Optional.of(Winner.MOLES);
     }

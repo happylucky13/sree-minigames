@@ -36,10 +36,10 @@ public class SreeCorePlugin extends JavaPlugin {
     public PregenerateChunksService getPregenerateChunksService() {
         return pregenerateChunksService;
     }
-    public PrepareDimensionSet getPrepareDimensionSet() {
+    public PrepareDimensionSet prepareDimensionSet() {
         return prepareDimensionSet;
     }
-    public SpectatorService getSpectatorService() {
+    public SpectatorService spectatorService() {
         return spectatorService;
     }
 }

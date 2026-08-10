@@ -1,18 +1,20 @@
 package io.github.sree.animations;
 
 import io.github.sree.MolecorePlugin;
+import io.github.sree.enums.Objective;
 import io.github.sree.enums.Role;
 import io.github.sree.enums.Winner;
 import io.github.sree.state.GameState;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.title.Title;
-import org.bukkit.Bukkit;
-import org.bukkit.Location;
-import org.bukkit.Sound;
+import org.bukkit.*;
+import org.bukkit.entity.Firework;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.meta.FireworkMeta;
 
 import java.time.Duration;
+import java.util.Arrays;
 import java.util.Map;
 import java.util.Set;
 
@@ -147,6 +149,20 @@ public class GameAnimationManager {
 
     public void endGameSequence(Winner winner, Set<Player> winners, Location endLocation) {
         NamedTextColor color = winner == Winner.SURVIVORS ? NamedTextColor.GREEN : NamedTextColor.RED;
+        Color fireworkColor = winner == Winner.SURVIVORS ? Color.GREEN : Color.RED;
+
+        World world = endLocation.getWorld();
+        Firework firework = world.spawn(endLocation, Firework.class);
+        int[] detonateDelays = {0, 10, 20};
+
+        firework.getFireworkMeta().addEffect(
+                FireworkEffect.builder()
+                        .withColor(fireworkColor)
+                        .with(FireworkEffect.Type.BALL_LARGE)
+                        .build()
+        );
+
+        firework.getFireworkMeta().setPower(1);
 
         for (Player player : Bukkit.getOnlinePlayers()) {
             player.showTitle(
@@ -172,6 +188,31 @@ public class GameAnimationManager {
 
             player.sendMessage(Component.text("-- WINNERS --", color));
             winners.forEach(name -> player.sendMessage(Component.text(name.getName())));
+        }
+
+        switch (new AnimationRegistry(winner, gameState.getSettings().objective())) {
+            case AnimationRegistry(Winner w, Objective o) when w == Winner.SURVIVORS && o == Objective.BEACON:
+
+                for (int delay : detonateDelays) {
+                    Bukkit.getScheduler().runTaskLater(plugin, firework::detonate, delay);
+                }
+
+                break;
+
+            case AnimationRegistry(Winner w, Objective o) when w == Winner.MOLES && o == Objective.BEACON:
+
+                for (int delay : detonateDelays) {
+                    Bukkit.getScheduler().runTaskLater(plugin, firework::detonate, delay);
+                }
+
+                winners.forEach(player -> player.setGlowing(true));
+                Bukkit.getScheduler().runTaskLater(plugin, () ->
+                        winners.forEach(player -> player.setGlowing(false)), 200L);
+
+                break;
+
+            default:
+                break;
         }
     }
 }

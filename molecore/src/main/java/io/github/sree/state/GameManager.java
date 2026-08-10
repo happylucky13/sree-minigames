@@ -5,10 +5,14 @@ import io.github.sree.PrepareDimensionSet;
 import io.github.sree.enums.Role;
 import io.github.sree.enums.Winner;
 
+import io.papermc.paper.event.block.BeaconActivatedEvent;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import org.bukkit.*;
+import org.bukkit.entity.EnderDragon;
 import org.bukkit.entity.Player;
+import org.bukkit.event.Event;
+import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
 
 import java.util.*;
@@ -41,16 +45,6 @@ public class GameManager {
 
     public CompletableFuture<World> prepareDimensionSet(NamespacedKey worldKey) {
         return prepareDimensionSet.prepareDimensionSet(worldKey, plugin.getLogger());
-    }
-
-    public void checkObjective(Player player) {
-        if (!gameState.isGameStarted()) {
-            return;
-        }
-
-        Optional<Winner> winner = winConditions.checkObjectiveCompletion(player);
-
-        winner.ifPresent(this::endGame);
     }
 
     private void teleportPlayers(World world) {
@@ -113,7 +107,7 @@ public class GameManager {
                 });
     }
 
-    private void endGame(Winner winner) {
+    public void endGame(Winner winner) {
         switch (winner) {
             case Winner.MOLES:
                 animationManager.endGameSequence(winner, gameState.getPlayersWithRole(Role.MOLE));
@@ -138,5 +132,18 @@ public class GameManager {
         winConditions.checkWinCondition().ifPresent(this::endGame);
 
         event.deathMessage(null);
+    }
+
+    public void handleObjectiveCompletion(Event event) {
+        switch (gameState.getSettings().objective()) {
+            case BEACON:
+                if (event instanceof BeaconActivatedEvent) {
+                    endGame(Winner.SURVIVORS);
+                }
+            case DRAGON:
+                if (event instanceof EntityDeathEvent entityDeathEvent && entityDeathEvent.getEntity() instanceof EnderDragon) {
+                    endGame(Winner.SURVIVORS);
+                }
+        }
     }
 }

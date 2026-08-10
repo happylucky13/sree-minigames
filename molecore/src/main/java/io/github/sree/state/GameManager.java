@@ -17,14 +17,12 @@ import org.bukkit.event.entity.PlayerDeathEvent;
 
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
-import java.util.logging.Logger;
 
 public class GameManager {
     private final MolecorePlugin plugin;
     private final GameAnimationManager animationManager;
 
     private final GameState gameState = new GameState();
-    private final WinConditions winConditions = new WinConditions(gameState);
 
     private final PrepareDimensionSet prepareDimensionSet;
 
@@ -53,7 +51,7 @@ public class GameManager {
         }
     }
 
-    public void assignRoles() {
+    private void assignRoles() {
         List<Player> shuffledPlayers = new ArrayList<>(Bukkit.getOnlinePlayers());
         Collections.shuffle(shuffledPlayers);
 
@@ -129,7 +127,7 @@ public class GameManager {
 
         player.setGameMode(GameMode.SPECTATOR);
         gameState.markDead(player.getUniqueId());
-        winConditions.checkWinCondition().ifPresent(this::endGame);
+        checkWinCondition().ifPresent(this::endGame);
 
         event.deathMessage(null);
     }
@@ -145,5 +143,9 @@ public class GameManager {
                     endGame(Winner.SURVIVORS);
                 }
         }
+    }
+
+    private Optional<Winner> checkWinCondition() {
+        return gameState.hasAlivePlayersWithRole(Role.SURVIVOR) ? Optional.empty() : Optional.of(Winner.MOLES);
     }
 }

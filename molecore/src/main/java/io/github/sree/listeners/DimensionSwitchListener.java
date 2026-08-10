@@ -21,6 +21,6 @@ public class DimensionSwitchListener extends GameListener {
             return;
         }
 
-
+        gameManager.handleSpectatorDimensionChange(event);
     }
 }

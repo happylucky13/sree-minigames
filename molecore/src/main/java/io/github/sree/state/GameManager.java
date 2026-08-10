@@ -15,6 +15,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
+import org.bukkit.event.player.PlayerChangedWorldEvent;
 
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
@@ -148,6 +149,12 @@ public class GameManager {
                 if (event instanceof EntityDeathEvent entityDeathEvent && entityDeathEvent.getEntity() instanceof EnderDragon) {
                     endGame(Winner.SURVIVORS, entityDeathEvent.getEntity().getLocation());
                 }
+        }
+    }
+
+    public void handleSpectatorDimensionChange(PlayerChangedWorldEvent event) {
+        if (gameState.getDeadPlayers().contains(event.getPlayer())) {
+            event.getPlayer().setGameMode(GameMode.SPECTATOR);
         }
     }
 

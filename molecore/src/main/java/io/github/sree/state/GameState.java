@@ -32,6 +32,13 @@ public class GameState {
         alivePlayers.addAll(roleMap.keySet());
     }
 
+    public Set<Player> getDeadPlayers() {
+        return alivePlayers.stream()
+                .filter(uuid -> !roleMap.containsKey(uuid))
+                .map(Bukkit::getPlayer)
+                .collect(Collectors.toSet());
+    }
+
     public boolean isGameStarted() {
         return gameStarted;
     }

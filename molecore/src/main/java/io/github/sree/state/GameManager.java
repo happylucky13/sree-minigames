@@ -2,31 +2,35 @@ package io.github.sree.state;
 
 import io.github.sree.MolecorePlugin;
 import io.github.sree.PrepareDimensionSet;
+import io.github.sree.animations.GameAnimationManager;
 import io.github.sree.enums.Role;
 import io.github.sree.enums.Winner;
 
+import io.papermc.paper.event.block.BeaconActivatedEvent;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import org.bukkit.*;
+import org.bukkit.entity.EnderDragon;
 import org.bukkit.entity.Player;
+import org.bukkit.event.Event;
+import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
 
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
-import java.util.logging.Logger;
 
 public class GameManager {
     private final MolecorePlugin plugin;
     private final GameAnimationManager animationManager;
 
-    private final GameState gameState = new GameState();
-    private final WinConditions winConditions = new WinConditions(gameState);
+    private final GameState gameState;
 
     private final PrepareDimensionSet prepareDimensionSet;
 
 
-    public GameManager(MolecorePlugin plugin, GameAnimationManager animationManager, PrepareDimensionSet prepareDimensionSet) {
+    public GameManager(MolecorePlugin plugin, GameState gameState, GameAnimationManager animationManager, PrepareDimensionSet prepareDimensionSet) {
         this.plugin = plugin;
+        this.gameState = gameState;
         this.animationManager = animationManager;
         this.prepareDimensionSet = prepareDimensionSet;
     }
@@ -43,23 +47,13 @@ public class GameManager {
         return prepareDimensionSet.prepareDimensionSet(worldKey, plugin.getLogger());
     }
 
-    public void checkObjective(Player player) {
-        if (!gameState.isGameStarted()) {
-            return;
-        }
-
-        Optional<Winner> winner = winConditions.checkObjectiveCompletion(player);
-
-        winner.ifPresent(this::endGame);
-    }
-
     private void teleportPlayers(World world) {
         for (Player player : Bukkit.getOnlinePlayers()) {
             player.teleportAsync(world.getSpawnLocation());
         }
     }
 
-    public void assignRoles() {
+    private void assignRoles() {
         List<Player> shuffledPlayers = new ArrayList<>(Bukkit.getOnlinePlayers());
         Collections.shuffle(shuffledPlayers);
 
@@ -113,13 +107,13 @@ public class GameManager {
                 });
     }
 
-    private void endGame(Winner winner) {
+    public void endGame(Winner winner, Location endLocation) {
         switch (winner) {
             case Winner.MOLES:
-                animationManager.endGameSequence(winner, gameState.getPlayersWithRole(Role.MOLE));
+                animationManager.endGameSequence(winner, gameState.getPlayersWithRole(Role.MOLE), endLocation);
                 break;
             case Winner.SURVIVORS:
-                animationManager.endGameSequence(winner, gameState.getPlayersWithRole(Role.SURVIVOR));
+                animationManager.endGameSequence(winner, gameState.getPlayersWithRole(Role.SURVIVOR), endLocation);
         }
 
         gameState.setGameStarted(false);
@@ -135,8 +129,25 @@ public class GameManager {
 
         player.setGameMode(GameMode.SPECTATOR);
         gameState.markDead(player.getUniqueId());
-        winConditions.checkWinCondition().ifPresent(this::endGame);
+        checkWinCondition().ifPresent(winner -> endGame(winner, event.getEntity().getLocation()));
 
         event.deathMessage(null);
+    }
+
+    public void handleObjectiveCompletion(Event event) {
+        switch (gameState.getSettings().objective()) {
+            case BEACON:
+                if (event instanceof BeaconActivatedEvent beaconActivatedEvent) {
+                    endGame(Winner.SURVIVORS, beaconActivatedEvent.getBlock().getLocation().toCenterLocation());
+                }
+            case DRAGON:
+                if (event instanceof EntityDeathEvent entityDeathEvent && entityDeathEvent.getEntity() instanceof EnderDragon) {
+                    endGame(Winner.SURVIVORS, entityDeathEvent.getEntity().getLocation());
+                }
+        }
+    }
+
+    private Optional<Winner> checkWinCondition() {
+        return gameState.hasAlivePlayersWithRole(Role.SURVIVOR) ? Optional.empty() : Optional.of(Winner.MOLES);
     }
 }

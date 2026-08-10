@@ -35,7 +35,7 @@ public class MolecoreSettingsCommand {
         CommandSender sender = ctx.getSource().getSender();
         int moleCount = ctx.getArgument("mole_count", Integer.class);
 
-        gameState.setSettings(moleCount, Objective.WITHER);
+        gameState.setSettings(moleCount, Objective.BEACON);
 
         sender.sendMessage(Component.text("Settings updated!"));
 

@@ -20,7 +20,7 @@ public class WitherSkeletonDeathListener extends GameListener {
             return;
         }
 
-        if (gameState.getSettings().objective() != Objective.WITHER) {
+        if (gameState.getSettings().objective() != Objective.BEACON) {
             return;
         }
 

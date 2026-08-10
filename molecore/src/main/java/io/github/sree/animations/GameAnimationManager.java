@@ -1,14 +1,17 @@
-package io.github.sree.state;
+package io.github.sree.animations;
 
 import io.github.sree.MolecorePlugin;
+import io.github.sree.enums.Objective;
 import io.github.sree.enums.Role;
 import io.github.sree.enums.Winner;
+import io.github.sree.state.GameState;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.title.Title;
-import org.bukkit.Bukkit;
-import org.bukkit.Sound;
+import org.bukkit.*;
+import org.bukkit.entity.Firework;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.meta.FireworkMeta;
 
 import java.time.Duration;
 import java.util.Map;
@@ -16,9 +19,11 @@ import java.util.Set;
 
 public class GameAnimationManager {
     private final MolecorePlugin plugin;
+    private final GameState gameState;
 
-    public GameAnimationManager(MolecorePlugin plugin) {
+    public GameAnimationManager(MolecorePlugin plugin, GameState gameState) {
         this.plugin = plugin;
+        this.gameState = gameState;
     }
 
     public void startGameSequence(Map<Player, Role> players, Runnable onCountdownFinished) {
@@ -141,8 +146,12 @@ public class GameAnimationManager {
         }
     }
 
-    public void endGameSequence(Winner winner, Set<Player> winners) {
+    public void endGameSequence(Winner winner, Set<Player> winners, Location endLocation) {
         NamedTextColor color = winner == Winner.SURVIVORS ? NamedTextColor.GREEN : NamedTextColor.RED;
+        Color fireworkColor = winner == Winner.SURVIVORS ? Color.GREEN : Color.RED;
+
+        World world = endLocation.getWorld();
+        int[] detonateDelays = {0, 10, 20};
 
         for (Player player : Bukkit.getOnlinePlayers()) {
             player.showTitle(
@@ -150,7 +159,7 @@ public class GameAnimationManager {
                             Component.text("Game Over!", NamedTextColor.GOLD),
                             Component.text("The ", NamedTextColor.WHITE)
                                     .append(Component.text(winner.name(), color))
-                                    .append(Component.text(" have won!", NamedTextColor.WHITE)),
+                                    .append(Component.text(" have won the event!", NamedTextColor.WHITE)),
                             Title.Times.times(
                                     Duration.ofMillis(500),
                                     Duration.ofSeconds(6),
@@ -168,6 +177,55 @@ public class GameAnimationManager {
 
             player.sendMessage(Component.text("-- WINNERS --", color));
             winners.forEach(name -> player.sendMessage(Component.text(name.getName())));
+        }
+
+        switch (new AnimationRegistry(winner, gameState.getSettings().objective())) {
+            case AnimationRegistry(Winner w, Objective o) when w == Winner.SURVIVORS && o == Objective.BEACON:
+
+                for (int delay : detonateDelays) {
+                    Bukkit.getScheduler().runTaskLater(plugin, () -> {
+                        Firework firework = world.spawn(endLocation, Firework.class);
+                        FireworkMeta meta = firework.getFireworkMeta();
+                        meta.addEffect(
+                                FireworkEffect.builder()
+                                        .withColor(fireworkColor)
+                                        .with(FireworkEffect.Type.BALL_LARGE)
+                                        .build()
+                        );
+                        meta.setPower(1);
+
+                        firework.setFireworkMeta(meta);
+                    }, delay);
+                }
+
+                break;
+
+            case AnimationRegistry(Winner w, Objective o) when w == Winner.MOLES && o == Objective.BEACON:
+
+                for (int delay : detonateDelays) {
+                    Bukkit.getScheduler().runTaskLater(plugin, () -> {
+                        Firework firework = world.spawn(endLocation, Firework.class);
+                        FireworkMeta meta = firework.getFireworkMeta();
+                        meta.addEffect(
+                                FireworkEffect.builder()
+                                        .withColor(fireworkColor)
+                                        .with(FireworkEffect.Type.BALL_LARGE)
+                                        .build()
+                        );
+                        meta.setPower(1);
+
+                        firework.setFireworkMeta(meta);
+                    }, delay);
+                }
+
+                winners.forEach(player -> player.setGlowing(true));
+                Bukkit.getScheduler().runTaskLater(plugin, () ->
+                        winners.forEach(player -> player.setGlowing(false)), 200L);
+
+                break;
+
+            default:
+                break;
         }
     }
 }

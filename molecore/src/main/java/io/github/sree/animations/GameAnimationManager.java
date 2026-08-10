@@ -1,8 +1,9 @@
-package io.github.sree.state;
+package io.github.sree.animations;
 
 import io.github.sree.MolecorePlugin;
 import io.github.sree.enums.Role;
 import io.github.sree.enums.Winner;
+import io.github.sree.state.GameState;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.title.Title;

@@ -2,6 +2,7 @@ package io.github.sree.state;
 
 import io.github.sree.MolecorePlugin;
 import io.github.sree.PrepareDimensionSet;
+import io.github.sree.animations.GameAnimationManager;
 import io.github.sree.enums.Role;
 import io.github.sree.enums.Winner;
 

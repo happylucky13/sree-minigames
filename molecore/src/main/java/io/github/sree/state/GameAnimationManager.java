@@ -7,6 +7,7 @@ import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.title.Title;
 import org.bukkit.Bukkit;
+import org.bukkit.Location;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 
@@ -141,7 +142,7 @@ public class GameAnimationManager {
         }
     }
 
-    public void endGameSequence(Winner winner, Set<Player> winners) {
+    public void endGameSequence(Winner winner, Set<Player> winners, Location endLocation) {
         NamedTextColor color = winner == Winner.SURVIVORS ? NamedTextColor.GREEN : NamedTextColor.RED;
 
         for (Player player : Bukkit.getOnlinePlayers()) {

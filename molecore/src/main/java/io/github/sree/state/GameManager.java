@@ -105,13 +105,13 @@ public class GameManager {
                 });
     }
 
-    public void endGame(Winner winner) {
+    public void endGame(Winner winner, Location endLocation) {
         switch (winner) {
             case Winner.MOLES:
-                animationManager.endGameSequence(winner, gameState.getPlayersWithRole(Role.MOLE));
+                animationManager.endGameSequence(winner, gameState.getPlayersWithRole(Role.MOLE), endLocation);
                 break;
             case Winner.SURVIVORS:
-                animationManager.endGameSequence(winner, gameState.getPlayersWithRole(Role.SURVIVOR));
+                animationManager.endGameSequence(winner, gameState.getPlayersWithRole(Role.SURVIVOR), endLocation);
         }
 
         gameState.setGameStarted(false);
@@ -127,7 +127,7 @@ public class GameManager {
 
         player.setGameMode(GameMode.SPECTATOR);
         gameState.markDead(player.getUniqueId());
-        checkWinCondition().ifPresent(this::endGame);
+        checkWinCondition().ifPresent(winner -> endGame(winner, event.getEntity().getLocation()));
 
         event.deathMessage(null);
     }
@@ -135,12 +135,12 @@ public class GameManager {
     public void handleObjectiveCompletion(Event event) {
         switch (gameState.getSettings().objective()) {
             case BEACON:
-                if (event instanceof BeaconActivatedEvent) {
-                    endGame(Winner.SURVIVORS);
+                if (event instanceof BeaconActivatedEvent beaconActivatedEvent) {
+                    endGame(Winner.SURVIVORS, beaconActivatedEvent.getBlock().getLocation().toCenterLocation());
                 }
             case DRAGON:
                 if (event instanceof EntityDeathEvent entityDeathEvent && entityDeathEvent.getEntity() instanceof EnderDragon) {
-                    endGame(Winner.SURVIVORS);
+                    endGame(Winner.SURVIVORS, entityDeathEvent.getEntity().getLocation());
                 }
         }
     }

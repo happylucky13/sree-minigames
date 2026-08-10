@@ -2,12 +2,10 @@ package io.github.sree.listeners;
 
 import io.github.sree.state.GameManager;
 import io.github.sree.state.GameState;
-import org.bukkit.entity.Player;
+import io.papermc.paper.event.block.BeaconActivatedEvent;
+
 import org.bukkit.event.EventHandler;
-import org.bukkit.event.entity.EntityPickupItemEvent;
-import org.bukkit.event.inventory.CraftItemEvent;
-import org.bukkit.event.inventory.InventoryClickEvent;
-import org.bukkit.event.inventory.InventoryCloseEvent;
+import org.bukkit.event.entity.EntityDeathEvent;
 
 public class ObjectiveListener extends GameListener {
 
@@ -19,30 +17,12 @@ public class ObjectiveListener extends GameListener {
     }
 
     @EventHandler
-    public void onItemPickup(EntityPickupItemEvent event) {
-        if (event.getEntity() instanceof Player player) {
-            gameManager.checkObjective(player);
-        }
+    public void onBeaconActivated(BeaconActivatedEvent event) {
+        gameManager.handleObjectiveCompletion(event);
     }
 
     @EventHandler
-    public void onInventoryClick(InventoryClickEvent event) {
-        if (event.getWhoClicked() instanceof Player player) {
-            gameManager.checkObjective(player);
-        }
-    }
-
-    @EventHandler
-    public void onItemCraft(CraftItemEvent event) {
-        if (event.getWhoClicked() instanceof Player player) {
-            gameManager.checkObjective(player);
-        }
-    }
-
-    @EventHandler
-    public void onInventoryClose(InventoryCloseEvent event) {
-        if (event.getPlayer() instanceof Player player) {
-            gameManager.checkObjective(player);
-        }
+    public void onDragonDeath(EntityDeathEvent event) {
+        gameManager.handleObjectiveCompletion(event);
     }
 }

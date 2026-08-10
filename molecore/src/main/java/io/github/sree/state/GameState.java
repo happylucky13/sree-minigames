@@ -12,7 +12,7 @@ public class GameState {
     private final Set<UUID> alivePlayers = new HashSet<>();
     private final Map<UUID, Role> roleMap = new HashMap<>();
 
-    private GameSettings settings = new GameSettings(2, Objective.WITHER);
+    private GameSettings settings = new GameSettings(2, Objective.BEACON);
 
     private boolean gameStarted;
 

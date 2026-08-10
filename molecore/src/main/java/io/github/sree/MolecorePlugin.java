@@ -35,11 +35,12 @@ public class MolecorePlugin extends JavaPlugin {
 
 
         List<GameListener> listeners = List.of(
-                new EndermanDeathListener(gameManager.getGameState()),
-                new ObjectiveListener(gameManager.getGameState(), gameManager),
-                new PiglinBarterListener(gameManager.getGameState()),
-                new PlayerDeathListener(gameManager.getGameState(), gameManager),
-                new WitherSkeletonDeathListener(gameManager.getGameState())
+                new EndermanDeathListener(gameState),
+                new ObjectiveListener(gameState, gameManager),
+                new PiglinBarterListener(gameState),
+                new PlayerDeathListener(gameState, gameManager),
+                new WitherSkeletonDeathListener(gameState),
+                new DimensionSwitchListener(gameState, gameManager)
         );
 
         listeners.forEach(gameListener ->

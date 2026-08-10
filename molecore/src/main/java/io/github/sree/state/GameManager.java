@@ -22,13 +22,14 @@ public class GameManager {
     private final MolecorePlugin plugin;
     private final GameAnimationManager animationManager;
 
-    private final GameState gameState = new GameState();
+    private final GameState gameState;
 
     private final PrepareDimensionSet prepareDimensionSet;
 
 
-    public GameManager(MolecorePlugin plugin, GameAnimationManager animationManager, PrepareDimensionSet prepareDimensionSet) {
+    public GameManager(MolecorePlugin plugin, GameState gameState, GameAnimationManager animationManager, PrepareDimensionSet prepareDimensionSet) {
         this.plugin = plugin;
+        this.gameState = gameState;
         this.animationManager = animationManager;
         this.prepareDimensionSet = prepareDimensionSet;
     }

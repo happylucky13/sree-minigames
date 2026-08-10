@@ -17,9 +17,11 @@ import java.util.Set;
 
 public class GameAnimationManager {
     private final MolecorePlugin plugin;
+    private final GameState gameState;
 
-    public GameAnimationManager(MolecorePlugin plugin) {
+    public GameAnimationManager(MolecorePlugin plugin, GameState gameState) {
         this.plugin = plugin;
+        this.gameState = gameState;
     }
 
     public void startGameSequence(Map<Player, Role> players, Runnable onCountdownFinished) {
@@ -151,7 +153,7 @@ public class GameAnimationManager {
                             Component.text("Game Over!", NamedTextColor.GOLD),
                             Component.text("The ", NamedTextColor.WHITE)
                                     .append(Component.text(winner.name(), color))
-                                    .append(Component.text(" have won!", NamedTextColor.WHITE)),
+                                    .append(Component.text(" have won the event!", NamedTextColor.WHITE)),
                             Title.Times.times(
                                     Duration.ofMillis(500),
                                     Duration.ofSeconds(6),

@@ -49,9 +49,9 @@ public class GameManager {
     }
 
     private void teleportPlayers(World world) {
-        for (Player player : Bukkit.getOnlinePlayers()) {
-            player.teleportAsync(world.getSpawnLocation());
-        }
+        Bukkit.getScheduler().runTask(plugin, () -> {
+            Bukkit.getOnlinePlayers().forEach(player -> player.teleportAsync(world.getSpawnLocation()));
+        });
     }
 
     private void assignRoles() {
@@ -78,10 +78,9 @@ public class GameManager {
                     Set<Player> players = new HashSet<>(Bukkit.getOnlinePlayers());
 
                     gameState.resetGame();
-                    gameState.setGameStarted(true);
                     gameState.setAlivePlayers(players.stream().map(Player::getUniqueId).collect(Collectors.toSet()));
 
-                    animationManager.startGameSequence(players, () -> teleportPlayers(overworld));
+                    startGameSequence(players, overworld);
 
                     plugin.getLogger().info("Game STARTED!");
                 })
@@ -90,6 +89,15 @@ public class GameManager {
                             "Cannot start Molecore: " + throwable.getMessage()
                     );
                     return null;
+                });
+    }
+
+    public void startGameSequence(Set<Player> players, World overworld) {
+        animationManager.startCountdown(players)
+                .thenCompose(ignored -> {
+                    teleportPlayers(overworld);
+                    gameState.setGracePeriod(true);
+                    animationManager.gracePeriodTimer(players, 15);
                 });
     }
 

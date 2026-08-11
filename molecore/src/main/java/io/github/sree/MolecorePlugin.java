@@ -6,6 +6,7 @@ import io.github.sree.commands.MolecoreStartCommand;
 import io.github.sree.commands.MolecoreWorldCommand;
 import io.github.sree.listeners.*;
 import io.github.sree.animations.GameAnimationManager;
+import io.github.sree.spectators.SpectatorService;
 import io.github.sree.state.GameManager;
 import io.github.sree.state.GameState;
 import io.papermc.paper.command.brigadier.CommandSourceStack;
@@ -26,20 +27,18 @@ public class MolecorePlugin extends JavaPlugin {
             throw new IllegalStateException("sree-core is not loaded!");
         }
 
-        PrepareDimensionSet prepareDimensionSet = sreeCore.getPrepareDimensionSet();
-
         getLogger().info("Plugin started.");
         GameState gameState = new GameState();
         GameAnimationManager animationManager = new GameAnimationManager(this, gameState);
-        GameManager gameManager = new GameManager(this, gameState, animationManager, prepareDimensionSet);
+        GameManager gameManager = new GameManager(this, gameState, animationManager, sreeCore);
 
 
         List<GameListener> listeners = List.of(
-                new EndermanDeathListener(gameManager.getGameState()),
-                new ObjectiveListener(gameManager.getGameState(), gameManager),
-                new PiglinBarterListener(gameManager.getGameState()),
-                new PlayerDeathListener(gameManager.getGameState(), gameManager),
-                new WitherSkeletonDeathListener(gameManager.getGameState())
+                new EndermanDeathListener(gameState),
+                new ObjectiveListener(gameState, gameManager),
+                new PiglinBarterListener(gameState),
+                new PlayerDeathListener(gameState, gameManager),
+                new WitherSkeletonDeathListener(gameState)
         );
 
         listeners.forEach(gameListener ->

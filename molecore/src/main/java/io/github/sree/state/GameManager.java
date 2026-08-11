@@ -1,7 +1,7 @@
 package io.github.sree.state;
 
 import io.github.sree.MolecorePlugin;
-import io.github.sree.PrepareDimensionSet;
+import io.github.sree.SreeCorePlugin;
 import io.github.sree.animations.GameAnimationManager;
 import io.github.sree.enums.Role;
 import io.github.sree.enums.Winner;
@@ -25,14 +25,14 @@ public class GameManager {
 
     private final GameState gameState;
 
-    private final PrepareDimensionSet prepareDimensionSet;
+    private final SreeCorePlugin sreeCore;
 
 
-    public GameManager(MolecorePlugin plugin, GameState gameState, GameAnimationManager animationManager, PrepareDimensionSet prepareDimensionSet) {
+    public GameManager(MolecorePlugin plugin, GameState gameState, GameAnimationManager animationManager, SreeCorePlugin sreeCore) {
         this.plugin = plugin;
         this.gameState = gameState;
         this.animationManager = animationManager;
-        this.prepareDimensionSet = prepareDimensionSet;
+        this.sreeCore = sreeCore;
     }
 
     public GameState getGameState() {
@@ -44,7 +44,7 @@ public class GameManager {
     }
 
     public CompletableFuture<World> prepareDimensionSet(NamespacedKey worldKey) {
-        return prepareDimensionSet.prepareDimensionSet(worldKey, plugin.getLogger());
+        return sreeCore.prepareDimensionSet().prepareDimensionSet(worldKey, plugin.getLogger());
     }
 
     private void teleportPlayers(World world) {
@@ -127,7 +127,7 @@ public class GameManager {
             plugin.getLogger().info(PlainTextComponentSerializer.plainText().serialize(deathComponent));
         }
 
-        player.setGameMode(GameMode.SPECTATOR);
+        sreeCore.spectatorService().addSpectator(player);
         gameState.markDead(player.getUniqueId());
         checkWinCondition().ifPresent(winner -> endGame(winner, event.getEntity().getLocation()));
 
@@ -135,6 +135,10 @@ public class GameManager {
     }
 
     public void handleObjectiveCompletion(Event event) {
+        if (!gameState.isGameStarted()) {
+            return;
+        }
+
         switch (gameState.getSettings().objective()) {
             case BEACON:
                 if (event instanceof BeaconActivatedEvent beaconActivatedEvent) {

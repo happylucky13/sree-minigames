@@ -33,6 +33,12 @@ public class MolecoreSettingsCommand {
 
     private int setBeaconSettings(CommandContext<CommandSourceStack> ctx) {
         CommandSender sender = ctx.getSource().getSender();
+
+        if (gameState.isGameStarted()) {
+            sender.sendMessage(Component.text("You may not modify settings while the game is running."));
+            return 0;
+        }
+
         int moleCount = ctx.getArgument("mole_count", Integer.class);
 
         gameState.setSettings(moleCount, Objective.BEACON);
@@ -44,6 +50,12 @@ public class MolecoreSettingsCommand {
 
     private int setEggSettings(CommandContext<CommandSourceStack> ctx) {
         CommandSender sender = ctx.getSource().getSender();
+
+        if (gameState.isGameStarted()) {
+            sender.sendMessage(Component.text("You may not modify settings while the game is running."));
+            return 0;
+        }
+
         int moleCount = ctx.getArgument("mole_count", Integer.class);
 
         gameState.setSettings(moleCount, Objective.DRAGON);

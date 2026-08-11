@@ -33,44 +33,41 @@ public class GameAnimationManager {
     public CompletableFuture<Void> gracePeriodTimer(Set<Player> players, int gracePeriodSeconds) {
         CompletableFuture<Void> future = new CompletableFuture<>();
 
-        Bukkit.getScheduler().runTask(plugin, () -> {
+        String formattedTime = String.format("%02d:%02d", gracePeriodSeconds / 60, gracePeriodSeconds % 60);
 
-            String formattedTime = String.format("%02d:%02d", gracePeriodSeconds / 60, gracePeriodSeconds % 60);
+        BossBar gracePeriodTimerBar = BossBar.bossBar(
+                Component.text("Grace Period: " + formattedTime),
+                1.0f,
+                BossBar.Color.GREEN,
+                BossBar.Overlay.PROGRESS
+        );
 
-            BossBar gracePeriodTimerBar = BossBar.bossBar(
-                    Component.text("Grace Period: " + formattedTime),
-                    1.0f,
-                    BossBar.Color.GREEN,
-                    BossBar.Overlay.PROGRESS
-            );
+        players.forEach(player -> player.showBossBar(gracePeriodTimerBar));
 
-            players.forEach(player -> player.showBossBar(gracePeriodTimerBar));
+        new BukkitRunnable() {
+            int remainingTime = gracePeriodSeconds;
 
-            new BukkitRunnable() {
-                int remainingTime = gracePeriodSeconds;
-
-                public void run() {
-                    if (remainingTime <= 0) {
-                        players.forEach(player -> player.hideBossBar(gracePeriodTimerBar));
-                        future.complete(null);
-                        this.cancel();
-                    }
-
-                    float progress = (float) remainingTime / gracePeriodSeconds;
-                    String updatedTime = String.format("%02d:%02d", remainingTime / 60, remainingTime % 60);
-
-                    gracePeriodTimerBar.progress(progress);
-                    gracePeriodTimerBar.name(Component.text("Grace period: " + updatedTime));
-
-                    remainingTime --;
+            public void run() {
+                if (remainingTime <= 0) {
+                    players.forEach(player -> player.hideBossBar(gracePeriodTimerBar));
+                    future.complete(null);
+                    this.cancel();
                 }
-            }.runTaskTimer(plugin, 0L, 20L);
-        });
+
+                float progress = (float) remainingTime / gracePeriodSeconds;
+                String updatedTime = String.format("%02d:%02d", remainingTime / 60, remainingTime % 60);
+
+                gracePeriodTimerBar.progress(progress);
+                gracePeriodTimerBar.name(Component.text("Grace period: " + updatedTime));
+
+                remainingTime --;
+            }
+        }.runTaskTimer(plugin, 0L, 20L);
 
         return future;
     }
 
-    private void revealRoles(Map<Player, Role> players) {
+    public void revealRoles(Map<Player, Role> players) {
         int[] delays = {0, 2, 4, 6, 8, 10, 14, 18, 25, 40, 60};
 
         for (int i = 0; i < delays.length; i++) {

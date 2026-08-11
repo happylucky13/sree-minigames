@@ -18,6 +18,7 @@ import org.bukkit.event.entity.PlayerDeathEvent;
 
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Executor;
 import java.util.stream.Collectors;
 
 public class GameManager {
@@ -48,10 +49,12 @@ public class GameManager {
         return sreeCore.prepareDimensionSet().prepareDimensionSet(worldKey, plugin.getLogger());
     }
 
-    private void teleportPlayers(World world) {
-        Bukkit.getScheduler().runTask(plugin, () -> {
-            Bukkit.getOnlinePlayers().forEach(player -> player.teleportAsync(world.getSpawnLocation()));
-        });
+    private CompletableFuture<Void> teleportPlayers(World world) {
+        return CompletableFuture.allOf(
+                Bukkit.getOnlinePlayers().stream()
+                        .map(player -> player.teleportAsync(world.getSpawnLocation()))
+                        .toArray(CompletableFuture[]::new)
+        );
     }
 
     private void assignRoles() {
@@ -78,11 +81,10 @@ public class GameManager {
                     Set<Player> players = new HashSet<>(Bukkit.getOnlinePlayers());
 
                     gameState.resetGame();
+                    gameState.setGameStarted(true);
                     gameState.setAlivePlayers(players.stream().map(Player::getUniqueId).collect(Collectors.toSet()));
 
                     startGameSequence(players, overworld);
-
-                    plugin.getLogger().info("Game STARTED!");
                 })
                 .exceptionally(throwable -> {
                     plugin.getLogger().severe(
@@ -93,12 +95,27 @@ public class GameManager {
     }
 
     public void startGameSequence(Set<Player> players, World overworld) {
+        final Executor mainThread = task -> Bukkit.getScheduler().runTask(plugin, task);
+
         animationManager.startCountdown(players)
-                .thenCompose(ignored -> {
-                    teleportPlayers(overworld);
+                .thenComposeAsync(ignored -> teleportPlayers(overworld), mainThread)
+                .thenComposeAsync(ignored -> {
                     gameState.setGracePeriod(true);
-                    animationManager.gracePeriodTimer(players, 15);
-                });
+                    return animationManager.gracePeriodTimer(players, 15);
+                }, mainThread)
+                .thenAcceptAsync(ignored -> {
+                    assignRoles();
+
+                    Map<Player, Role> playerRoleMap = gameState.getRoleMap().entrySet().stream()
+                            .map(entry -> Map.entry(Bukkit.getPlayer(entry.getKey()), entry.getValue()))
+                            .filter(entry -> entry.getKey() != null)
+                            .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+
+                    animationManager.revealRoles(playerRoleMap);
+                    gameState.setGracePeriod(false);
+
+                    plugin.getLogger().info("Game STARTED!");
+                }, mainThread);
     }
 
     public void endGame(Winner winner, Location endLocation) {

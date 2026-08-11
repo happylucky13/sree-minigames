@@ -12,13 +12,13 @@ public class GameState {
     private final Set<UUID> alivePlayers = new HashSet<>();
     private final Map<UUID, Role> roleMap = new HashMap<>();
 
-    private GameSettings settings = new GameSettings(2, Objective.BEACON);
+    private GameSettings settings = new GameSettings(2, Objective.BEACON, 900);
 
     private boolean gameStarted;
     private boolean gracePeriod;
 
-    public void setSettings(int moleCount, Objective objective) {
-        settings = new GameSettings(moleCount, objective);
+    public void setSettings(int moleCount, Objective objective, int gracePeriodTime) {
+        settings = new GameSettings(moleCount, objective, gracePeriodTime);
     }
 
     public GameSettings getSettings() {

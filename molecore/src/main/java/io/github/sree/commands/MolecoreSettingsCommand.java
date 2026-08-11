@@ -22,11 +22,13 @@ public class MolecoreSettingsCommand {
     public LiteralArgumentBuilder<CommandSourceStack> createCommand() {
         return Commands.literal("settings")
                 .then(Commands.argument("mole_count", IntegerArgumentType.integer(0, 3))
-                        .then(Commands.literal("beacon")
-                                .executes(this::setBeaconSettings)
-                        )
-                        .then(Commands.literal("dragon_egg")
-                                .executes(this::setEggSettings)
+                        .then(Commands.argument("grace_period_seconds", IntegerArgumentType.integer(0, 3600))
+                                .then(Commands.literal("beacon")
+                                        .executes(this::setBeaconSettings)
+                                )
+                                .then(Commands.literal("dragon_egg")
+                                        .executes(this::setEggSettings)
+                                )
                         )
                 );
     }
@@ -40,8 +42,9 @@ public class MolecoreSettingsCommand {
         }
 
         int moleCount = ctx.getArgument("mole_count", Integer.class);
+        int gracePeriodTime = ctx.getArgument("grace_period_seconds", Integer.class);
 
-        gameState.setSettings(moleCount, Objective.BEACON);
+        gameState.setSettings(moleCount, Objective.BEACON, gracePeriodTime);
 
         sender.sendMessage(Component.text("Settings updated!"));
 
@@ -57,8 +60,9 @@ public class MolecoreSettingsCommand {
         }
 
         int moleCount = ctx.getArgument("mole_count", Integer.class);
+        int gracePeriodTime = ctx.getArgument("grace_period_seconds", Integer.class);
 
-        gameState.setSettings(moleCount, Objective.DRAGON);
+        gameState.setSettings(moleCount, Objective.DRAGON, gracePeriodTime);
 
         sender.sendMessage(Component.text("Settings updated!"));
 

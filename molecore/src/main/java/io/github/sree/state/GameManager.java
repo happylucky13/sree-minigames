@@ -102,7 +102,7 @@ public class GameManager {
                 .thenComposeAsync(ignored -> teleportPlayers(overworld), mainThread)
                 .thenComposeAsync(ignored -> {
                     gameState.setGracePeriod(true);
-                    return animationManager.gracePeriodTimer(players, 15);
+                    return animationManager.gracePeriodTimer(players, gameState.getSettings().gracePeriodSeconds());
                 }, mainThread)
                 .thenAcceptAsync(ignored -> {
                     assignRoles();

@@ -8,6 +8,7 @@ import io.github.sree.enums.Winner;
 
 import io.papermc.paper.event.block.BeaconActivatedEvent;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import org.bukkit.*;
 import org.bukkit.entity.EnderDragon;
@@ -133,6 +134,11 @@ public class GameManager {
     public void handlePlayerDeath(PlayerDeathEvent event) {
         Component deathComponent = event.deathMessage();
         Player player = event.getPlayer();
+
+        if (gameState.isGracePeriod()) {
+            player.sendMessage(Component.text("The grace period has saved you!", NamedTextColor.GREEN));
+            return;
+        }
 
         if (deathComponent != null) {
             plugin.getLogger().info(PlainTextComponentSerializer.plainText().serialize(deathComponent));

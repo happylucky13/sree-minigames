@@ -8,6 +8,7 @@ import io.github.sree.enums.Winner;
 
 import io.papermc.paper.event.block.BeaconActivatedEvent;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import org.bukkit.*;
 import org.bukkit.entity.EnderDragon;
@@ -18,6 +19,8 @@ import org.bukkit.event.entity.PlayerDeathEvent;
 
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Executor;
+import java.util.stream.Collectors;
 
 public class GameManager {
     private final MolecorePlugin plugin;
@@ -47,10 +50,12 @@ public class GameManager {
         return sreeCore.prepareDimensionSet().prepareDimensionSet(worldKey, plugin.getLogger());
     }
 
-    private void teleportPlayers(World world) {
-        for (Player player : Bukkit.getOnlinePlayers()) {
-            player.teleportAsync(world.getSpawnLocation());
-        }
+    private CompletableFuture<Void> teleportPlayers(World world) {
+        return CompletableFuture.allOf(
+                Bukkit.getOnlinePlayers().stream()
+                        .map(player -> player.teleportAsync(world.getSpawnLocation()))
+                        .toArray(CompletableFuture[]::new)
+        );
     }
 
     private void assignRoles() {
@@ -68,36 +73,19 @@ public class GameManager {
             gameState.addPlayerToRoleMap(id, Role.SURVIVOR);
         }
 
-        gameState.setAlivePlayers();
+        gameState.setAlivePlayers(gameState.getRoleMap().keySet());
     }
 
     public void startGame(NamespacedKey worldKey) {
         prepareDimensionSet(worldKey)
                 .thenAccept(overworld -> {
-                    plugin.getLogger().info("PREPARE WORLDS COMPLETE!");
-                    List<Player> shuffledPlayers = new ArrayList<>(Bukkit.getOnlinePlayers());
-                    Map<Player, Role> players = new HashMap<>();
-                    Collections.shuffle(shuffledPlayers);
-
-                    plugin.getLogger().info("Assigning roles...");
+                    Set<Player> players = new HashSet<>(Bukkit.getOnlinePlayers());
 
                     gameState.resetGame();
-                    assignRoles();
-
-                    for (UUID uuid : gameState.getRoleMap().keySet()) {
-                        Player player = Bukkit.getPlayer(uuid);
-
-                        if (player != null) {
-                            players.put(player, gameState.getRoleMap().get(uuid));
-                        }
-                    }
-
-                    plugin.getLogger().info("Starting game animation...");
-
                     gameState.setGameStarted(true);
-                    animationManager.startGameSequence(players, () -> teleportPlayers(overworld));
+                    gameState.setAlivePlayers(players.stream().map(Player::getUniqueId).collect(Collectors.toSet()));
 
-                    plugin.getLogger().info("Game STARTED!");
+                    startGameSequence(players, overworld);
                 })
                 .exceptionally(throwable -> {
                     plugin.getLogger().severe(
@@ -105,6 +93,30 @@ public class GameManager {
                     );
                     return null;
                 });
+    }
+
+    public void startGameSequence(Set<Player> players, World overworld) {
+        final Executor mainThread = task -> Bukkit.getScheduler().runTask(plugin, task);
+
+        animationManager.startCountdown(players)
+                .thenComposeAsync(ignored -> teleportPlayers(overworld), mainThread)
+                .thenComposeAsync(ignored -> {
+                    gameState.setGracePeriod(true);
+                    return animationManager.gracePeriodTimer(players, gameState.getSettings().gracePeriodSeconds());
+                }, mainThread)
+                .thenAcceptAsync(ignored -> {
+                    assignRoles();
+
+                    Map<Player, Role> playerRoleMap = gameState.getRoleMap().entrySet().stream()
+                            .map(entry -> Map.entry(Bukkit.getPlayer(entry.getKey()), entry.getValue()))
+                            .filter(entry -> entry.getKey() != null)
+                            .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+
+                    animationManager.revealRoles(playerRoleMap);
+                    gameState.setGracePeriod(false);
+
+                    plugin.getLogger().info("Game STARTED!");
+                }, mainThread);
     }
 
     public void endGame(Winner winner, Location endLocation) {
@@ -122,6 +134,11 @@ public class GameManager {
     public void handlePlayerDeath(PlayerDeathEvent event) {
         Component deathComponent = event.deathMessage();
         Player player = event.getPlayer();
+
+        if (gameState.isGracePeriod()) {
+            player.sendMessage(Component.text("The grace period has saved you!", NamedTextColor.GREEN));
+            return;
+        }
 
         if (deathComponent != null) {
             plugin.getLogger().info(PlainTextComponentSerializer.plainText().serialize(deathComponent));

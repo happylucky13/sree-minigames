@@ -26,12 +26,10 @@ public class GameAnimationManager {
         this.gameState = gameState;
     }
 
-    public void startGameSequence(Map<Player, Role> players, Runnable onCountdownFinished) {
+    public void startGameSequence(Set<Player> players, Runnable onCountdownFinished) {
         startCountdown(players);
 
         Bukkit.getScheduler().runTaskLater(plugin, onCountdownFinished, 60L);
-
-        Bukkit.getScheduler().runTaskLater(plugin, () -> revealRoles(players), 70L);
 
     }
 
@@ -112,12 +110,12 @@ public class GameAnimationManager {
         }
     }
 
-    private void startCountdown(Map<Player, Role> players) {
+    private void startCountdown(Set<Player> players) {
         for (int i = 0; i < 4; i++) {
             int timerCount = i;
 
             Bukkit.getScheduler().runTaskLater(plugin, () -> {
-                for (Player player : players.keySet()) {
+                for (Player player : players) {
                     if (timerCount > 2) {
                         player.playSound(
                                 player.getLocation(),

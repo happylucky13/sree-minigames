@@ -74,22 +74,11 @@ public class GameManager {
     public void startGame(NamespacedKey worldKey) {
         prepareDimensionSet(worldKey)
                 .thenAccept(overworld -> {
-                    List<Player> shuffledPlayers = new ArrayList<>(Bukkit.getOnlinePlayers());
-                    Map<Player, Role> players = new HashMap<>();
-                    Collections.shuffle(shuffledPlayers);
+                    Set<Player> players = new HashSet<>(Bukkit.getOnlinePlayers());
 
                     gameState.resetGame();
-                    assignRoles();
-
-                    for (UUID uuid : gameState.getRoleMap().keySet()) {
-                        Player player = Bukkit.getPlayer(uuid);
-
-                        if (player != null) {
-                            players.put(player, gameState.getRoleMap().get(uuid));
-                        }
-                    }
-
                     gameState.setGameStarted(true);
+
                     animationManager.startGameSequence(players, () -> teleportPlayers(overworld));
 
                     plugin.getLogger().info("Game STARTED!");

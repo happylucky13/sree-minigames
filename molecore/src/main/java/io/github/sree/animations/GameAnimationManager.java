@@ -16,6 +16,7 @@ import org.bukkit.inventory.meta.FireworkMeta;
 import java.time.Duration;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.CompletableFuture;
 
 public class GameAnimationManager {
     private final MolecorePlugin plugin;
@@ -26,10 +27,7 @@ public class GameAnimationManager {
         this.gameState = gameState;
     }
 
-    public void startGameSequence(Set<Player> players, Runnable onCountdownFinished) {
-        startCountdown(players);
-
-        Bukkit.getScheduler().runTaskLater(plugin, onCountdownFinished, 60L);
+    private void gracePeriodTimer(Set<Player> players) {
 
     }
 
@@ -110,7 +108,8 @@ public class GameAnimationManager {
         }
     }
 
-    private void startCountdown(Set<Player> players) {
+    public CompletableFuture<Set<Player>> startCountdown(Set<Player> players) {
+        CompletableFuture<Set<Player>> future = new CompletableFuture<>();
         for (int i = 0; i < 4; i++) {
             int timerCount = i;
 
@@ -123,6 +122,7 @@ public class GameAnimationManager {
                                 1.0f,
                                 2.0f
                         );
+                        future.complete(players);
                         continue;
                     }
 
@@ -142,6 +142,8 @@ public class GameAnimationManager {
                 }
             }, 20 * i);
         }
+
+        return future;
     }
 
     public void endGameSequence(Winner winner, Set<Player> winners, Location endLocation) {

@@ -15,6 +15,7 @@ public class GameState {
     private GameSettings settings = new GameSettings(2, Objective.BEACON);
 
     private boolean gameStarted;
+    private boolean gracePeriod;
 
     public void setSettings(int moleCount, Objective objective) {
         settings = new GameSettings(moleCount, objective);
@@ -27,13 +28,19 @@ public class GameState {
     public void setGameStarted(boolean gameStarted) {
         this.gameStarted = gameStarted;
     }
+    public void setGracePeriod(boolean gracePeriod) {
+        this.gracePeriod = gracePeriod;
+    }
 
-    public void setAlivePlayers() {
-        alivePlayers.addAll(roleMap.keySet());
+    public void setAlivePlayers(Set<UUID> players) {
+        alivePlayers.addAll(players);
     }
 
     public boolean isGameStarted() {
         return gameStarted;
+    }
+    public boolean isGracePeriod() {
+        return gracePeriod;
     }
 
     public void markDead(UUID uuid) {

@@ -18,6 +18,7 @@ import org.bukkit.event.entity.PlayerDeathEvent;
 
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
+import java.util.stream.Collectors;
 
 public class GameManager {
     private final MolecorePlugin plugin;
@@ -68,7 +69,7 @@ public class GameManager {
             gameState.addPlayerToRoleMap(id, Role.SURVIVOR);
         }
 
-        gameState.setAlivePlayers();
+        gameState.setAlivePlayers(gameState.getRoleMap().keySet());
     }
 
     public void startGame(NamespacedKey worldKey) {
@@ -78,6 +79,7 @@ public class GameManager {
 
                     gameState.resetGame();
                     gameState.setGameStarted(true);
+                    gameState.setAlivePlayers(players.stream().map(Player::getUniqueId).collect(Collectors.toSet()));
 
                     animationManager.startGameSequence(players, () -> teleportPlayers(overworld));
 

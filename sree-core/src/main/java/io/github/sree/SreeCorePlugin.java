@@ -17,12 +17,13 @@ public class SreeCorePlugin extends JavaPlugin {
     private PregenerateChunksService pregenerateChunksService;
     private PrepareDimensionSet prepareDimensionSet;
     private SpectatorService spectatorService;
+    private SreeVoiceChatPlugin voiceChatPlugin;
 
     @Override
     public void onEnable() {
         BukkitVoicechatService service = getServer().getServicesManager().load(BukkitVoicechatService.class);
         if (service != null) {
-            SreeVoiceChatPlugin voiceChatPlugin = new SreeVoiceChatPlugin();
+            voiceChatPlugin = new SreeVoiceChatPlugin();
             service.registerPlugin(voiceChatPlugin);
         }
 
@@ -30,7 +31,7 @@ public class SreeCorePlugin extends JavaPlugin {
         worldService = new WorldService(MultiverseCoreApi.get(), MultiverseInventoriesApi.get(), getLogger());
         pregenerateChunksService = new PregenerateChunksService(Bukkit.getServer().getServicesManager().load(ChunkyAPI.class), getLogger());
         prepareDimensionSet = new PrepareDimensionSet(worldService, pregenerateChunksService);
-        spectatorService = new SpectatorService();
+        spectatorService = new SpectatorService(voiceChatPlugin.getApi());
 
         getServer().getPluginManager().registerEvents(new DimensionSwitchListener(spectatorService), this);
     }

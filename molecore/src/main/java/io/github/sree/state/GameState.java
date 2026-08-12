@@ -110,6 +110,10 @@ public class GameState {
                 .collect(Collectors.toSet());
     }
 
+    public EnumSet<LockedSlot> getLockedSlots(Player player) {
+        return playersMap.get(player.getUniqueId()).getLockedSlots();
+    }
+
     public void lockSlots(Player player) {
         PlayerState playerState = playersMap.get(player.getUniqueId());
         EnumSet<LockedSlot> lockedSlots = EnumSet.noneOf(LockedSlot.class);

@@ -7,7 +7,6 @@ import io.github.sree.enums.Role;
 import io.github.sree.enums.Winner;
 
 import io.github.sree.information.InformationChannel;
-import io.github.sree.information.InformationService;
 import io.papermc.paper.event.block.BeaconActivatedEvent;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;

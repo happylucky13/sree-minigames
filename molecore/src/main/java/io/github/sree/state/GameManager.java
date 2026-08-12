@@ -182,4 +182,10 @@ public class GameManager {
     private Optional<Winner> checkWinCondition() {
         return gameState.hasAlivePlayersWithRole(Role.SURVIVOR) ? Optional.empty() : Optional.of(Winner.MOLES);
     }
+
+    public void markCombat(Player attacker, Player target, double damageDealt) {
+        gameState.setAttackedPlayer(attacker, target, damageDealt);
+
+        Bukkit.getScheduler().runTaskLater(plugin, () -> gameState.removeAttackedPlayer(attacker, target), 400L);
+    }
 }

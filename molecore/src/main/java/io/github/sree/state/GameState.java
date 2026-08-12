@@ -66,6 +66,18 @@ public class GameState {
         playersMap.put(id, playerState);
     }
 
+    public Set<Player> getAttackedPlayers(Player player) {
+        return playersMap.get(player.getUniqueId()).getCombatTag().keySet();
+    }
+
+    public void setAttackedPlayer(Player attacker, Player target, double damageDealt) {
+        playersMap.get(attacker.getUniqueId()).getCombatTag().put(target, damageDealt);
+    }
+
+    public void removeAttackedPlayer(Player attacker, Player target) {
+        playersMap.get(attacker.getUniqueId()).getCombatTag().remove(target);
+    }
+
     public void resetGame() {
         playersMap.clear();
         alivePlayers.clear();

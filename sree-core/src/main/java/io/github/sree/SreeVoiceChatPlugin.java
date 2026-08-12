@@ -3,10 +3,18 @@ package io.github.sree;
 import de.maxhenkel.voicechat.api.VoicechatApi;
 import de.maxhenkel.voicechat.api.VoicechatPlugin;
 import de.maxhenkel.voicechat.api.VoicechatServerApi;
+import io.github.sree.spectators.SpectatorService;
+import io.github.sree.spectators.SpectatorVoiceChat;
+
+import java.util.function.Consumer;
 
 public class SreeVoiceChatPlugin implements VoicechatPlugin {
 
-    private VoicechatServerApi api;
+    private final SpectatorService spectatorService;
+
+    public SreeVoiceChatPlugin(SpectatorService spectatorService) {
+        this.spectatorService = spectatorService;
+    }
 
     @Override
     public String getPluginId() {
@@ -15,10 +23,9 @@ public class SreeVoiceChatPlugin implements VoicechatPlugin {
 
     @Override
     public void initialize(VoicechatApi api) {
-        this.api = (VoicechatServerApi) api;
-    }
+        VoicechatServerApi serverApi = (VoicechatServerApi) api;
+        SpectatorVoiceChat spectatorVoiceChat = new SpectatorVoiceChat(serverApi);
 
-    public VoicechatServerApi getApi() {
-        return api;
+        spectatorService.setVoiceChat(spectatorVoiceChat);
     }
 }

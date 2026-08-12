@@ -11,6 +11,7 @@ import org.mvplugins.multiverse.inventories.profile.group.WorldGroupManager;
 import org.mvplugins.multiverse.inventories.share.Sharables;
 import org.mvplugins.multiverse.netherportals.MultiverseNetherPortalsApi;
 import org.mvplugins.multiverse.netherportals.links.LinksManager;
+import org.mvplugins.multiverse.netherportals.links.WorldLinkType;
 
 import java.util.Collection;
 import java.util.concurrent.CompletableFuture;
@@ -64,6 +65,13 @@ public class WorldService {
 
     public void linkWorlds(DimensionSet dimensionSet, String groupName) {
         WorldGroup worldGroup = groupManager.newEmptyGroup(groupName);
+        LinksManager linksManager = MultiverseNetherPortalsApi.get().getLinksManager();
+
+        linksManager.addWorldLink(dimensionSet.overworld().getName(), dimensionSet.nether().getName(), WorldLinkType.NETHER);
+        linksManager.addWorldLink(dimensionSet.nether().getName(), dimensionSet.overworld().getName(), WorldLinkType.NETHER);
+
+        linksManager.addWorldLink(dimensionSet.overworld().getName(), dimensionSet.theEnd().getName(), WorldLinkType.END);
+        linksManager.addWorldLink(dimensionSet.theEnd().getName(), dimensionSet.overworld().getName(), WorldLinkType.END);
 
         dimensionSet.worlds().forEach(worldGroup::addWorld);
         worldGroup.getShares().addAll(Sharables.allOf());

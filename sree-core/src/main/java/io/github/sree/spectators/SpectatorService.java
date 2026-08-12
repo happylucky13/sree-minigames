@@ -3,6 +3,7 @@ package io.github.sree.spectators;
 import org.bukkit.GameMode;
 import org.bukkit.entity.Player;
 import org.bukkit.event.player.PlayerChangedWorldEvent;
+import org.bukkit.event.player.PlayerJoinEvent;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -36,6 +37,15 @@ public class SpectatorService {
         Player player = event.getPlayer();
         if (spectators.contains(player.getUniqueId())) {
             enforceSpectatorMode(player);
+        }
+    }
+
+    public void handlePlayerJoin(PlayerJoinEvent event) {
+        Player player = event.getPlayer();
+
+        if (spectators.contains(player.getUniqueId())) {
+            enforceSpectatorMode(player);
+            voiceChat.addSpectator(player);
         }
     }
 }

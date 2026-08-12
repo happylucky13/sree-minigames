@@ -15,5 +15,5 @@ dependencies:
       required: true
       load: BEFORE
     voicechat:
-      required: true
+      required: false
       load: BEFORE

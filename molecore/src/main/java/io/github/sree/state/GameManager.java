@@ -87,8 +87,6 @@ public class GameManager {
                     gameState.setGameStarted(true);
                     gameState.setAlivePlayers(players.stream().map(Player::getUniqueId).collect(Collectors.toSet()));
 
-                    sreeCore.informationService().deny(players, InformationChannel.DEATH_MESSAGES);
-
                     startGameSequence(players, overworld);
                 })
                 .exceptionally(throwable -> {
@@ -106,6 +104,17 @@ public class GameManager {
                 .thenComposeAsync(ignored -> teleportPlayers(overworld), mainThread)
                 .thenComposeAsync(ignored -> {
                     gameState.setGracePeriod(true);
+
+                    sreeCore.informationService().reset(players);
+                    sreeCore.informationService().deny(players, InformationChannel.DEATH_MESSAGES);
+                    sreeCore.informationService().deny(players, InformationChannel.TAB_LIST);
+
+                    Component playerListHeader = Component.text("Newtoncraft Molecore", NamedTextColor.RED)
+                                    .append(Component.newline())
+                                    .append(Component.text("---------------------", NamedTextColor.GOLD));
+
+                    players.forEach(player -> player.sendPlayerListHeader(playerListHeader));
+
                     return animationManager.gracePeriodTimer(players, gameState.getSettings().gracePeriodSeconds());
                 }, mainThread)
                 .thenAcceptAsync(ignored -> {

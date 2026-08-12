@@ -23,6 +23,8 @@ public class InformationEnforcer {
     public void handleInformationChange(InformationChangedEvent event) {
         Player player = event.player();
 
+        plugin.getLogger().info("Information change received for " + player.getName());
+
         updateLocatorBar(player, event.channels().contains(InformationChannel.LOCATOR_BAR));
         updateTabList(player, event.channels().contains(InformationChannel.TAB_LIST));
     }
@@ -62,8 +64,13 @@ public class InformationEnforcer {
 
     public void updateTabList(Player player, boolean allowed) {
         for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
+            if (onlinePlayer.equals(player)) {
+                continue;
+            }
+
             if (allowed) player.listPlayer(onlinePlayer);
             else player.unlistPlayer(onlinePlayer);
+            plugin.getLogger().info("Tab list hidden!");
         }
     }
 }

@@ -4,12 +4,10 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="34223302-95db-4696-aa00-6ada55115e6e" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/sree-core/src/main/java/io/github/sree/ChatManager.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/sree-core/src/main/java/io/github/sree/listeners/PlayerChatListener.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/sree-core/src/main/java/io/github/sree/SreeCorePlugin.java" beforeDir="false" afterPath="$PROJECT_DIR$/sree-core/src/main/java/io/github/sree/SreeCorePlugin.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/sree-core/src/main/java/io/github/sree/information/InformationChannel.java" beforeDir="false" afterPath="$PROJECT_DIR$/sree-core/src/main/java/io/github/sree/information/InformationChannel.java" afterDir="false" />
+    <list default="true" id="34223302-95db-4696-aa00-6ada55115e6e" name="Changes" comment="Implement infrastructure for local chat">
+      <change afterPath="$PROJECT_DIR$/sree-core/src/main/java/io/github/sree/listeners/PrivateMessageListener.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/sree-core/src/main/java/io/github/sree/listeners/PlayerChatListener.java" beforeDir="false" afterPath="$PROJECT_DIR$/sree-core/src/main/java/io/github/sree/listeners/PlayerChatListener.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -45,7 +43,7 @@
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252": "true",
     "RunOnceActivity.git.unshallow": "true",
-    "git-widget-placeholder": "master",
+    "git-widget-placeholder": "sreecore/local-chat",
     "kotlin-language-version-configured": "true",
     "last_opened_file_path": "/home/peeblyweeb/data/code/pulled/sree-minigames",
     "settings.editor.selected.configurable": "preferences.keymap"
@@ -59,6 +57,28 @@
       <option name="presentableId" value="Default" />
       <updated>1786559259095</updated>
     </task>
+    <task id="LOCAL-00001" summary="update java i guess">
+      <option name="closed" value="true" />
+      <created>1786563114427</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1786563114427</updated>
+    </task>
+    <task id="LOCAL-00002" summary="Implement infrastructure for local chat">
+      <option name="closed" value="true" />
+      <created>1786563229329</created>
+      <option name="number" value="00002" />
+      <option name="presentableId" value="LOCAL-00002" />
+      <option name="project" value="LOCAL" />
+      <updated>1786563229329</updated>
+    </task>
+    <option name="localTasksCounter" value="3" />
     <servers />
+  </component>
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value="update java i guess" />
+    <MESSAGE value="Implement infrastructure for local chat" />
+    <option name="LAST_COMMIT_MESSAGE" value="Implement infrastructure for local chat" />
   </component>
 </project>

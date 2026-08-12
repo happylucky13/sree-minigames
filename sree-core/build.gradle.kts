@@ -29,6 +29,10 @@ repositories {
     maven {
         url = uri("https://repo.codemc.io/repository/maven-public/")
     }
+
+    maven {
+        url = uri("https://maven.maxhenkel.de/repository/public")
+    }
 }
 
 dependencies {
@@ -39,6 +43,7 @@ dependencies {
     compileOnly("org.mvplugins.multiverse.core:multiverse-core:5.7.3")
     compileOnly("org.mvplugins.multiverse.inventories:multiverse-inventories:5.0.1")
     compileOnly("org.popcraft:chunky-common:1.3.38")
+    compileOnly("de.maxhenkel.voicechat:voicechat-api:2.6.20")
 }
 
 tasks.test {

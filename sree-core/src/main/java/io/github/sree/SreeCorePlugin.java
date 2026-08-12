@@ -1,5 +1,6 @@
 package io.github.sree;
 
+import de.maxhenkel.voicechat.api.BukkitVoicechatService;
 import io.github.sree.create_world.WorldService;
 import io.github.sree.pregenerate_world.PregenerateChunksService;
 import io.github.sree.spectators.DimensionSwitchListener;
@@ -19,6 +20,12 @@ public class SreeCorePlugin extends JavaPlugin {
 
     @Override
     public void onEnable() {
+        BukkitVoicechatService service = getServer().getServicesManager().load(BukkitVoicechatService.class);
+        if (service != null) {
+            SreeVoiceChatPlugin voiceChatPlugin = new SreeVoiceChatPlugin();
+            service.registerPlugin(voiceChatPlugin);
+        }
+
         getLogger().info("sree-core initiated");
         worldService = new WorldService(MultiverseCoreApi.get(), MultiverseInventoriesApi.get(), getLogger());
         pregenerateChunksService = new PregenerateChunksService(Bukkit.getServer().getServicesManager().load(ChunkyAPI.class), getLogger());
@@ -26,8 +33,6 @@ public class SreeCorePlugin extends JavaPlugin {
         spectatorService = new SpectatorService();
 
         getServer().getPluginManager().registerEvents(new DimensionSwitchListener(spectatorService), this);
-
-
     }
 
     public WorldService getWorldService() {

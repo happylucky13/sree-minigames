@@ -1,13 +1,20 @@
 package io.github.sree;
 
 import de.maxhenkel.voicechat.api.BukkitVoicechatService;
+
 import io.github.sree.create_world.WorldService;
+import io.github.sree.information.InformationEnforcer;
+import io.github.sree.information.InformationService;
+import io.github.sree.information.listeners.PlayerDeathListener;
 import io.github.sree.pregenerate_world.PregenerateChunksService;
 import io.github.sree.spectators.*;
 import org.bukkit.Bukkit;
+import org.bukkit.event.Listener;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.mvplugins.multiverse.core.MultiverseCoreApi;
 import org.popcraft.chunky.api.ChunkyAPI;
+
+import java.util.List;
 
 public class SreeCorePlugin extends JavaPlugin {
 
@@ -16,6 +23,8 @@ public class SreeCorePlugin extends JavaPlugin {
     private PrepareDimensionSet prepareDimensionSet;
     private SpectatorService spectatorService;
     private SreeVoiceChatPlugin voiceChatPlugin;
+    private InformationService informationService;
+    private InformationEnforcer informationEnforcer;
 
     @Override
     public void onEnable() {
@@ -27,24 +36,39 @@ public class SreeCorePlugin extends JavaPlugin {
             service.registerPlugin(voiceChatPlugin);
         }
 
-        getLogger().info("sree-core initiated");
+        getLogger().info("sree-core initialized");
+      
         worldService = new WorldService(MultiverseCoreApi.get(), getLogger());
         pregenerateChunksService = new PregenerateChunksService(Bukkit.getServer().getServicesManager().load(ChunkyAPI.class), getLogger());
         prepareDimensionSet = new PrepareDimensionSet(worldService, pregenerateChunksService);
+        informationService = new InformationService();
+        informationEnforcer = new InformationEnforcer(informationService, this);
 
-        getServer().getPluginManager().registerEvents(new DimensionSwitchListener(spectatorService), this);
+        List<Listener> listeners = List.of(
+                new PlayerDeathListener(informationEnforcer),
+                new DimensionSwitchListener(spectatorService)
+        );
+
+        listeners.forEach(listener -> getServer().getPluginManager().registerEvents(listener, this));
     }
 
     public WorldService getWorldService() {
         return worldService;
     }
+
     public PregenerateChunksService getPregenerateChunksService() {
         return pregenerateChunksService;
     }
+
     public PrepareDimensionSet prepareDimensionSet() {
         return prepareDimensionSet;
     }
+
     public SpectatorService spectatorService() {
         return spectatorService;
+    }
+
+    public InformationService informationService() {
+        return informationService;
     }
 }

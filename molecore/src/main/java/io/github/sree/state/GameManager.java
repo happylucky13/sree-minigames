@@ -6,6 +6,8 @@ import io.github.sree.animations.GameAnimationManager;
 import io.github.sree.enums.Role;
 import io.github.sree.enums.Winner;
 
+import io.github.sree.information.InformationChannel;
+import io.github.sree.information.InformationService;
 import io.papermc.paper.event.block.BeaconActivatedEvent;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
@@ -102,6 +104,17 @@ public class GameManager {
                 .thenComposeAsync(ignored -> teleportPlayers(overworld), mainThread)
                 .thenComposeAsync(ignored -> {
                     gameState.setGracePeriod(true);
+
+                    sreeCore.informationService().reset(players);
+                    sreeCore.informationService().deny(players, InformationChannel.DEATH_MESSAGES);
+                    sreeCore.informationService().deny(players, InformationChannel.TAB_LIST);
+
+                    Component playerListHeader = Component.text("Newtoncraft Molecore", NamedTextColor.RED)
+                                    .append(Component.newline())
+                                    .append(Component.text("---------------------", NamedTextColor.GOLD));
+
+                    players.forEach(player -> player.sendPlayerListHeader(playerListHeader));
+
                     return animationManager.gracePeriodTimer(players, gameState.getSettings().gracePeriodSeconds());
                 }, mainThread)
                 .thenAcceptAsync(ignored -> {
@@ -147,8 +160,6 @@ public class GameManager {
         sreeCore.spectatorService().addSpectator(player);
         gameState.markDead(player.getUniqueId());
         checkWinCondition().ifPresent(winner -> endGame(winner, event.getEntity().getLocation()));
-
-        event.deathMessage(null);
     }
 
     public void handleObjectiveCompletion(Event event) {

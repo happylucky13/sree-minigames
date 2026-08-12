@@ -24,6 +24,7 @@ public class InformationEnforcer {
         Player player = event.player();
 
         updateLocatorBar(player, event.channels().contains(InformationChannel.LOCATOR_BAR));
+        updateTabList(player, event.channels().contains(InformationChannel.TAB_LIST));
     }
 
     public void handleDeathMessage(PlayerDeathEvent event) {
@@ -56,6 +57,13 @@ public class InformationEnforcer {
                     player.showPlayer(plugin, onlinePlayer);
                 }
             });
+        }
+    }
+
+    public void updateTabList(Player player, boolean allowed) {
+        for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
+            if (allowed) player.listPlayer(onlinePlayer);
+            else player.unlistPlayer(onlinePlayer);
         }
     }
 }

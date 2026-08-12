@@ -35,6 +35,7 @@ public class PrivateMessageListener implements Listener {
 
         if (!ChatManager.playerCanSee(sourcePlayer, targetPlayer)) {
             event.setCancelled(true);
+            sourcePlayer.sendRichMessage("<red>" + targetPlayer.getName() + " is too far away, they can't hear you!");
         }
     }
 }

@@ -6,6 +6,8 @@ import io.github.sree.animations.GameAnimationManager;
 import io.github.sree.enums.Role;
 import io.github.sree.enums.Winner;
 
+import io.github.sree.information.InformationChannel;
+import io.github.sree.information.InformationService;
 import io.papermc.paper.event.block.BeaconActivatedEvent;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
@@ -85,6 +87,8 @@ public class GameManager {
                     gameState.setGameStarted(true);
                     gameState.setAlivePlayers(players.stream().map(Player::getUniqueId).collect(Collectors.toSet()));
 
+                    sreeCore.informationService().deny(players, InformationChannel.DEATH_MESSAGES);
+
                     startGameSequence(players, overworld);
                 })
                 .exceptionally(throwable -> {
@@ -147,8 +151,6 @@ public class GameManager {
         sreeCore.spectatorService().addSpectator(player);
         gameState.markDead(player.getUniqueId());
         checkWinCondition().ifPresent(winner -> endGame(winner, event.getEntity().getLocation()));
-
-        event.deathMessage(null);
     }
 
     public void handleObjectiveCompletion(Event event) {

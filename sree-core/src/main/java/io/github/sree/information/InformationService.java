@@ -12,18 +12,18 @@ public class InformationService {
         playerInfo.computeIfAbsent(player.getUniqueId(), ignored -> EnumSet.allOf(InformationChannel.class));
     }
 
-    public boolean allows(Player player, InformationChannel permission) {
+    public boolean allows(Player player, InformationChannel channel) {
         ensureRegistered(player);
-        return playerInfo.get(player.getUniqueId()).contains(permission);
+        return playerInfo.get(player.getUniqueId()).contains(channel);
     }
 
-    public void set(Player player, EnumSet<InformationChannel> permissions) {
+    public void set(Player player, EnumSet<InformationChannel> channels) {
         ensureRegistered(player);
-        playerInfo.put(player.getUniqueId(), EnumSet.copyOf(permissions));
+        playerInfo.put(player.getUniqueId(), EnumSet.copyOf(channels));
     }
 
-    public void set(Collection<Player> players, EnumSet<InformationChannel> permissions) {
-        players.forEach(player -> set(player, permissions));
+    public void set(Collection<Player> players, EnumSet<InformationChannel> channels) {
+        players.forEach(player -> set(player, channels));
     }
 
     public void reset(Player player) {
@@ -35,21 +35,21 @@ public class InformationService {
         players.forEach(this::reset);
     }
 
-    public void allow(Player player, InformationChannel permission) {
+    public void allow(Player player, InformationChannel channel) {
         ensureRegistered(player);
-        playerInfo.get(player.getUniqueId()).add(permission);
+        playerInfo.get(player.getUniqueId()).add(channel);
     }
 
-    public void allow(Collection<Player> players, InformationChannel permission) {
-        players.forEach(player -> allow(player, permission));
+    public void allow(Collection<Player> players, InformationChannel channel) {
+        players.forEach(player -> allow(player, channel));
     }
 
-    public void deny(Player player, InformationChannel permission) {
+    public void deny(Player player, InformationChannel channel) {
         ensureRegistered(player);
-        playerInfo.get(player.getUniqueId()).remove(permission);
+        playerInfo.get(player.getUniqueId()).remove(channel);
     }
 
-    public void deny(Collection<Player> players, InformationChannel permission) {
-        players.forEach(player -> deny(player, permission));
+    public void deny(Collection<Player> players, InformationChannel channel) {
+        players.forEach(player -> deny(player, channel));
     }
 }

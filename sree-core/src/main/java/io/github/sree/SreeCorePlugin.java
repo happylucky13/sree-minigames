@@ -3,7 +3,7 @@ package io.github.sree;
 import de.maxhenkel.voicechat.api.BukkitVoicechatService;
 
 import io.github.sree.create_world.WorldService;
-import io.github.sree.information.InformationHandler;
+import io.github.sree.information.InformationEnforcer;
 import io.github.sree.information.InformationService;
 import io.github.sree.information.listeners.PlayerDeathListener;
 import io.github.sree.pregenerate_world.PregenerateChunksService;
@@ -15,7 +15,6 @@ import org.mvplugins.multiverse.core.MultiverseCoreApi;
 import org.mvplugins.multiverse.inventories.MultiverseInventoriesApi;
 import org.popcraft.chunky.api.ChunkyAPI;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class SreeCorePlugin extends JavaPlugin {
@@ -26,7 +25,7 @@ public class SreeCorePlugin extends JavaPlugin {
     private SpectatorService spectatorService;
     private SreeVoiceChatPlugin voiceChatPlugin;
     private InformationService informationService;
-    private InformationHandler informationHandler;
+    private InformationEnforcer informationEnforcer;
 
     @Override
     public void onEnable() {
@@ -43,10 +42,10 @@ public class SreeCorePlugin extends JavaPlugin {
         pregenerateChunksService = new PregenerateChunksService(Bukkit.getServer().getServicesManager().load(ChunkyAPI.class), getLogger());
         prepareDimensionSet = new PrepareDimensionSet(worldService, pregenerateChunksService);
         informationService = new InformationService();
-        informationHandler = new InformationHandler(informationService);
+        informationEnforcer = new InformationEnforcer(informationService, this);
 
         List<Listener> listeners = List.of(
-                new PlayerDeathListener(informationHandler),
+                new PlayerDeathListener(informationEnforcer),
                 new DimensionSwitchListener(spectatorService)
         );
 

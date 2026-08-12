@@ -3,6 +3,7 @@ package io.github.sree.state;
 import io.github.sree.MolecorePlugin;
 import io.github.sree.SreeCorePlugin;
 import io.github.sree.animations.GameAnimationManager;
+import io.github.sree.enums.LockedSlot;
 import io.github.sree.enums.Role;
 import io.github.sree.enums.Winner;
 
@@ -17,6 +18,8 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.scheduler.BukkitTask;
 
 import java.util.*;
@@ -176,11 +179,27 @@ public class GameManager {
         if (attacker != null) {
             gameState.incrementKills(attacker);
             gameState.lockSlots(attacker);
+            dropArmor(attacker, gameState.getLockedSlots(attacker));
         }
 
         sreeCore.spectatorService().addSpectator(target);
         gameState.markDead(target.getUniqueId());
         checkWinCondition().ifPresent(winner -> endGame(winner, event.getEntity().getLocation()));
+    }
+
+    public void dropArmor(Player player, EnumSet<LockedSlot> lockedSlots) {
+        lockedSlots.forEach(slot -> {
+            if (player.getInventory().getItem(slot.getSlot()).getType() == Material.BARRIER) {
+                return;
+            }
+
+            PlayerInventory inv = player.getInventory();
+            player.getWorld().dropItem(player.getLocation(), inv.getItem(slot.getSlot()));
+
+            inv.setItem(slot.getSlot(), new ItemStack(Material.BARRIER));
+
+            player.playSound(player.getLocation(), Sound.ITEM_ARMOR_EQUIP_GENERIC, 1.0f, 1.0f);
+        });
     }
 
     public void handleObjectiveCompletion(Event event) {

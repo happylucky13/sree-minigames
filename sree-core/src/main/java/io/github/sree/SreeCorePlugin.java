@@ -7,7 +7,6 @@ import io.github.sree.spectators.*;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.mvplugins.multiverse.core.MultiverseCoreApi;
-import org.mvplugins.multiverse.inventories.MultiverseInventoriesApi;
 import org.popcraft.chunky.api.ChunkyAPI;
 
 public class SreeCorePlugin extends JavaPlugin {
@@ -29,7 +28,7 @@ public class SreeCorePlugin extends JavaPlugin {
         }
 
         getLogger().info("sree-core initiated");
-        worldService = new WorldService(MultiverseCoreApi.get(), MultiverseInventoriesApi.get(), getLogger());
+        worldService = new WorldService(MultiverseCoreApi.get(), getLogger());
         pregenerateChunksService = new PregenerateChunksService(Bukkit.getServer().getServicesManager().load(ChunkyAPI.class), getLogger());
         prepareDimensionSet = new PrepareDimensionSet(worldService, pregenerateChunksService);
 

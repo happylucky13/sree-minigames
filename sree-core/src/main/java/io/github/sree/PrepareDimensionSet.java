@@ -78,7 +78,7 @@ public class PrepareDimensionSet {
                 )
                 .thenCompose(dimensionSet ->
                         pregenerateChunksService.pregenerate(
-                                dimensionSet.worlds(),
+                                dimensionSet,
                                 new ChunkGenerationSettings(
                                         Shape.CIRCLE,
                                         0.0,
@@ -93,9 +93,9 @@ public class PrepareDimensionSet {
                         )
                 )
                 .thenApply(
-                        worlds -> {
-                            worldService.linkWorlds(worlds, worldKey.getKey() + "_group");
-                            return worlds.stream()
+                        dimensionSet -> {
+                            worldService.linkWorlds(dimensionSet, worldKey.getKey() + "_group");
+                            return dimensionSet.worlds().stream()
                                     .filter(world -> world.getEnvironment() == World.Environment.NORMAL)
                                     .findFirst()
                                     .orElseThrow(() -> new IllegalStateException("Dimension set has no overworld."));

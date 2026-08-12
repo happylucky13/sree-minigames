@@ -1,5 +1,6 @@
 package io.github.sree.pregenerate_world;
 
+import io.github.sree.create_world.DimensionSet;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.popcraft.chunky.api.ChunkyAPI;
@@ -24,14 +25,14 @@ public class PregenerateChunksService {
         chunky.onGenerationComplete(this::handleComplete);
     }
 
-    public CompletableFuture<Set<World>> pregenerate(Collection<World> worlds, ChunkGenerationSettings settings, Collection<Player> viewers) {
+    public CompletableFuture<DimensionSet> pregenerate(DimensionSet dimensionSet, ChunkGenerationSettings settings, Collection<Player> viewers) {
         if (currentSession != null) {
             return CompletableFuture.failedFuture(
                     new IllegalStateException("Chunk generation already in progress.")
             );
         }
 
-        GenerationSession session = new GenerationSession(worlds, viewers, logger);
+        GenerationSession session = new GenerationSession(dimensionSet, viewers, logger);
         currentSession = session;
 
         try {

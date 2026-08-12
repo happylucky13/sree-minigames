@@ -11,9 +11,10 @@ import java.util.UUID;
 public class SpectatorService {
 
     private final Set<UUID> spectators = new HashSet<>();
+    private SpectatorVoiceService voiceChat = new NoVoiceChat();
 
-    public SpectatorService() {
-
+    public void setVoiceChat(SpectatorVoiceService voiceChat) {
+        this.voiceChat = voiceChat;
     }
 
     private void enforceSpectatorMode(Player player) {
@@ -22,7 +23,13 @@ public class SpectatorService {
 
     public void addSpectator(Player player) {
         spectators.add(player.getUniqueId());
+        voiceChat.addSpectator(player);
         enforceSpectatorMode(player);
+    }
+
+    public void removeSpectator(Player player) {
+        spectators.remove(player.getUniqueId());
+        voiceChat.removeSpectator(player);
     }
 
     public void handleSpectatorDimensionChange(PlayerChangedWorldEvent event) {

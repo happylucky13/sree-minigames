@@ -12,7 +12,6 @@ import org.bukkit.Bukkit;
 import org.bukkit.event.Listener;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.mvplugins.multiverse.core.MultiverseCoreApi;
-import org.mvplugins.multiverse.inventories.MultiverseInventoriesApi;
 import org.popcraft.chunky.api.ChunkyAPI;
 
 import java.util.List;
@@ -38,7 +37,8 @@ public class SreeCorePlugin extends JavaPlugin {
         }
 
         getLogger().info("sree-core initialized");
-        worldService = new WorldService(MultiverseCoreApi.get(), MultiverseInventoriesApi.get(), getLogger());
+      
+        worldService = new WorldService(MultiverseCoreApi.get(), getLogger());
         pregenerateChunksService = new PregenerateChunksService(Bukkit.getServer().getServicesManager().load(ChunkyAPI.class), getLogger());
         prepareDimensionSet = new PrepareDimensionSet(worldService, pregenerateChunksService);
         informationService = new InformationService();

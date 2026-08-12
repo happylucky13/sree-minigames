@@ -1,5 +1,6 @@
 package io.github.sree.pregenerate_world;
 
+import io.github.sree.create_world.DimensionSet;
 import net.kyori.adventure.bossbar.BossBar;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
@@ -15,20 +16,20 @@ import java.util.logging.Logger;
 
 public class GenerationSession {
 
-    private final Set<World> worlds;
+    private final DimensionSet dimensionSet;
     private final Map<World, Float> progress = new HashMap<>();
     private final Set<World> completedWorlds = new HashSet<>();
     private final Collection<Player> viewers;
-    private final CompletableFuture<Set<World>> future = new CompletableFuture<>();
+    private final CompletableFuture<DimensionSet> future = new CompletableFuture<>();
     private final BossBar progressBar;
     private final Logger logger;
 
-    public GenerationSession(Collection<World> worlds, Collection<Player> viewers, Logger logger) {
-        this.worlds = Set.copyOf(worlds);
+    public GenerationSession(DimensionSet dimensionSet, Collection<Player> viewers, Logger logger) {
+        this.dimensionSet = dimensionSet;
         this.logger = logger;
         this.viewers = viewers;
 
-        worlds.forEach(world -> progress.put(world, 0.0f));
+        dimensionSet.worlds().forEach(world -> progress.put(world, 0.0f));
 
         progressBar = BossBar.bossBar(
                 Component.text("Generating worlds... 0.0% complete"),
@@ -40,12 +41,12 @@ public class GenerationSession {
         viewers.forEach(progressBar::addViewer);
     }
 
-    public CompletableFuture<Set<World>> getFuture() {
+    public CompletableFuture<DimensionSet> getFuture() {
         return future;
     }
 
     public void start(ChunkyAPI chunkyAPI, ChunkGenerationSettings settings) {
-        worlds.forEach(world ->
+        dimensionSet.worlds().forEach(world ->
                 chunkyAPI.startTask(
                         world.getName(),
                         settings.shape().getName(),
@@ -61,7 +62,7 @@ public class GenerationSession {
     public void handleProgress(GenerationProgressEvent event) {
         World world = Bukkit.getWorld(event.world());
 
-        if (world == null || !worlds.contains(world)) {
+        if (world == null || !dimensionSet.worlds().contains(world)) {
             return;
         }
 
@@ -87,7 +88,7 @@ public class GenerationSession {
             return;
         }
 
-        if (!worlds.contains(world)) {
+        if (!dimensionSet.worlds().contains(world)) {
             logger.warning("Completed world wasn't in requested set: " + world.getName());
             return;
         }
@@ -102,8 +103,8 @@ public class GenerationSession {
 
         progressBar.progress(overallProgress);
 
-        if (completedWorlds.size() == worlds.size()) {
-            future.complete(completedWorlds);
+        if (completedWorlds.size() == dimensionSet.worlds().size()) {
+            future.complete(dimensionSet);
             viewers.forEach(progressBar::removeViewer);
         }
     }

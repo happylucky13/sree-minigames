@@ -11,6 +11,9 @@ dependencies:
     Multiverse-Inventories:
       required: true
       load: BEFORE
+    Multiverse-NetherPortals:
+      required: true
+      load: BEFORE
     Chunky:
       required: true
       load: BEFORE

@@ -66,16 +66,31 @@ public class GameState {
         playersMap.put(id, playerState);
     }
 
-    public Set<Player> getAttackedPlayers(Player player) {
-        return playersMap.get(player.getUniqueId()).getCombatTag().keySet();
+    public Player getAttackerThatHurtTargetMost(Player player) {
+        Optional<UUID> maxEntry = playersMap.entrySet().stream()
+                .filter(entry -> entry.getValue().getCombatTag().containsKey(player))
+                .max(Comparator.comparingDouble(entry -> entry.getValue().getCombatTag().get(player)))
+                .map(Map.Entry::getKey);
+
+        return maxEntry.map(Bukkit::getPlayer).orElse(null);
     }
 
-    public void setAttackedPlayer(Player attacker, Player target, double damageDealt) {
-        playersMap.get(attacker.getUniqueId()).getCombatTag().put(target, damageDealt);
+    public void setOrIncrementAttackedPlayer(Player attacker, Player target, double damageDealt) {
+        PlayerState playerState = playersMap.get(attacker.getUniqueId());
+        if (!playerState.getCombatTag().containsKey(attacker)) {
+            playerState.getCombatTag().put(target, damageDealt);
+            return;
+        }
+
+        playerState.addDamage(target, damageDealt);
     }
 
     public void removeAttackedPlayer(Player attacker, Player target) {
         playersMap.get(attacker.getUniqueId()).getCombatTag().remove(target);
+    }
+
+    public void incrementKills(Player player) {
+        playersMap.get(player.getUniqueId()).incrementKills();
     }
 
     public void resetGame() {
@@ -97,11 +112,14 @@ public class GameState {
 
     public void lockSlots(Player player) {
         PlayerState playerState = playersMap.get(player.getUniqueId());
+        EnumSet<LockedSlot> lockedSlots = EnumSet.noneOf(LockedSlot.class);
 
         for (LockedSlot slot : EnumSet.allOf(LockedSlot.class)) {
             if (playerState.getKills() >= slot.getValue()) {
-                playerState.getLockedSlots().add(slot);
+                lockedSlots.add(slot);
             }
         }
+
+        playerState.setLockedSlots(lockedSlots);
     }
 }

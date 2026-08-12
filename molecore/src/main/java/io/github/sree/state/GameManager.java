@@ -18,6 +18,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
+import org.bukkit.scheduler.BukkitTask;
 
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
@@ -31,6 +32,8 @@ public class GameManager {
     private final GameState gameState;
 
     private final SreeCorePlugin sreeCore;
+
+    private final Map<UUID, BukkitTask> combatTasks = new HashMap<>();
 
 
     public GameManager(MolecorePlugin plugin, GameState gameState, GameAnimationManager animationManager, SreeCorePlugin sreeCore) {
@@ -146,10 +149,10 @@ public class GameManager {
 
     public void handlePlayerDeath(PlayerDeathEvent event) {
         Component deathComponent = event.deathMessage();
-        Player player = event.getPlayer();
+        Player target = event.getPlayer();
 
         if (gameState.isGracePeriod()) {
-            player.sendMessage(Component.text("The grace period has saved you!", NamedTextColor.GREEN));
+            target.sendMessage(Component.text("The grace period has saved you!", NamedTextColor.GREEN));
             return;
         }
 
@@ -157,8 +160,12 @@ public class GameManager {
             plugin.getLogger().info(PlainTextComponentSerializer.plainText().serialize(deathComponent));
         }
 
-        sreeCore.spectatorService().addSpectator(player);
-        gameState.markDead(player.getUniqueId());
+        Player attacker = gameState.getAttackerThatHurtTargetMost(target);
+        gameState.incrementKills(attacker);
+        gameState.lockSlots(attacker);
+
+        sreeCore.spectatorService().addSpectator(target);
+        gameState.markDead(target.getUniqueId());
         checkWinCondition().ifPresent(winner -> endGame(winner, event.getEntity().getLocation()));
     }
 
@@ -184,8 +191,18 @@ public class GameManager {
     }
 
     public void markCombat(Player attacker, Player target, double damageDealt) {
-        gameState.setAttackedPlayer(attacker, target, damageDealt);
+        gameState.setOrIncrementAttackedPlayer(attacker, target, damageDealt);
 
-        Bukkit.getScheduler().runTaskLater(plugin, () -> gameState.removeAttackedPlayer(attacker, target), 400L);
+        if (combatTasks.containsKey(attacker.getUniqueId())) {
+            combatTasks.get(attacker.getUniqueId()).cancel();
+            attacker.sendMessage(Component.text("Cooldown reset", NamedTextColor.LIGHT_PURPLE));
+        }
+
+        BukkitTask finishCooldown = Bukkit.getScheduler().runTaskLater(plugin, () -> {
+            gameState.removeAttackedPlayer(attacker, target);
+            attacker.sendMessage(Component.text("Out of combat.", NamedTextColor.LIGHT_PURPLE));
+                }, 400L);
+
+        combatTasks.put(attacker.getUniqueId(), finishCooldown);
     }
 }

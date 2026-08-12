@@ -22,6 +22,13 @@ public class PlayerState {
         return damageDealtToPlayer;
     }
 
+    public void addDamage(Player target, double damageDealt) {
+        double originalDamage = damageDealtToPlayer.get(target);
+        double newDamage = originalDamage + damageDealt;
+
+        damageDealtToPlayer.put(target, newDamage);
+    }
+
     public int getKills() {
         return kills;
     }

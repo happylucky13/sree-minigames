@@ -4,29 +4,20 @@ import io.github.sree.enums.LockedSlot;
 import io.github.sree.enums.Role;
 import org.bukkit.entity.Player;
 
-import java.util.EnumSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 public class PlayerState {
     private Role role;
     private int kills = 0;
     private EnumSet<LockedSlot> lockedSlots = EnumSet.noneOf(LockedSlot.class);
-    private Map<Player, Double> damageDealtToPlayer;
+    private final Map<UUID, Double> damageDealtToPlayer = new HashMap<>();
 
     public Role getRole() {
         return role;
     }
 
-    public Map<Player, Double> getCombatTag() {
+    public Map<UUID, Double> getCombatTag() {
         return damageDealtToPlayer;
-    }
-
-    public void addDamage(Player target, double damageDealt) {
-        double originalDamage = damageDealtToPlayer.get(target);
-        double newDamage = originalDamage + damageDealt;
-
-        damageDealtToPlayer.put(target, newDamage);
     }
 
     public int getKills() {

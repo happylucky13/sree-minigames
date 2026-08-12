@@ -38,7 +38,8 @@ public class MolecorePlugin extends JavaPlugin {
                 new ObjectiveListener(gameState, gameManager),
                 new PiglinBarterListener(gameState),
                 new PlayerDeathListener(gameState, gameManager),
-                new WitherSkeletonDeathListener(gameState)
+                new WitherSkeletonDeathListener(gameState),
+                new InventoryClickListener(gameState)
         );
 
         listeners.forEach(gameListener ->

@@ -32,7 +32,7 @@ public class GameManager {
 
     private final SreeCorePlugin sreeCore;
 
-    private final Map<UUID, BukkitTask> combatTasks = new HashMap<>();
+    private final Map<UUID, Map<UUID, BukkitTask>> combatTasks = new HashMap<>();
 
 
     public GameManager(MolecorePlugin plugin, GameState gameState, GameAnimationManager animationManager, SreeCorePlugin sreeCore) {
@@ -86,7 +86,6 @@ public class GameManager {
                     Set<Player> players = new HashSet<>(Bukkit.getOnlinePlayers());
 
                     gameState.resetGame();
-                    gameState.setGameStarted(true);
                     gameState.setAlivePlayers(players.stream().map(Player::getUniqueId).collect(Collectors.toSet()));
 
                     startGameSequence(players, overworld);
@@ -105,17 +104,31 @@ public class GameManager {
         animationManager.startCountdown(players)
                 .thenComposeAsync(ignored -> teleportPlayers(overworld), mainThread)
                 .thenComposeAsync(ignored -> {
+                    plugin.getLogger().info("Grace period started!");
+                    gameState.setGameStarted(true);
                     gameState.setGracePeriod(true);
 
+                    plugin.getLogger().info("Grace period resetting information!");
+
                     sreeCore.informationService().reset(players);
+
+                    plugin.getLogger().info("Grace period has reset information!");
+
+                    plugin.getLogger().info("Grace period denying death messages!");
                     sreeCore.informationService().deny(players, InformationChannel.DEATH_MESSAGES);
+                    plugin.getLogger().info("Denying death messages success!");
+
+                    plugin.getLogger().info("Grace period denying tab list!!");
                     sreeCore.informationService().deny(players, InformationChannel.TAB_LIST);
+                    plugin.getLogger().info("Grace period denying tab list success!");
 
                     Component playerListHeader = Component.text("Newtoncraft Molecore", NamedTextColor.RED)
                                     .append(Component.newline())
                                     .append(Component.text("---------------------", NamedTextColor.GOLD));
 
                     players.forEach(player -> player.sendPlayerListHeader(playerListHeader));
+
+                    plugin.getLogger().info("Grace period starting animation!");
 
                     return animationManager.gracePeriodTimer(players, gameState.getSettings().gracePeriodSeconds());
                 }, mainThread)
@@ -160,8 +173,10 @@ public class GameManager {
         }
 
         Player attacker = gameState.getAttackerThatHurtTargetMost(target);
-        gameState.incrementKills(attacker);
-        gameState.lockSlots(attacker);
+        if (attacker != null) {
+            gameState.incrementKills(attacker);
+            gameState.lockSlots(attacker);
+        }
 
         sreeCore.spectatorService().addSpectator(target);
         gameState.markDead(target.getUniqueId());
@@ -192,16 +207,29 @@ public class GameManager {
     public void markCombat(Player attacker, Player target, double damageDealt) {
         gameState.setOrIncrementAttackedPlayer(attacker, target, damageDealt);
 
-        if (combatTasks.containsKey(attacker.getUniqueId())) {
-            combatTasks.get(attacker.getUniqueId()).cancel();
-            attacker.sendMessage(Component.text("Cooldown reset", NamedTextColor.LIGHT_PURPLE));
+        Map<UUID, BukkitTask> attackerTasks =
+                combatTasks.computeIfAbsent(
+                        attacker.getUniqueId(),
+                        ignored -> new HashMap<>()
+                );
+
+        BukkitTask existingTask = attackerTasks.get(target.getUniqueId());
+
+        if (existingTask != null) {
+            existingTask.cancel();
         }
 
-        BukkitTask finishCooldown = Bukkit.getScheduler().runTaskLater(plugin, () -> {
+        BukkitTask task = Bukkit.getScheduler().runTaskLater(plugin, () -> {
             gameState.removeAttackedPlayer(attacker, target);
-            attacker.sendMessage(Component.text("Out of combat.", NamedTextColor.LIGHT_PURPLE));
-                }, 400L);
+            attackerTasks.remove(target.getUniqueId());
 
-        combatTasks.put(attacker.getUniqueId(), finishCooldown);
+            if (attacker.isOnline()) {
+                attacker.sendMessage(
+                        Component.text("Out of combat.", NamedTextColor.LIGHT_PURPLE)
+                );
+            }
+        }, 400L);
+
+        attackerTasks.put(target.getUniqueId(), task);
     }
 }

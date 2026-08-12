@@ -19,6 +19,10 @@ public class InventoryClickListener extends GameListener {
 
     @EventHandler
     public void onInventoryClick(InventoryClickEvent event) {
+        if (!gameState.isGameStarted()) {
+            return;
+        }
+
         if (event.getView().getType() != InventoryType.CRAFTING && event.getView().getType() != InventoryType.PLAYER) {
             return;
         }
@@ -49,6 +53,10 @@ public class InventoryClickListener extends GameListener {
 
     @EventHandler
     public void onArmorHotswap(PlayerInteractEvent event) {
+        if (!gameState.isGameStarted()) {
+            return;
+        }
+
         if (event.getAction() != Action.RIGHT_CLICK_AIR && event.getAction() != Action.RIGHT_CLICK_BLOCK) {
             return;
         }

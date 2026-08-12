@@ -68,8 +68,8 @@ public class GameState {
 
     public Player getAttackerThatHurtTargetMost(Player player) {
         Optional<UUID> maxEntry = playersMap.entrySet().stream()
-                .filter(entry -> entry.getValue().getCombatTag().containsKey(player))
-                .max(Comparator.comparingDouble(entry -> entry.getValue().getCombatTag().get(player)))
+                .filter(entry -> entry.getValue().getCombatTag().containsKey(player.getUniqueId()))
+                .max(Comparator.comparingDouble(entry -> entry.getValue().getCombatTag().get(player.getUniqueId())))
                 .map(Map.Entry::getKey);
 
         return maxEntry.map(Bukkit::getPlayer).orElse(null);
@@ -77,16 +77,22 @@ public class GameState {
 
     public void setOrIncrementAttackedPlayer(Player attacker, Player target, double damageDealt) {
         PlayerState playerState = playersMap.get(attacker.getUniqueId());
-        if (!playerState.getCombatTag().containsKey(attacker)) {
-            playerState.getCombatTag().put(target, damageDealt);
+
+        if (playerState == null) {
             return;
         }
 
-        playerState.addDamage(target, damageDealt);
+        playerState.getCombatTag().merge(target.getUniqueId(), damageDealt, Double::sum);
     }
 
     public void removeAttackedPlayer(Player attacker, Player target) {
-        playersMap.get(attacker.getUniqueId()).getCombatTag().remove(target);
+        PlayerState playerState = playersMap.get(attacker.getUniqueId());
+
+        if (playerState == null) {
+            return;
+        }
+
+        playerState.getCombatTag().remove(target.getUniqueId());
     }
 
     public void incrementKills(Player player) {
@@ -111,7 +117,7 @@ public class GameState {
     }
 
     public EnumSet<LockedSlot> getLockedSlots(Player player) {
-        return playersMap.get(player.getUniqueId()).getLockedSlots();
+        return getPlayerState(player).getLockedSlots();
     }
 
     public void lockSlots(Player player) {
@@ -125,5 +131,9 @@ public class GameState {
         }
 
         playerState.setLockedSlots(lockedSlots);
+    }
+
+    private PlayerState getPlayerState (Player player) {
+        return playersMap.computeIfAbsent(player.getUniqueId(), ignored -> new PlayerState());
     }
 }

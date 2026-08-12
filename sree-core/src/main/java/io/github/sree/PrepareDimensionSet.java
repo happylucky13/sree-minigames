@@ -95,10 +95,7 @@ public class PrepareDimensionSet {
                 .thenApply(
                         dimensionSet -> {
                             worldService.linkWorlds(dimensionSet, worldKey.getKey() + "_group");
-                            return dimensionSet.worlds().stream()
-                                    .filter(world -> world.getEnvironment() == World.Environment.NORMAL)
-                                    .findFirst()
-                                    .orElseThrow(() -> new IllegalStateException("Dimension set has no overworld."));
+                            return dimensionSet.overworld();
                         }
                 )
                 .exceptionally(throwable -> {

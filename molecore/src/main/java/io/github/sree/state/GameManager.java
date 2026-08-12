@@ -68,14 +68,14 @@ public class GameManager {
             UUID id = shuffledPlayers.get(i).getUniqueId();
 
             if(i < gameState.getSettings().moleCount()) {
-                gameState.addPlayerToRoleMap(id, Role.MOLE);
+                gameState.addPlayerToPlayersMap(id, Role.MOLE);
                 continue;
             }
 
-            gameState.addPlayerToRoleMap(id, Role.SURVIVOR);
+            gameState.addPlayerToPlayersMap(id, Role.SURVIVOR);
         }
 
-        gameState.setAlivePlayers(gameState.getRoleMap().keySet());
+        gameState.setAlivePlayers(gameState.getPlayersMap().keySet());
     }
 
     public void startGame(NamespacedKey worldKey) {
@@ -120,8 +120,8 @@ public class GameManager {
                 .thenAcceptAsync(ignored -> {
                     assignRoles();
 
-                    Map<Player, Role> playerRoleMap = gameState.getRoleMap().entrySet().stream()
-                            .map(entry -> Map.entry(Bukkit.getPlayer(entry.getKey()), entry.getValue()))
+                    Map<Player, Role> playerRoleMap = gameState.getPlayersMap().entrySet().stream()
+                            .map(entry -> Map.entry(Bukkit.getPlayer(entry.getKey()), entry.getValue().getRole()))
                             .filter(entry -> entry.getKey() != null)
                             .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
 

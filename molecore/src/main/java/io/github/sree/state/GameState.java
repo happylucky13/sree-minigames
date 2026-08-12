@@ -1,5 +1,6 @@
 package io.github.sree.state;
 
+import io.github.sree.enums.LockedSlot;
 import io.github.sree.enums.Objective;
 import io.github.sree.enums.Role;
 import org.bukkit.Bukkit;
@@ -11,6 +12,8 @@ import java.util.stream.Collectors;
 public class GameState {
     private final Set<UUID> alivePlayers = new HashSet<>();
     private final Map<UUID, Role> roleMap = new HashMap<>();
+    private final Map<UUID, EnumSet<LockedSlot>> lockedSlotRegistry = new HashMap<>();
+    private final Map<UUID, Integer> playerKills = new HashMap<>();
 
     private GameSettings settings = new GameSettings(2, Objective.BEACON, 900);
 
@@ -78,5 +81,17 @@ public class GameState {
                 .map(entry -> Bukkit.getPlayer(entry.getKey()))
                 .filter(Objects::nonNull)
                 .collect(Collectors.toSet());
+    }
+
+    public void lockSlots(Player player) {
+        lockedSlotRegistry.computeIfAbsent(player.getUniqueId(), ignored -> EnumSet.noneOf(LockedSlot.class));
+        int kills = playerKills.getOrDefault(player.getUniqueId(), 0);
+        EnumSet<LockedSlot> playerSlots = lockedSlotRegistry.get(player.getUniqueId());
+
+        for (LockedSlot slot : EnumSet.allOf(LockedSlot.class)) {
+            if (kills >= slot.getValue()) {
+                playerSlots.add(slot);
+            }
+        }
     }
 }

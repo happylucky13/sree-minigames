@@ -3,6 +3,8 @@ package io.github.sree.state;
 import io.github.sree.MolecorePlugin;
 import io.github.sree.SreeCorePlugin;
 import io.github.sree.animations.GameAnimationManager;
+import io.github.sree.combat_tag.CombatTagSettings;
+import io.github.sree.combat_tag.TaggingMethod;
 import io.github.sree.enums.LockedSlot;
 import io.github.sree.enums.Role;
 import io.github.sree.enums.Winner;
@@ -14,7 +16,6 @@ import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import org.bukkit.*;
 import org.bukkit.entity.EnderDragon;
-import org.bukkit.entity.ItemDisplay;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.bukkit.event.entity.EntityDeathEvent;
@@ -92,6 +93,7 @@ public class GameManager {
 
                     gameState.resetGame();
                     gameState.setAlivePlayers(players.stream().map(Player::getUniqueId).collect(Collectors.toSet()));
+                    sreeCore.combatTagManager().setCombatTagSettings(new CombatTagSettings(20, TaggingMethod.MOST_DMG));
 
                     startGameSequence(players, overworld);
                 })
@@ -113,19 +115,10 @@ public class GameManager {
                     gameState.setGameStarted(true);
                     gameState.setGracePeriod(true);
 
-                    plugin.getLogger().info("Grace period resetting information!");
-
                     sreeCore.informationService().reset(players);
 
-                    plugin.getLogger().info("Grace period has reset information!");
-
-                    plugin.getLogger().info("Grace period denying death messages!");
                     sreeCore.informationService().deny(players, InformationChannel.DEATH_MESSAGES);
-                    plugin.getLogger().info("Denying death messages success!");
-
-                    plugin.getLogger().info("Grace period denying tab list!!");
                     sreeCore.informationService().deny(players, InformationChannel.TAB_LIST);
-                    plugin.getLogger().info("Grace period denying tab list success!");
 
                     Component playerListHeader = Component.text("Newtoncraft Molecore", NamedTextColor.RED)
                                     .append(Component.newline())
@@ -179,7 +172,7 @@ public class GameManager {
 
         event.getDrops().removeIf(item -> item.getType() == Material.STONE_BUTTON);
 
-        Player attacker = gameState.getAttackerThatHurtTargetMost(target);
+        Player attacker = sreeCore.combatTagManager().getKiller(event);
         if (attacker != null) {
             gameState.incrementKills(attacker);
             gameState.lockSlots(attacker);
@@ -246,34 +239,5 @@ public class GameManager {
 
     private Optional<Winner> checkWinCondition() {
         return gameState.hasAlivePlayersWithRole(Role.SURVIVOR) ? Optional.empty() : Optional.of(Winner.MOLES);
-    }
-
-    public void markCombat(Player attacker, Player target, double damageDealt) {
-        gameState.setOrIncrementAttackedPlayer(attacker, target, damageDealt);
-
-        Map<UUID, BukkitTask> attackerTasks =
-                combatTasks.computeIfAbsent(
-                        attacker.getUniqueId(),
-                        ignored -> new HashMap<>()
-                );
-
-        BukkitTask existingTask = attackerTasks.get(target.getUniqueId());
-
-        if (existingTask != null) {
-            existingTask.cancel();
-        }
-
-        BukkitTask task = Bukkit.getScheduler().runTaskLater(plugin, () -> {
-            gameState.removeAttackedPlayer(attacker, target);
-            attackerTasks.remove(target.getUniqueId());
-
-            if (attacker.isOnline()) {
-                attacker.sendMessage(
-                        Component.text("Out of combat.", NamedTextColor.LIGHT_PURPLE)
-                );
-            }
-        }, 400L);
-
-        attackerTasks.put(target.getUniqueId(), task);
     }
 }

@@ -66,35 +66,6 @@ public class GameState {
         playersMap.put(id, playerState);
     }
 
-    public Player getAttackerThatHurtTargetMost(Player player) {
-        Optional<UUID> maxEntry = playersMap.entrySet().stream()
-                .filter(entry -> entry.getValue().getCombatTag().containsKey(player.getUniqueId()))
-                .max(Comparator.comparingDouble(entry -> entry.getValue().getCombatTag().get(player.getUniqueId())))
-                .map(Map.Entry::getKey);
-
-        return maxEntry.map(Bukkit::getPlayer).orElse(null);
-    }
-
-    public void setOrIncrementAttackedPlayer(Player attacker, Player target, double damageDealt) {
-        PlayerState playerState = playersMap.get(attacker.getUniqueId());
-
-        if (playerState == null) {
-            return;
-        }
-
-        playerState.getCombatTag().merge(target.getUniqueId(), damageDealt, Double::sum);
-    }
-
-    public void removeAttackedPlayer(Player attacker, Player target) {
-        PlayerState playerState = playersMap.get(attacker.getUniqueId());
-
-        if (playerState == null) {
-            return;
-        }
-
-        playerState.getCombatTag().remove(target.getUniqueId());
-    }
-
     public void incrementKills(Player player) {
         playersMap.get(player.getUniqueId()).incrementKills();
     }

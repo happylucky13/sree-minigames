@@ -43,10 +43,12 @@ public class CombatTagManager {
             existingTask.cancel();
         }
 
+        long ticks = (long) combatTagSettings.expirationTime() * 20;
+
         BukkitTask newTask = Bukkit.getScheduler().runTaskLater(plugin, () -> {
             damageHistories.remove(victimId);
             expirationTasks.remove(victimId);
-        }, combatTagSettings.expirationTime());
+        }, ticks);
 
         expirationTasks.put(victimId, newTask);
     }

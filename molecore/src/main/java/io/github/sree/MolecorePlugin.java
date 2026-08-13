@@ -53,6 +53,7 @@ public class MolecorePlugin extends JavaPlugin {
                 .then(settingsCommand.createCommand())
                 .then(startCommand.createCommand())
                 .then(worldCommand.createCommand())
+                .requires(ctx -> ctx.getSender().isOp())
                 .build();
 
         this.getLifecycleManager().registerEventHandler(LifecycleEvents.COMMANDS, commands -> {

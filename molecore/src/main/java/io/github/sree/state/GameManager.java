@@ -23,6 +23,7 @@ import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
 
 import java.util.*;
@@ -38,18 +39,11 @@ public class GameManager {
 
     private final SreeCorePlugin sreeCore;
 
-    private final Map<UUID, Map<UUID, BukkitTask>> combatTasks = new HashMap<>();
-
-
     public GameManager(MolecorePlugin plugin, GameState gameState, GameAnimationManager animationManager, SreeCorePlugin sreeCore) {
         this.plugin = plugin;
         this.gameState = gameState;
         this.animationManager = animationManager;
         this.sreeCore = sreeCore;
-    }
-
-    public GameState getGameState() {
-        return gameState;
     }
 
     public NamespacedKey getWorldKey(String worldName) {
@@ -156,7 +150,7 @@ public class GameManager {
 
         Set<Player> onlinePlayers = new HashSet<>(Bukkit.getOnlinePlayers());
         sreeCore.informationService().reset(onlinePlayers);
-        gameState.setGameStarted(false);
+        gameState.resetGame();
     }
 
     public void handlePlayerDeath(PlayerDeathEvent event) {
@@ -193,6 +187,48 @@ public class GameManager {
 
         gameState.markDead(target.getUniqueId());
         checkWinCondition().ifPresent(winner -> endGame(winner, event.getEntity().getLocation()));
+    }
+
+    public void executeSabotage(Player player) {
+        if (!gameState.isGameStarted() || gameState.isGracePeriod()) {
+            player.sendMessage(Component.text("Roles aren't assigned yet."));
+        }
+
+        if (gameState.getRole(player) == Role.SURVIVOR) {
+            player.sendMessage(Component.text("Only moles can use that, silly!", NamedTextColor.GREEN));
+            return;
+        }
+
+        if (gameState.isSabotageOnCooldown()) {
+            player.sendMessage(Component.text("Sabotage is still on cooldown.", NamedTextColor.DARK_RED));
+            return;
+        }
+
+        gameState.setSabotageOnCooldown(true);
+        sreeCore.informationService().deny(gameState.getPlayersWithRole(Role.SURVIVOR), InformationChannel.LOCATOR_BAR);
+
+
+        new BukkitRunnable() {
+            int remainingSeconds = 1200;
+            final Set<Player> moles = gameState.getPlayersWithRole(Role.MOLE);
+
+            public void run() {
+                if (remainingSeconds <= 0) {
+                    moles.forEach(mole ->
+                            mole.sendActionBar(Component.text("Sabotage off cooldown.", NamedTextColor.GOLD)));
+
+                    gameState.setSabotageOnCooldown(false);
+                    this.cancel();
+                }
+
+                String updatedTime = String.format("%02d:%02d", remainingSeconds / 60, remainingSeconds % 60);
+
+                moles.forEach(mole ->
+                        mole.sendActionBar(Component.text("Sabotage off cooldown in " + updatedTime, NamedTextColor.RED)));
+
+                remainingSeconds --;
+            }
+        }.runTaskTimer(plugin, 0L, 20L);
     }
 
     public void dropArmor(Player player, EnumSet<LockedSlot> lockedSlots) {

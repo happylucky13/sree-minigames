@@ -18,6 +18,8 @@ public class GameState {
     private boolean gameStarted;
     private boolean gracePeriod;
 
+    private boolean sabotageOnCooldown;
+
     public void setSettings(int moleCount, Objective objective, int gracePeriodTime) {
         settings = new GameSettings(moleCount, objective, gracePeriodTime);
     }
@@ -32,6 +34,9 @@ public class GameState {
     public void setGracePeriod(boolean gracePeriod) {
         this.gracePeriod = gracePeriod;
     }
+    public void setSabotageOnCooldown(boolean sabotageOnCooldown) {
+        this.sabotageOnCooldown = sabotageOnCooldown;
+    }
 
     public void setAlivePlayers(Set<UUID> players) {
         alivePlayers.addAll(players);
@@ -42,6 +47,9 @@ public class GameState {
     }
     public boolean isGracePeriod() {
         return gracePeriod;
+    }
+    public boolean isSabotageOnCooldown() {
+        return sabotageOnCooldown;
     }
 
     public void markDead(UUID uuid) {
@@ -73,6 +81,9 @@ public class GameState {
     public void resetGame() {
         playersMap.clear();
         alivePlayers.clear();
+        gameStarted = false;
+        gracePeriod = false;
+        sabotageOnCooldown = false;
     }
 
     public Role getRole(Player player) {

@@ -133,6 +133,11 @@ public class GameState {
         playerState.setLockedSlots(lockedSlots);
     }
 
+    public void unlockSlots(Player player) {
+        PlayerState playerState = playersMap.get(player.getUniqueId());
+        playerState.setLockedSlots(EnumSet.noneOf(LockedSlot.class));
+    }
+
     private PlayerState getPlayerState (Player player) {
         return playersMap.computeIfAbsent(player.getUniqueId(), ignored -> new PlayerState());
     }

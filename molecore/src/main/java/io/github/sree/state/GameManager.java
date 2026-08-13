@@ -14,12 +14,14 @@ import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import org.bukkit.*;
 import org.bukkit.entity.EnderDragon;
+import org.bukkit.entity.ItemDisplay;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
+import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.scheduler.BukkitTask;
 
 import java.util.*;
@@ -175,11 +177,17 @@ public class GameManager {
             plugin.getLogger().info(PlainTextComponentSerializer.plainText().serialize(deathComponent));
         }
 
+        event.getDrops().removeIf(item -> item.getType() == Material.STONE_BUTTON);
+
         Player attacker = gameState.getAttackerThatHurtTargetMost(target);
         if (attacker != null) {
             gameState.incrementKills(attacker);
             gameState.lockSlots(attacker);
             dropArmor(attacker, gameState.getLockedSlots(attacker));
+
+            if (gameState.getRole(attacker) == Role.MOLE) {
+                gameState.unlockSlots(attacker);
+            }
         }
 
         sreeCore.spectatorService().addSpectator(target);
@@ -189,14 +197,31 @@ public class GameManager {
 
     public void dropArmor(Player player, EnumSet<LockedSlot> lockedSlots) {
         lockedSlots.forEach(slot -> {
-            if (player.getInventory().getItem(slot.getSlot()).getType() == Material.BARRIER) {
+            if (player.getInventory().getItem(slot.getSlot()).getType() == Material.STONE_BUTTON) {
                 return;
             }
 
             PlayerInventory inv = player.getInventory();
             player.getWorld().dropItem(player.getLocation(), inv.getItem(slot.getSlot()));
 
-            inv.setItem(slot.getSlot(), new ItemStack(Material.BARRIER));
+            ItemStack item = new ItemStack(Material.STONE_BUTTON);
+            ItemMeta meta = item.getItemMeta();
+
+            if (meta != null) {
+                switch (gameState.getRole(player)) {
+                    case SURVIVOR:
+                        Component customSurvivorName = Component.text("LOCKED SLOT");
+                        meta.displayName(customSurvivorName);
+                        break;
+                    case MOLE:
+                        Component customMoleName = Component.text("'LOCKED' SLOT");
+                        meta.displayName(customMoleName);
+                        meta.lore(List.of(Component.text("You may only remove this slot once to feign having armor.")));
+                }
+            }
+
+            item.setItemMeta(meta);
+            inv.setItem(slot.getSlot(), item);
 
             player.playSound(player.getLocation(), Sound.ITEM_ARMOR_EQUIP_GENERIC, 1.0f, 1.0f);
         });

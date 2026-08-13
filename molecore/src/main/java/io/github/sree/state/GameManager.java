@@ -153,6 +153,7 @@ public class GameManager {
 
         Set<Player> onlinePlayers = new HashSet<>(Bukkit.getOnlinePlayers());
         sreeCore.informationService().reset(onlinePlayers);
+        sreeCore.spectatorService().removeAllSpectators();
         gameState.resetGame();
     }
 

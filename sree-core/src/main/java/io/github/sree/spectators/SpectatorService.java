@@ -42,9 +42,11 @@ public class SpectatorService {
                 .collect(Collectors.toUnmodifiableSet());
     }
 
-    public void removeSpectator(Player player) {
-        spectators.remove(player.getUniqueId());
-        voiceChat.removeSpectator(player);
+    public void removeAllSpectators() {
+        Set<Player> players = spectators.stream().map(Bukkit::getPlayer).collect(Collectors.toSet());
+        spectators.clear();
+
+        players.forEach(voiceChat::removeSpectator);
     }
 
     public void handleSpectatorDimensionChange(PlayerChangedWorldEvent event) {

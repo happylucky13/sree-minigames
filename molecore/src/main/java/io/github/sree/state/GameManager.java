@@ -3,21 +3,26 @@ package io.github.sree.state;
 import io.github.sree.MolecorePlugin;
 import io.github.sree.SreeCorePlugin;
 import io.github.sree.animations.GameAnimationManager;
+import io.github.sree.enums.LockedSlot;
 import io.github.sree.enums.Role;
 import io.github.sree.enums.Winner;
 
 import io.github.sree.information.InformationChannel;
-import io.github.sree.information.InformationService;
 import io.papermc.paper.event.block.BeaconActivatedEvent;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import org.bukkit.*;
 import org.bukkit.entity.EnderDragon;
+import org.bukkit.entity.ItemDisplay;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.PlayerInventory;
+import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.scheduler.BukkitTask;
 
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
@@ -31,6 +36,8 @@ public class GameManager {
     private final GameState gameState;
 
     private final SreeCorePlugin sreeCore;
+
+    private final Map<UUID, Map<UUID, BukkitTask>> combatTasks = new HashMap<>();
 
 
     public GameManager(MolecorePlugin plugin, GameState gameState, GameAnimationManager animationManager, SreeCorePlugin sreeCore) {
@@ -68,14 +75,14 @@ public class GameManager {
             UUID id = shuffledPlayers.get(i).getUniqueId();
 
             if(i < gameState.getSettings().moleCount()) {
-                gameState.addPlayerToRoleMap(id, Role.MOLE);
+                gameState.addPlayerToPlayersMap(id, Role.MOLE);
                 continue;
             }
 
-            gameState.addPlayerToRoleMap(id, Role.SURVIVOR);
+            gameState.addPlayerToPlayersMap(id, Role.SURVIVOR);
         }
 
-        gameState.setAlivePlayers(gameState.getRoleMap().keySet());
+        gameState.setAlivePlayers(gameState.getPlayersMap().keySet());
     }
 
     public void startGame(NamespacedKey worldKey) {
@@ -84,7 +91,6 @@ public class GameManager {
                     Set<Player> players = new HashSet<>(Bukkit.getOnlinePlayers());
 
                     gameState.resetGame();
-                    gameState.setGameStarted(true);
                     gameState.setAlivePlayers(players.stream().map(Player::getUniqueId).collect(Collectors.toSet()));
 
                     startGameSequence(players, overworld);
@@ -103,11 +109,23 @@ public class GameManager {
         animationManager.startCountdown(players)
                 .thenComposeAsync(ignored -> teleportPlayers(overworld), mainThread)
                 .thenComposeAsync(ignored -> {
+                    plugin.getLogger().info("Grace period started!");
+                    gameState.setGameStarted(true);
                     gameState.setGracePeriod(true);
 
+                    plugin.getLogger().info("Grace period resetting information!");
+
                     sreeCore.informationService().reset(players);
+
+                    plugin.getLogger().info("Grace period has reset information!");
+
+                    plugin.getLogger().info("Grace period denying death messages!");
                     sreeCore.informationService().deny(players, InformationChannel.DEATH_MESSAGES);
+                    plugin.getLogger().info("Denying death messages success!");
+
+                    plugin.getLogger().info("Grace period denying tab list!!");
                     sreeCore.informationService().deny(players, InformationChannel.TAB_LIST);
+                    plugin.getLogger().info("Grace period denying tab list success!");
 
                     Component playerListHeader = Component.text("Newtoncraft Molecore", NamedTextColor.RED)
                                     .append(Component.newline())
@@ -115,13 +133,15 @@ public class GameManager {
 
                     players.forEach(player -> player.sendPlayerListHeader(playerListHeader));
 
+                    plugin.getLogger().info("Grace period starting animation!");
+
                     return animationManager.gracePeriodTimer(players, gameState.getSettings().gracePeriodSeconds());
                 }, mainThread)
                 .thenAcceptAsync(ignored -> {
                     assignRoles();
 
-                    Map<Player, Role> playerRoleMap = gameState.getRoleMap().entrySet().stream()
-                            .map(entry -> Map.entry(Bukkit.getPlayer(entry.getKey()), entry.getValue()))
+                    Map<Player, Role> playerRoleMap = gameState.getPlayersMap().entrySet().stream()
+                            .map(entry -> Map.entry(Bukkit.getPlayer(entry.getKey()), entry.getValue().getRole()))
                             .filter(entry -> entry.getKey() != null)
                             .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
 
@@ -146,10 +166,10 @@ public class GameManager {
 
     public void handlePlayerDeath(PlayerDeathEvent event) {
         Component deathComponent = event.deathMessage();
-        Player player = event.getPlayer();
+        Player target = event.getPlayer();
 
         if (gameState.isGracePeriod()) {
-            player.sendMessage(Component.text("The grace period has saved you!", NamedTextColor.GREEN));
+            target.sendMessage(Component.text("The grace period has saved you!", NamedTextColor.GREEN));
             return;
         }
 
@@ -157,9 +177,54 @@ public class GameManager {
             plugin.getLogger().info(PlainTextComponentSerializer.plainText().serialize(deathComponent));
         }
 
-        sreeCore.spectatorService().addSpectator(player);
-        gameState.markDead(player.getUniqueId());
+        event.getDrops().removeIf(item -> item.getType() == Material.STONE_BUTTON);
+
+        Player attacker = gameState.getAttackerThatHurtTargetMost(target);
+        if (attacker != null) {
+            gameState.incrementKills(attacker);
+            gameState.lockSlots(attacker);
+            dropArmor(attacker, gameState.getLockedSlots(attacker));
+
+            if (gameState.getRole(attacker) == Role.MOLE) {
+                gameState.unlockSlots(attacker);
+            }
+        }
+
+        sreeCore.spectatorService().addSpectator(target);
+        gameState.markDead(target.getUniqueId());
         checkWinCondition().ifPresent(winner -> endGame(winner, event.getEntity().getLocation()));
+    }
+
+    public void dropArmor(Player player, EnumSet<LockedSlot> lockedSlots) {
+        lockedSlots.forEach(slot -> {
+            if (player.getInventory().getItem(slot.getSlot()).getType() == Material.STONE_BUTTON) {
+                return;
+            }
+
+            PlayerInventory inv = player.getInventory();
+            player.getWorld().dropItem(player.getLocation(), inv.getItem(slot.getSlot()));
+
+            ItemStack item = new ItemStack(Material.STONE_BUTTON);
+            ItemMeta meta = item.getItemMeta();
+
+            if (meta != null) {
+                switch (gameState.getRole(player)) {
+                    case SURVIVOR:
+                        Component customSurvivorName = Component.text("LOCKED SLOT");
+                        meta.displayName(customSurvivorName);
+                        break;
+                    case MOLE:
+                        Component customMoleName = Component.text("'LOCKED' SLOT");
+                        meta.displayName(customMoleName);
+                        meta.lore(List.of(Component.text("You may only remove this slot once to feign having armor.")));
+                }
+            }
+
+            item.setItemMeta(meta);
+            inv.setItem(slot.getSlot(), item);
+
+            player.playSound(player.getLocation(), Sound.ITEM_ARMOR_EQUIP_GENERIC, 1.0f, 1.0f);
+        });
     }
 
     public void handleObjectiveCompletion(Event event) {
@@ -181,5 +246,34 @@ public class GameManager {
 
     private Optional<Winner> checkWinCondition() {
         return gameState.hasAlivePlayersWithRole(Role.SURVIVOR) ? Optional.empty() : Optional.of(Winner.MOLES);
+    }
+
+    public void markCombat(Player attacker, Player target, double damageDealt) {
+        gameState.setOrIncrementAttackedPlayer(attacker, target, damageDealt);
+
+        Map<UUID, BukkitTask> attackerTasks =
+                combatTasks.computeIfAbsent(
+                        attacker.getUniqueId(),
+                        ignored -> new HashMap<>()
+                );
+
+        BukkitTask existingTask = attackerTasks.get(target.getUniqueId());
+
+        if (existingTask != null) {
+            existingTask.cancel();
+        }
+
+        BukkitTask task = Bukkit.getScheduler().runTaskLater(plugin, () -> {
+            gameState.removeAttackedPlayer(attacker, target);
+            attackerTasks.remove(target.getUniqueId());
+
+            if (attacker.isOnline()) {
+                attacker.sendMessage(
+                        Component.text("Out of combat.", NamedTextColor.LIGHT_PURPLE)
+                );
+            }
+        }, 400L);
+
+        attackerTasks.put(target.getUniqueId(), task);
     }
 }

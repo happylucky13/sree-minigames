@@ -50,8 +50,7 @@ public class SreeCorePlugin extends JavaPlugin {
 
         List<Listener> listeners = List.of(
                 new PlayerDeathListener(informationEnforcer),
-                new PlayerJoinListener(spectatorService),
-                new DimensionSwitchListener(spectatorService),
+                new GameModeChangeListener(spectatorService),
                 new PlayerDamageListener(combatTagManager)
         );
 

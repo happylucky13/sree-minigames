@@ -186,6 +186,11 @@ public class GameManager {
         }
 
         sreeCore.spectatorService().addSpectator(target);
+        sreeCore.informationService().set(sreeCore.spectatorService().getSpectators(), EnumSet.of(
+                InformationChannel.DEATH_MESSAGES,
+                InformationChannel.LOCATOR_BAR,
+                InformationChannel.TAB_LIST));
+
         gameState.markDead(target.getUniqueId());
         checkWinCondition().ifPresent(winner -> endGame(winner, event.getEntity().getLocation()));
     }

@@ -1,21 +1,21 @@
 package io.github.sree.spectators;
 
 import io.github.sree.SreeCorePlugin;
+import io.github.sree.information.InformationChannel;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.entity.Player;
 import org.bukkit.event.player.PlayerChangedWorldEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 
-import java.util.HashSet;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
+import java.util.stream.Collectors;
 
 public class SpectatorService {
 
     private final Set<UUID> spectators = new HashSet<>();
     private SpectatorVoiceService voiceChat = new NoVoiceChat();
-    private SreeCorePlugin plugin;
+    private final SreeCorePlugin plugin;
 
     public SpectatorService(SreeCorePlugin plugin) {
         this.plugin = plugin;
@@ -33,6 +33,13 @@ public class SpectatorService {
         spectators.add(player.getUniqueId());
         voiceChat.addSpectator(player);
         enforceSpectatorMode(player);
+    }
+
+    public Set<Player> getSpectators() {
+        return spectators.stream()
+                .map(Bukkit::getPlayer)
+                .filter(Objects::nonNull)
+                .collect(Collectors.toUnmodifiableSet());
     }
 
     public void removeSpectator(Player player) {

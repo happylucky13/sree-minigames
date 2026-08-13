@@ -4,9 +4,9 @@ import org.bukkit.inventory.EquipmentSlot;
 
 public enum LockedSlot {
     BOOTS(1, EquipmentSlot.FEET),
-    LEGGINGS(2, EquipmentSlot.LEGS),
-    CHESTPLATE(3, EquipmentSlot.CHEST),
-    HELMET(4, EquipmentSlot.HEAD);
+    LEGGINGS(3, EquipmentSlot.LEGS),
+    CHESTPLATE(4, EquipmentSlot.CHEST),
+    HELMET(2, EquipmentSlot.HEAD);
 
     private final int value;
     private final EquipmentSlot equipmentSlot;

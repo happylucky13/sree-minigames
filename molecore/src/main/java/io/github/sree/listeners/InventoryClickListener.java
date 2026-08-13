@@ -23,7 +23,7 @@ public class InventoryClickListener extends GameListener {
             return;
         }
 
-        if (event.getView().getType() != InventoryType.CRAFTING && event.getView().getType() != InventoryType.PLAYER) {
+        if (event.getView().getType() != InventoryType.PLAYER) {
             return;
         }
 

@@ -2,11 +2,13 @@ package io.github.sree.listeners;
 
 import io.github.sree.enums.LockedSlot;
 import io.github.sree.state.GameState;
+import net.kyori.adventure.text.Component;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.inventory.InventoryAction;
 import org.bukkit.event.inventory.InventoryClickEvent;
+import org.bukkit.event.inventory.InventoryDragEvent;
 import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.EquipmentSlot;
@@ -23,30 +25,47 @@ public class InventoryClickListener extends GameListener {
             return;
         }
 
-        if (event.getView().getType() != InventoryType.PLAYER) {
+        Player player = (Player) event.getWhoClicked();
+
+        if (event.getView().getType() != InventoryType.CRAFTING) {
+            return;
+        }
+
+        EquipmentSlot lockedSlot = getEquipmentSlotFromInventorySlot(event.getSlot());
+
+        if (lockedSlot != null &&
+                gameState.getLockedSlots(player).stream()
+                        .anyMatch(slot -> slot.getSlot() == lockedSlot)) {
+
+            event.setCancelled(true);
+            return;
+        }
+    }
+
+    @EventHandler
+    public void onInventoryDrag(InventoryDragEvent event) {
+        if (!gameState.isGameStarted()) {
             return;
         }
 
         Player player = (Player) event.getWhoClicked();
 
-        if (event.getSlotType() == InventoryType.SlotType.ARMOR) {
-            EquipmentSlot targetedSlot = getEquipmentSlotFromRawId(event.getSlot());
-            if (gameState.getLockedSlots(player).stream().anyMatch(slot -> slot.getSlot() == targetedSlot)) {
-                event.setCancelled(true);
-                return;
-            }
-        }
-
-        if (event.isShiftClick() && event.getAction() == InventoryAction.MOVE_TO_OTHER_INVENTORY) {
-            ItemStack clickedItem = event.getCurrentItem();
-            if (clickedItem == null || clickedItem.getType().isAir()) {
-                return;
+        for (int rawSlot : event.getRawSlots()) {
+            if (rawSlot < event.getView().getTopInventory().getSize()) {
+                continue;
             }
 
-            EquipmentSlot intendedSlot = clickedItem.getType().getEquipmentSlot();
+            int playerSlot = event.getView().convertSlot(rawSlot);
 
-            if (gameState.getLockedSlots(player).stream().anyMatch(slot -> slot.getSlot() == intendedSlot)) {
+            EquipmentSlot equipmentSlot =
+                    getEquipmentSlotFromInventorySlot(playerSlot);
+
+            if (equipmentSlot != null &&
+                    gameState.getLockedSlots(player).stream()
+                            .anyMatch(slot -> slot.getSlot() == equipmentSlot)) {
+
                 event.setCancelled(true);
+                return;
             }
         }
     }
@@ -76,7 +95,7 @@ public class InventoryClickListener extends GameListener {
         player.updateInventory();
     }
 
-    private EquipmentSlot getEquipmentSlotFromRawId(int rawSlot) {
+    private EquipmentSlot getEquipmentSlotFromInventorySlot(int rawSlot) {
         return switch (rawSlot) {
             case 39 -> EquipmentSlot.HEAD;
             case 38 -> EquipmentSlot.CHEST;

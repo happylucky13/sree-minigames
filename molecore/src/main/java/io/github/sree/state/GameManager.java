@@ -154,6 +154,8 @@ public class GameManager {
                 animationManager.endGameSequence(winner, gameState.getPlayersWithRole(Role.SURVIVOR), endLocation);
         }
 
+        Set<Player> onlinePlayers = new HashSet<>(Bukkit.getOnlinePlayers());
+        sreeCore.informationService().reset(onlinePlayers);
         gameState.setGameStarted(false);
     }
 

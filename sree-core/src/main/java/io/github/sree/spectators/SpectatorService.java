@@ -44,25 +44,35 @@ public class SpectatorService {
     }
 
     public void removeAllSpectators() {
-        Set<Player> players = spectators.stream().map(Bukkit::getPlayer).collect(Collectors.toSet());
+        Set<UUID> spectatorIds = new HashSet<>(spectators);
         spectators.clear();
 
-        players.forEach(voiceChat::removeSpectator);
+        spectatorIds.stream()
+                .map(Bukkit::getPlayer)
+                .filter(Objects::nonNull)
+                .forEach(voiceChat::removeSpectator);
     }
 
     public void handleGameModeChange(PlayerGameModeChangeEvent event) {
         Player player = event.getPlayer();
-        if (spectators.contains(player.getUniqueId())) {
-            if (event.getNewGameMode() != GameMode.SPECTATOR) {
-                event.setCancelled(true);
+        if (!spectators.contains(player.getUniqueId())) {
+            return;
+        }
+
+        if (event.getNewGameMode() != GameMode.SPECTATOR) {
+            event.setCancelled(true);
+        }
+
+        Bukkit.getScheduler().runTaskLater(plugin, () -> {
+            if (!player.isOnline()) {
+                return;
             }
 
-            Bukkit.getScheduler().runTaskLater(plugin, () -> {
-                if (player.isOnline()) {
-                    voiceChat.addSpectator(player);
-                }
-                voiceChat.addSpectator(event.getPlayer());
-            }, 10L);
-        }
+            if (!spectators.contains(player.getUniqueId())) {
+                return;
+            }
+
+            voiceChat.addSpectator(player);
+        }, 10L);
     }
 }

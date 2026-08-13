@@ -67,6 +67,64 @@ public class GameAnimationManager {
         return future;
     }
 
+    public CompletableFuture<Void> sabotageOnTimer() {
+        CompletableFuture<Void> future = new CompletableFuture<>();
+
+        new BukkitRunnable() {
+            int remainingSeconds = 600;
+            final Set<Player> players = gameState.getAlivePlayers();
+
+            public void run() {
+                if (remainingSeconds <= 0) {
+                    players.forEach(player ->
+                            player.sendActionBar(Component.text("Locator bar back online.", NamedTextColor.GOLD)));
+
+                    future.complete(null);
+                    this.cancel();
+                    return;
+                }
+
+                String updatedTime = String.format("%02d:%02d", remainingSeconds / 60, remainingSeconds % 60);
+
+                players.forEach(player ->
+                        player.sendActionBar(Component.text("Locator bar compromised for " + updatedTime, NamedTextColor.DARK_RED)));
+
+                remainingSeconds --;
+            }
+        }.runTaskTimer(plugin, 0L, 20L);
+
+        return future;
+    }
+
+    public CompletableFuture<Void> sabotageCooldownTimer() {
+        CompletableFuture<Void> future = new CompletableFuture<>();
+
+        new BukkitRunnable() {
+            int remainingSeconds = 1200;
+            final Set<Player> moles = gameState.getPlayersWithRole(Role.MOLE);
+
+            public void run() {
+                if (remainingSeconds <= 0) {
+                    moles.forEach(mole ->
+                            mole.sendActionBar(Component.text("Sabotage off cooldown.", NamedTextColor.GOLD)));
+
+                    future.complete(null);
+                    this.cancel();
+                    return;
+                }
+
+                String updatedTime = String.format("%02d:%02d", remainingSeconds / 60, remainingSeconds % 60);
+
+                moles.forEach(mole ->
+                        mole.sendActionBar(Component.text("Sabotage off cooldown in " + updatedTime, NamedTextColor.RED)));
+
+                remainingSeconds --;
+            }
+        }.runTaskTimer(plugin, 0L, 20L);
+
+        return future;
+    }
+
     public void revealRoles(Map<Player, Role> players) {
         int[] delays = {0, 2, 4, 6, 8, 10, 14, 18, 25, 40, 60};
 

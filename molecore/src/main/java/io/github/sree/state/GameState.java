@@ -52,6 +52,10 @@ public class GameState {
         return sabotageOnCooldown;
     }
 
+    public Set<Player> getAlivePlayers() {
+        return alivePlayers.stream().map(Bukkit::getPlayer).filter(Objects::nonNull).collect(Collectors.toUnmodifiableSet());
+    }
+
     public void markDead(UUID uuid) {
         alivePlayers.remove(uuid);
     }

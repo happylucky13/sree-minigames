@@ -50,6 +50,10 @@ public class GameManager {
         return new NamespacedKey(plugin, worldName);
     }
 
+    private Executor getMainThread() {
+        return task -> Bukkit.getScheduler().runTask(plugin, task);
+    }
+
     public CompletableFuture<World> prepareDimensionSet(NamespacedKey worldKey) {
         return sreeCore.prepareDimensionSet().prepareDimensionSet(worldKey, plugin.getLogger());
     }
@@ -100,10 +104,9 @@ public class GameManager {
     }
 
     public void startGameSequence(Set<Player> players, World overworld) {
-        final Executor mainThread = task -> Bukkit.getScheduler().runTask(plugin, task);
 
         animationManager.startCountdown(players)
-                .thenComposeAsync(ignored -> teleportPlayers(overworld), mainThread)
+                .thenComposeAsync(ignored -> teleportPlayers(overworld), getMainThread())
                 .thenComposeAsync(ignored -> {
                     plugin.getLogger().info("Grace period started!");
                     gameState.setGameStarted(true);
@@ -123,7 +126,7 @@ public class GameManager {
                     plugin.getLogger().info("Grace period starting animation!");
 
                     return animationManager.gracePeriodTimer(players, gameState.getSettings().gracePeriodSeconds());
-                }, mainThread)
+                }, getMainThread())
                 .thenAcceptAsync(ignored -> {
                     assignRoles();
 
@@ -136,7 +139,7 @@ public class GameManager {
                     gameState.setGracePeriod(false);
 
                     plugin.getLogger().info("Game STARTED!");
-                }, mainThread);
+                }, getMainThread());
     }
 
     public void endGame(Winner winner, Location endLocation) {
@@ -205,30 +208,19 @@ public class GameManager {
         }
 
         gameState.setSabotageOnCooldown(true);
-        sreeCore.informationService().deny(gameState.getPlayersWithRole(Role.SURVIVOR), InformationChannel.LOCATOR_BAR);
+        sreeCore.informationService()
+                .deny(gameState.getPlayersWithRole(Role.SURVIVOR), InformationChannel.LOCATOR_BAR);
 
+        animationManager.sabotageOnTimer()
+                .thenComposeAsync(ignored -> {
+                    sreeCore.informationService()
+                            .allow(gameState.getPlayersWithRole(Role.SURVIVOR), InformationChannel.LOCATOR_BAR);
 
-        new BukkitRunnable() {
-            int remainingSeconds = 1200;
-            final Set<Player> moles = gameState.getPlayersWithRole(Role.MOLE);
-
-            public void run() {
-                if (remainingSeconds <= 0) {
-                    moles.forEach(mole ->
-                            mole.sendActionBar(Component.text("Sabotage off cooldown.", NamedTextColor.GOLD)));
-
+                    return animationManager.sabotageCooldownTimer();
+                }, getMainThread())
+                .thenAccept(ignored -> {
                     gameState.setSabotageOnCooldown(false);
-                    this.cancel();
-                }
-
-                String updatedTime = String.format("%02d:%02d", remainingSeconds / 60, remainingSeconds % 60);
-
-                moles.forEach(mole ->
-                        mole.sendActionBar(Component.text("Sabotage off cooldown in " + updatedTime, NamedTextColor.RED)));
-
-                remainingSeconds --;
-            }
-        }.runTaskTimer(plugin, 0L, 20L);
+                });
     }
 
     public void dropArmor(Player player, EnumSet<LockedSlot> lockedSlots) {

@@ -28,7 +28,7 @@ public class SreeCorePlugin extends JavaPlugin {
 
     @Override
     public void onEnable() {
-        spectatorService = new SpectatorService();
+        spectatorService = new SpectatorService(this);
 
         BukkitVoicechatService service = getServer().getServicesManager().load(BukkitVoicechatService.class);
         if (service != null) {

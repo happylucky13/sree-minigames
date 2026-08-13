@@ -1,5 +1,7 @@
 package io.github.sree.spectators;
 
+import io.github.sree.SreeCorePlugin;
+import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.entity.Player;
 import org.bukkit.event.player.PlayerChangedWorldEvent;
@@ -13,6 +15,11 @@ public class SpectatorService {
 
     private final Set<UUID> spectators = new HashSet<>();
     private SpectatorVoiceService voiceChat = new NoVoiceChat();
+    private SreeCorePlugin plugin;
+
+    public SpectatorService(SreeCorePlugin plugin) {
+        this.plugin = plugin;
+    }
 
     public void setVoiceChat(SpectatorVoiceService voiceChat) {
         this.voiceChat = voiceChat;
@@ -36,7 +43,7 @@ public class SpectatorService {
     public void handleSpectatorDimensionChange(PlayerChangedWorldEvent event) {
         Player player = event.getPlayer();
         if (spectators.contains(player.getUniqueId())) {
-            enforceSpectatorMode(player);
+            Bukkit.getScheduler().runTask(plugin, () -> enforceSpectatorMode(player));
         }
     }
 
@@ -44,8 +51,8 @@ public class SpectatorService {
         Player player = event.getPlayer();
 
         if (spectators.contains(player.getUniqueId())) {
-            enforceSpectatorMode(player);
             voiceChat.addSpectator(player);
+            Bukkit.getScheduler().runTask(plugin, () -> enforceSpectatorMode(player));
         }
     }
 }

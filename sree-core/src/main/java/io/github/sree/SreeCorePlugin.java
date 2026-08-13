@@ -3,6 +3,7 @@ package io.github.sree;
 import de.maxhenkel.voicechat.api.BukkitVoicechatService;
 
 import io.github.sree.combat_tag.CombatTagManager;
+import io.github.sree.combat_tag.PlayerDamageListener;
 import io.github.sree.create_world.WorldService;
 import io.github.sree.information.InformationEnforcer;
 import io.github.sree.information.InformationService;
@@ -49,7 +50,8 @@ public class SreeCorePlugin extends JavaPlugin {
 
         List<Listener> listeners = List.of(
                 new PlayerDeathListener(informationEnforcer),
-                new DimensionSwitchListener(spectatorService)
+                new DimensionSwitchListener(spectatorService),
+                new PlayerDamageListener(combatTagManager)
         );
 
         listeners.forEach(listener -> getServer().getPluginManager().registerEvents(listener, this));

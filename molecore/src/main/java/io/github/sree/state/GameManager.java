@@ -115,19 +115,10 @@ public class GameManager {
                     gameState.setGameStarted(true);
                     gameState.setGracePeriod(true);
 
-                    plugin.getLogger().info("Grace period resetting information!");
-
                     sreeCore.informationService().reset(players);
 
-                    plugin.getLogger().info("Grace period has reset information!");
-
-                    plugin.getLogger().info("Grace period denying death messages!");
                     sreeCore.informationService().deny(players, InformationChannel.DEATH_MESSAGES);
-                    plugin.getLogger().info("Denying death messages success!");
-
-                    plugin.getLogger().info("Grace period denying tab list!!");
                     sreeCore.informationService().deny(players, InformationChannel.TAB_LIST);
-                    plugin.getLogger().info("Grace period denying tab list success!");
 
                     Component playerListHeader = Component.text("Newtoncraft Molecore", NamedTextColor.RED)
                                     .append(Component.newline())

@@ -2,6 +2,7 @@ package io.github.sree;
 
 import de.maxhenkel.voicechat.api.BukkitVoicechatService;
 
+import io.github.sree.combat_tag.CombatTagManager;
 import io.github.sree.create_world.WorldService;
 import io.github.sree.information.InformationEnforcer;
 import io.github.sree.information.InformationService;
@@ -25,6 +26,7 @@ public class SreeCorePlugin extends JavaPlugin {
     private SreeVoiceChatPlugin voiceChatPlugin;
     private InformationService informationService;
     private InformationEnforcer informationEnforcer;
+    private CombatTagManager combatTagManager;
 
     @Override
     public void onEnable() {
@@ -43,6 +45,7 @@ public class SreeCorePlugin extends JavaPlugin {
         prepareDimensionSet = new PrepareDimensionSet(worldService, pregenerateChunksService);
         informationService = new InformationService();
         informationEnforcer = new InformationEnforcer(informationService, this);
+        combatTagManager = new CombatTagManager(this);
 
         List<Listener> listeners = List.of(
                 new PlayerDeathListener(informationEnforcer),
@@ -52,11 +55,11 @@ public class SreeCorePlugin extends JavaPlugin {
         listeners.forEach(listener -> getServer().getPluginManager().registerEvents(listener, this));
     }
 
-    public WorldService getWorldService() {
+    public WorldService worldService() {
         return worldService;
     }
 
-    public PregenerateChunksService getPregenerateChunksService() {
+    public PregenerateChunksService pregenerateChunksService() {
         return pregenerateChunksService;
     }
 
@@ -70,5 +73,9 @@ public class SreeCorePlugin extends JavaPlugin {
 
     public InformationService informationService() {
         return informationService;
+    }
+
+    public CombatTagManager combatTagManager() {
+        return combatTagManager;
     }
 }

@@ -30,7 +30,8 @@ public class InformationEnforcer {
         }
 
         if (event.channels().contains(InformationChannel.TAB_LIST)) {
-            updateTabList(player, informationService.allows(player, InformationChannel.TAB_LIST));
+            Bukkit.getScheduler().runTask(plugin, () ->
+                    updateTabList(player, informationService.allows(player, InformationChannel.TAB_LIST)));
         }
     }
 
@@ -73,8 +74,16 @@ public class InformationEnforcer {
                 continue;
             }
 
-            if (allowed) player.listPlayer(onlinePlayer);
-            else player.unlistPlayer(onlinePlayer);
+            if (allowed) {
+                if (!player.isListed(onlinePlayer)) {
+                    player.listPlayer(onlinePlayer);
+                }
+            }
+            else {
+                if (player.isListed(onlinePlayer)) {
+                    player.unlistPlayer(onlinePlayer);
+                }
+            }
             plugin.getLogger().info("Tab list hidden!");
         }
     }

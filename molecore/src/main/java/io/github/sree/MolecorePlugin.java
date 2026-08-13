@@ -4,6 +4,7 @@ import com.mojang.brigadier.tree.LiteralCommandNode;
 import io.github.sree.commands.MolecoreSettingsCommand;
 import io.github.sree.commands.MolecoreStartCommand;
 import io.github.sree.commands.MolecoreWorldCommand;
+import io.github.sree.commands.SabotageCommand;
 import io.github.sree.listeners.*;
 import io.github.sree.animations.GameAnimationManager;
 import io.github.sree.spectators.SpectatorService;
@@ -45,7 +46,7 @@ public class MolecorePlugin extends JavaPlugin {
         listeners.forEach(gameListener ->
                 getServer().getPluginManager().registerEvents(gameListener, this));
 
-        MolecoreSettingsCommand settingsCommand = new MolecoreSettingsCommand(gameManager.getGameState());
+        MolecoreSettingsCommand settingsCommand = new MolecoreSettingsCommand(gameState);
         MolecoreStartCommand startCommand = new MolecoreStartCommand(gameManager);
         MolecoreWorldCommand worldCommand = new MolecoreWorldCommand(gameManager);
 
@@ -56,8 +57,11 @@ public class MolecorePlugin extends JavaPlugin {
                 .requires(ctx -> ctx.getSender().isOp())
                 .build();
 
+        LiteralCommandNode<CommandSourceStack> sabotageCommand = new SabotageCommand(gameManager).createCommand().build();
+
         this.getLifecycleManager().registerEventHandler(LifecycleEvents.COMMANDS, commands -> {
             commands.registrar().register(molecoreCommand);
+            commands.registrar().register(sabotageCommand);
         });
     }
 }

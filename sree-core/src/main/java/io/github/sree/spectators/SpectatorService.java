@@ -6,6 +6,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.entity.Player;
 import org.bukkit.event.player.PlayerChangedWorldEvent;
+import org.bukkit.event.player.PlayerGameModeChangeEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 
 import java.util.*;
@@ -49,19 +50,19 @@ public class SpectatorService {
         players.forEach(voiceChat::removeSpectator);
     }
 
-    public void handleSpectatorDimensionChange(PlayerChangedWorldEvent event) {
+    public void handleGameModeChange(PlayerGameModeChangeEvent event) {
         Player player = event.getPlayer();
         if (spectators.contains(player.getUniqueId())) {
-            Bukkit.getScheduler().runTask(plugin, () -> enforceSpectatorMode(player));
-        }
-    }
+            if (event.getNewGameMode() != GameMode.SPECTATOR) {
+                event.setCancelled(true);
+            }
 
-    public void handlePlayerJoin(PlayerJoinEvent event) {
-        Player player = event.getPlayer();
-
-        if (spectators.contains(player.getUniqueId())) {
-            voiceChat.addSpectator(player);
-            Bukkit.getScheduler().runTask(plugin, () -> enforceSpectatorMode(player));
+            Bukkit.getScheduler().runTaskLater(plugin, () -> {
+                if (player.isOnline()) {
+                    voiceChat.addSpectator(player);
+                }
+                voiceChat.addSpectator(event.getPlayer());
+            }, 10L);
         }
     }
 }

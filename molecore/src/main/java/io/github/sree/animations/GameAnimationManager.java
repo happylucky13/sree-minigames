@@ -69,10 +69,23 @@ public class GameAnimationManager {
 
     public CompletableFuture<Void> sabotageOnTimer() {
         CompletableFuture<Void> future = new CompletableFuture<>();
+        final Set<Player> players = gameState.getAlivePlayers();
+
+        Component sabotageMessage = Component.text("---------------------------------", NamedTextColor.GOLD)
+                .append(Component.newline()).append(Component.text("THE LOCATOR BAR HAS BEEN SABOTAGED!"))
+                .append(Component.newline()).append(Component.text("---------------------------------"));
+        players.forEach(player -> {
+            player.sendMessage(sabotageMessage);
+            player.playSound(
+                    player.getLocation(),
+                    Sound.BLOCK_RESPAWN_ANCHOR_DEPLETE,
+                    1.0f,
+                    1.0f
+            );
+        });
 
         new BukkitRunnable() {
             int remainingSeconds = 600;
-            final Set<Player> players = gameState.getAlivePlayers();
 
             public void run() {
                 if (remainingSeconds <= 0) {

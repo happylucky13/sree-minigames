@@ -25,8 +25,13 @@ public class InformationEnforcer {
 
         plugin.getLogger().info("Information change received for " + player.getName());
 
-        updateLocatorBar(player, event.channels().contains(InformationChannel.LOCATOR_BAR));
-        updateTabList(player, event.channels().contains(InformationChannel.TAB_LIST));
+        if (event.channels().contains(InformationChannel.LOCATOR_BAR)) {
+            updateLocatorBar(player, informationService.allows(player, InformationChannel.LOCATOR_BAR));
+        }
+
+        if (event.channels().contains(InformationChannel.TAB_LIST)) {
+            updateTabList(player, informationService.allows(player, InformationChannel.TAB_LIST));
+        }
     }
 
     public void handleDeathMessage(PlayerDeathEvent event) {

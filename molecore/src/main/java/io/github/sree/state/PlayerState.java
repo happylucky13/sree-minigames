@@ -10,14 +10,9 @@ public class PlayerState {
     private Role role;
     private int kills = 0;
     private EnumSet<LockedSlot> lockedSlots = EnumSet.noneOf(LockedSlot.class);
-    private final Map<UUID, Double> damageDealtToPlayer = new HashMap<>();
 
     public Role getRole() {
         return role;
-    }
-
-    public Map<UUID, Double> getCombatTag() {
-        return damageDealtToPlayer;
     }
 
     public int getKills() {

@@ -18,14 +18,6 @@ public class PlayerDeathListener extends GameListener {
     }
 
     @EventHandler
-    public void onPlayerDamage(EntityDamageEvent event) {
-        if (event.getDamageSource().getCausingEntity() instanceof Player attacker && event.getEntity() instanceof Player target) {
-            double damageDealt = event.getDamage();
-            gameManager.markCombat(attacker, target, damageDealt);
-        }
-    }
-
-    @EventHandler
     public void onPlayerDeath(PlayerDeathEvent event) {
         if (!gameState.isGameStarted()) {
             return;

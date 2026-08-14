@@ -112,10 +112,8 @@ public class GameManager {
                     gameState.setGameStarted(true);
                     gameState.setGracePeriod(true);
 
-                    sreeCore.informationService().reset(players);
-
-                    sreeCore.informationService().deny(players, InformationChannel.DEATH_MESSAGES);
-                    sreeCore.informationService().deny(players, InformationChannel.TAB_LIST);
+                    sreeCore.informationService().set(players,
+                            EnumSet.of(InformationChannel.LOCAL_CHAT, InformationChannel.LOCATOR_BAR));
 
                     Component playerListHeader = Component.text("Newtoncraft Molecore", NamedTextColor.RED)
                                     .append(Component.newline())

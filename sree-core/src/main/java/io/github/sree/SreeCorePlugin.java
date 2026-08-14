@@ -9,6 +9,7 @@ import io.github.sree.information.InformationEnforcer;
 import io.github.sree.information.InformationService;
 import io.github.sree.information.listeners.PlayerDeathListener;
 import io.github.sree.local_chat.ChatManager;
+import io.github.sree.local_chat.listeners.BlockedCommandListener;
 import io.github.sree.local_chat.listeners.PlayerChatListener;
 import io.github.sree.local_chat.listeners.PrivateMessageListener;
 import io.github.sree.pregenerate_world.PregenerateChunksService;
@@ -58,7 +59,8 @@ public class SreeCorePlugin extends JavaPlugin {
                 new GameModeChangeListener(spectatorService),
                 new PlayerDamageListener(combatTagManager),
                 new PlayerChatListener(chatManager),
-                new PrivateMessageListener(chatManager)
+                new PrivateMessageListener(chatManager),
+                new BlockedCommandListener()
         );
 
         listeners.forEach(listener -> getServer().getPluginManager().registerEvents(listener, this));

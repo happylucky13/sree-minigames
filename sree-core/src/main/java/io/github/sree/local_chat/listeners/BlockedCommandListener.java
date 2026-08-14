@@ -1,7 +1,5 @@
-package io.github.sree.listeners;
+package io.github.sree.local_chat.listeners;
 
-import io.github.sree.ChatManager;
-import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -11,7 +9,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class BlockedCommandListener implements Listener {
-    private final Pattern blockedCommandsPattern = Pattern.compile("^/(?:me|say|minecraft:me|minecraft:say) ([A-z0-9_]*) .*");
+    private final Pattern blockedCommandsPattern = Pattern.compile("^/(?:me|say|minecraft:me|minecraft:say) .*");
 
     @EventHandler
     public void onCommandPreProcess(PlayerCommandPreprocessEvent event) {

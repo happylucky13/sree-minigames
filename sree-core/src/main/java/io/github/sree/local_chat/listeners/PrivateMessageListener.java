@@ -1,6 +1,8 @@
 package io.github.sree.local_chat.listeners;
 
 import io.github.sree.local_chat.ChatManager;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -11,10 +13,10 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class PrivateMessageListener implements Listener {
-    private final ChatManager ChatManager;
+    private final ChatManager chatManager;
 
     public PrivateMessageListener(ChatManager chatManager) {
-        ChatManager = chatManager;
+        this.chatManager = chatManager;
     }
 
     private final Pattern privateMessagePattern = Pattern.compile("^/(?:tell|w|msg|minecraft:tell|minecraft:w|minecraft:msg) ([A-z0-9_]*) .*");
@@ -33,9 +35,10 @@ public class PrivateMessageListener implements Listener {
             return;
         }
 
-        if (!ChatManager.playerCanSee(sourcePlayer, targetPlayer)) {
+        if (!chatManager.playerCanSee(sourcePlayer, targetPlayer) || !chatManager.canWhisperTo(sourcePlayer, targetPlayer)) {
             event.setCancelled(true);
-            sourcePlayer.sendRichMessage("<red>" + targetPlayer.getName() + " is too far away, they can't hear you!");
+            sourcePlayer.sendMessage(
+                    Component.text(targetPlayer.getName() + " can't hear you!", NamedTextColor.RED));
         }
     }
 }

@@ -5,10 +5,10 @@ import io.github.sree.information.InformationService;
 import org.bukkit.entity.Player;
 
 public class ChatManager {
-    private final InformationService InformationService;
+    private final InformationService informationService;
 
     public ChatManager(InformationService informationService) {
-        InformationService = informationService;
+        this.informationService = informationService;
     }
 
     /**
@@ -30,21 +30,39 @@ public class ChatManager {
             return true;
         }
 
-        if (InformationService.allows(targetPlayer, InformationChannel.ALL_CHAT)) {
+        if (informationService.allows(targetPlayer, InformationChannel.ALL_CHAT)) {
             return true;
         }
+
         if (
-                InformationService.allows(sourcePlayer, InformationChannel.GLOBAL_CHAT)
-                && InformationService.allows(targetPlayer, InformationChannel.GLOBAL_CHAT)
-        ) {
-            return true;
-        }
+                informationService.allows(sourcePlayer, InformationChannel.GLOBAL_CHAT)
+                && informationService.allows(targetPlayer, InformationChannel.GLOBAL_CHAT)
+        ) return true;
 
         double distanceFromSource = sourcePlayer.getLocation().distance(targetPlayer.getLocation());
 
-        return InformationService.allows(sourcePlayer, InformationChannel.LOCAL_CHAT)
-                && InformationService.allows(targetPlayer, InformationChannel.LOCAL_CHAT)
+        return informationService.allows(sourcePlayer, InformationChannel.LOCAL_CHAT)
+                && informationService.allows(targetPlayer, InformationChannel.LOCAL_CHAT)
                 && distanceFromSource <= chatRange;
+    }
+
+    public boolean canWhisperTo(Player sourcePlayer, Player targetPlayer) {
+        if (chatRange < 0) {
+            return true;
+        }
+
+        if (
+                informationService.allows(sourcePlayer, InformationChannel.LOCAL_CHAT)
+                && informationService.allows(targetPlayer, InformationChannel.LOCAL_CHAT)
+        ) return true;
+
+        if (
+                informationService.allows(sourcePlayer, InformationChannel.GLOBAL_CHAT)
+                && informationService.allows(targetPlayer, InformationChannel.GLOBAL_CHAT)
+        ) return true;
+
+        return informationService.allows(sourcePlayer, InformationChannel.ALL_CHAT)
+                && informationService.allows(targetPlayer, InformationChannel.ALL_CHAT);
     }
 
     public int getChatRange() {

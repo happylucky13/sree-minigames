@@ -1,5 +1,7 @@
 package io.github.sree.local_chat.listeners;
 
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -19,6 +21,6 @@ public class BlockedCommandListener implements Listener {
         if (!matcher.find()) return;
 
         event.setCancelled(true);
-        player.sendRichMessage("<red> This command is permanently disabled.");
+        player.sendMessage(Component.text("This command is permanently disabled.", NamedTextColor.RED));
     }
 }

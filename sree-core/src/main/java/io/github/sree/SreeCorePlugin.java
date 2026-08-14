@@ -8,6 +8,7 @@ import io.github.sree.create_world.WorldService;
 import io.github.sree.information.InformationEnforcer;
 import io.github.sree.information.InformationService;
 import io.github.sree.information.listeners.PlayerDeathListener;
+import io.github.sree.local_chat.ChatManager;
 import io.github.sree.pregenerate_world.PregenerateChunksService;
 import io.github.sree.spectators.*;
 import org.bukkit.Bukkit;
@@ -28,6 +29,7 @@ public class SreeCorePlugin extends JavaPlugin {
     private InformationService informationService;
     private InformationEnforcer informationEnforcer;
     private CombatTagManager combatTagManager;
+    private ChatManager chatManager;
 
     @Override
     public void onEnable() {
@@ -47,6 +49,7 @@ public class SreeCorePlugin extends JavaPlugin {
         informationService = new InformationService();
         informationEnforcer = new InformationEnforcer(informationService, this);
         combatTagManager = new CombatTagManager(this);
+        chatManager = new ChatManager(informationService);
 
         List<Listener> listeners = List.of(
                 new PlayerDeathListener(informationEnforcer),
@@ -79,5 +82,9 @@ public class SreeCorePlugin extends JavaPlugin {
 
     public CombatTagManager combatTagManager() {
         return combatTagManager;
+    }
+
+    public ChatManager chatManager() {
+        return chatManager;
     }
 }

@@ -46,7 +46,7 @@ public class MolecorePlugin extends JavaPlugin {
         listeners.forEach(gameListener ->
                 getServer().getPluginManager().registerEvents(gameListener, this));
 
-        MolecoreSettingsCommand settingsCommand = new MolecoreSettingsCommand(gameState);
+        MolecoreSettingsCommand settingsCommand = new MolecoreSettingsCommand(gameState, sreeCore);
         MolecoreStartCommand startCommand = new MolecoreStartCommand(gameManager);
         MolecoreWorldCommand worldCommand = new MolecoreWorldCommand(gameManager);
 

@@ -185,7 +185,9 @@ public class GameManager {
         sreeCore.informationService().set(sreeCore.spectatorService().getSpectators(), EnumSet.of(
                 InformationChannel.DEATH_MESSAGES,
                 InformationChannel.LOCATOR_BAR,
-                InformationChannel.TAB_LIST));
+                InformationChannel.TAB_LIST,
+                InformationChannel.ALL_CHAT
+        ));
 
         gameState.markDead(target.getUniqueId());
         checkWinCondition().ifPresent(winner -> endGame(winner, event.getEntity().getLocation()));

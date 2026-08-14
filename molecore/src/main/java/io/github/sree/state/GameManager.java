@@ -264,8 +264,13 @@ public class GameManager {
         switch (gameState.getSettings().objective()) {
             case BEACON:
                 if (event instanceof BeaconActivatedEvent beaconActivatedEvent) {
-                    endGame(Winner.SURVIVORS, beaconActivatedEvent.getBlock().getLocation().toCenterLocation());
+                    Location location = beaconActivatedEvent.getBlock().getLocation();
+
+                    if (location.getBlockX() == 0 && location.getBlockZ() == 0) {
+                        endGame(Winner.SURVIVORS, beaconActivatedEvent.getBlock().getLocation().toCenterLocation());
+                    }
                 }
+
             case DRAGON:
                 if (event instanceof EntityDeathEvent entityDeathEvent && entityDeathEvent.getEntity() instanceof EnderDragon) {
                     endGame(Winner.SURVIVORS, entityDeathEvent.getEntity().getLocation());

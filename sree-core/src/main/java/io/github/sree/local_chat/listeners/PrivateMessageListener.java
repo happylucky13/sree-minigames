@@ -1,6 +1,6 @@
-package io.github.sree.listeners;
+package io.github.sree.local_chat.listeners;
 
-import io.github.sree.ChatManager;
+import io.github.sree.local_chat.ChatManager;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;

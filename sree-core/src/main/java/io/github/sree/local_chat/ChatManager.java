@@ -1,4 +1,4 @@
-package io.github.sree;
+package io.github.sree.local_chat;
 
 import io.github.sree.information.InformationChannel;
 import io.github.sree.information.InformationService;

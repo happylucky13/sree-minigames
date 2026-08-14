@@ -4,9 +4,11 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="34223302-95db-4696-aa00-6ada55115e6e" name="Changes" comment="added .idea to gitignore">
-      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
+    <list default="true" id="34223302-95db-4696-aa00-6ada55115e6e" name="Changes" comment="Make private messaging commands abide by local chat rules">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/sree-core/src/main/java/io/github/sree/ChatManager.java" beforeDir="false" afterPath="$PROJECT_DIR$/sree-core/src/main/java/io/github/sree/local_chat/ChatManager.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/sree-core/src/main/java/io/github/sree/listeners/PlayerChatListener.java" beforeDir="false" afterPath="$PROJECT_DIR$/sree-core/src/main/java/io/github/sree/local_chat/listeners/PlayerChatListener.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/sree-core/src/main/java/io/github/sree/listeners/PrivateMessageListener.java" beforeDir="false" afterPath="$PROJECT_DIR$/sree-core/src/main/java/io/github/sree/local_chat/listeners/PrivateMessageListener.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -26,6 +28,11 @@
     </option>
   </component>
   <component name="Git.Settings">
+    <option name="RECENT_BRANCH_BY_REPOSITORY">
+      <map>
+        <entry key="$PROJECT_DIR$" value="sreecore/local-chat" />
+      </map>
+    </option>
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
   <component name="ProjectColorInfo">{
@@ -45,7 +52,7 @@
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252": "true",
     "RunOnceActivity.git.unshallow": "true",
-    "git-widget-placeholder": "Rebasing sreecore/local-chat",
+    "git-widget-placeholder": "local-chat",
     "kotlin-language-version-configured": "true",
     "last_opened_file_path": "/home/peeblyweeb/data/code/pulled/sree-minigames",
     "settings.editor.selected.configurable": "preferences.keymap"

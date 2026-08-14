@@ -1,5 +1,7 @@
 plugins {
+    `java-library`
     id("java")
+    id("com.gradleup.shadow") version "9.6.1"
 }
 
 group = "io.github.sree"
@@ -15,26 +17,6 @@ tasks.processResources {
     }
 }
 
-repositories {
-    mavenCentral()
-
-    maven {
-        url = uri("https://repo.papermc.io/repository/maven-public/")
-    }
-
-    maven {
-        url = uri("https://repo.onarandombox.com/content/groups/public/")
-    }
-
-    maven {
-        url = uri("https://repo.codemc.io/repository/maven-public/")
-    }
-
-    maven {
-        url = uri("https://maven.maxhenkel.de/repository/public")
-    }
-}
-
 dependencies {
     testImplementation(platform("org.junit:junit-bom:6.0.0"))
     testImplementation("org.junit.jupiter:junit-jupiter")
@@ -45,10 +27,21 @@ dependencies {
     compileOnly("org.mvplugins.multiverse.netherportals:multiverse-netherportals:5.1.0")
     compileOnly("org.popcraft:chunky-common:1.3.38")
     compileOnly("de.maxhenkel.voicechat:voicechat-api:2.6.20")
+    api("xyz.xenondevs.invui:invui-kotlin:2.3.0")
+
 }
 
 tasks.test {
     useJUnitPlatform()
+}
+
+tasks.shadowJar {
+    relocate("xyz.xenondevs.invui", "io.github.sree.core.libs.invui")
+    archiveClassifier.set("")
+}
+
+tasks.build {
+    dependsOn(tasks.shadowJar)
 }
 
 java {

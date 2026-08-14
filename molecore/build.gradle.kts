@@ -16,14 +16,6 @@ tasks.processResources {
     }
 }
 
-repositories {
-    mavenCentral()
-
-    maven {
-        url = uri("https://repo.papermc.io/repository/maven-public/")
-    }
-}
-
 dependencies {
     testImplementation(platform("org.junit:junit-bom:6.0.0"))
     testImplementation("org.junit.jupiter:junit-jupiter")

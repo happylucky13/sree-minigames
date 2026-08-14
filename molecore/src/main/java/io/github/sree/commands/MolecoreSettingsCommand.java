@@ -4,6 +4,7 @@ import com.mojang.brigadier.Command;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
+import io.github.sree.SreeCorePlugin;
 import io.github.sree.enums.Objective;
 import io.github.sree.state.GameState;
 import io.papermc.paper.command.brigadier.CommandSourceStack;
@@ -14,20 +15,24 @@ import org.bukkit.command.CommandSender;
 public class MolecoreSettingsCommand {
 
     final GameState gameState;
+    final SreeCorePlugin sreeCore;
 
-    public MolecoreSettingsCommand(GameState gameState) {
+    public MolecoreSettingsCommand(GameState gameState, SreeCorePlugin sreeCore) {
         this.gameState = gameState;
+        this.sreeCore = sreeCore;
     }
 
     public LiteralArgumentBuilder<CommandSourceStack> createCommand() {
         return Commands.literal("settings")
                 .then(Commands.argument("mole_count", IntegerArgumentType.integer(0, 3))
                         .then(Commands.argument("grace_period_seconds", IntegerArgumentType.integer(0, 3600))
-                                .then(Commands.literal("beacon")
-                                        .executes(this::setBeaconSettings)
-                                )
-                                .then(Commands.literal("dragon_egg")
-                                        .executes(this::setEggSettings)
+                                .then(Commands.argument("chat_range", IntegerArgumentType.integer())
+                                        .then(Commands.literal("beacon")
+                                                .executes(this::setBeaconSettings)
+                                        )
+                                        .then(Commands.literal("dragon_egg")
+                                                .executes(this::setEggSettings)
+                                        )
                                 )
                         )
                 );
@@ -48,6 +53,9 @@ public class MolecoreSettingsCommand {
 
         sender.sendMessage(Component.text("Settings updated!"));
 
+        int chatRange = ctx.getArgument("chat_range", Integer.class);
+        sreeCore.chatManager().setChatRange(chatRange);
+
         return Command.SINGLE_SUCCESS;
     }
 
@@ -65,6 +73,9 @@ public class MolecoreSettingsCommand {
         gameState.setSettings(moleCount, Objective.DRAGON, gracePeriodTime);
 
         sender.sendMessage(Component.text("Settings updated!"));
+
+        int chatRange = ctx.getArgument("chat_range", Integer.class);
+        sreeCore.chatManager().setChatRange(chatRange);
 
         return Command.SINGLE_SUCCESS;
     }

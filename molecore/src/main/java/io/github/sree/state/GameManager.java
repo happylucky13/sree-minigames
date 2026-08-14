@@ -112,10 +112,8 @@ public class GameManager {
                     gameState.setGameStarted(true);
                     gameState.setGracePeriod(true);
 
-                    sreeCore.informationService().reset(players);
-
-                    sreeCore.informationService().deny(players, InformationChannel.DEATH_MESSAGES);
-                    sreeCore.informationService().deny(players, InformationChannel.TAB_LIST);
+                    sreeCore.informationService().set(players,
+                            EnumSet.of(InformationChannel.LOCAL_CHAT, InformationChannel.LOCATOR_BAR));
 
                     Component playerListHeader = Component.text("Newtoncraft Molecore", NamedTextColor.RED)
                                     .append(Component.newline())
@@ -187,7 +185,9 @@ public class GameManager {
         sreeCore.informationService().set(sreeCore.spectatorService().getSpectators(), EnumSet.of(
                 InformationChannel.DEATH_MESSAGES,
                 InformationChannel.LOCATOR_BAR,
-                InformationChannel.TAB_LIST));
+                InformationChannel.TAB_LIST,
+                InformationChannel.ALL_CHAT
+        ));
 
         gameState.markDead(target.getUniqueId());
         checkWinCondition().ifPresent(winner -> endGame(winner, event.getEntity().getLocation()));

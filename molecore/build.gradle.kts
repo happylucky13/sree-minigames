@@ -3,7 +3,7 @@ plugins {
     id("xyz.jpenilla.run-paper") version "3.0.2"
 }
 
-group = "io.github.sree"
+group = "io.github.sree.molecore"
 version = "0.5.1"
 
 tasks.processResources {

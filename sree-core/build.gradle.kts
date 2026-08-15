@@ -4,7 +4,7 @@ plugins {
     id("com.gradleup.shadow") version "9.6.1"
 }
 
-group = "io.github.sree"
+group = "io.github.sree.core"
 version = "0.3.0"
 
 tasks.processResources {

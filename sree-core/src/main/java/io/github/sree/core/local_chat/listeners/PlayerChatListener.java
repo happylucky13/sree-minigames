@@ -16,12 +16,8 @@ public record PlayerChatListener(ChatManager chatManager) implements Listener {
         Player sourcePlayer = event.getPlayer();
         Set<Audience> viewers = event.viewers();
 
-        for (Audience viewer : viewers) {
-            if (viewer instanceof Player viewingPlayer) {
-                if (!chatManager.playerCanSee(sourcePlayer, viewingPlayer)) {
-                    event.viewers().remove(viewer);
-                }
-            }
-        }
+        viewers.removeIf(viewer ->
+                viewer instanceof Player viewingPlayer &&
+                !chatManager.playerCanSee(sourcePlayer, viewingPlayer));
     }
 }

@@ -1,19 +1,17 @@
 package io.github.sree.molecore.state;
 
-import io.github.sree.molecore.MolecorePlugin;
 import io.github.sree.core.SreeCorePlugin;
-import io.github.sree.molecore.animations.GameAnimationManager;
 import io.github.sree.core.combat_tag.CombatTagSettings;
 import io.github.sree.core.combat_tag.TaggingMethod;
+import io.github.sree.core.information.InformationChannel;
+import io.github.sree.molecore.MolecorePlugin;
+import io.github.sree.molecore.animations.GameAnimationManager;
 import io.github.sree.molecore.enums.LockedSlot;
 import io.github.sree.molecore.enums.Role;
 import io.github.sree.molecore.enums.Winner;
-
-import io.github.sree.core.information.InformationChannel;
 import io.papermc.paper.event.block.BeaconActivatedEvent;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
-import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import org.bukkit.*;
 import org.bukkit.entity.EnderDragon;
 import org.bukkit.entity.Player;
@@ -154,16 +152,11 @@ public class GameManager {
     }
 
     public void handlePlayerDeath(PlayerDeathEvent event) {
-        Component deathComponent = event.deathMessage();
         Player target = event.getPlayer();
 
         if (gameState.isGracePeriod()) {
             target.sendMessage(Component.text("The grace period has saved you!", NamedTextColor.GREEN));
             return;
-        }
-
-        if (deathComponent != null) {
-            plugin.getLogger().info(PlainTextComponentSerializer.plainText().serialize(deathComponent));
         }
 
         event.getDrops().removeIf(item -> item.getType() == Material.STONE_BUTTON);

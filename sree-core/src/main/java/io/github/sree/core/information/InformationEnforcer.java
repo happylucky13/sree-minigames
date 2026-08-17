@@ -2,6 +2,7 @@ package io.github.sree.core.information;
 
 import io.github.sree.core.SreeCorePlugin;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import org.bukkit.Bukkit;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeInstance;
@@ -47,6 +48,8 @@ public class InformationEnforcer {
         Bukkit.getOnlinePlayers().stream()
                 .filter(player -> informationService.allows(player, InformationChannel.DEATH_MESSAGES))
                 .forEach(player -> player.sendMessage(deathMessage));
+
+        plugin.getLogger().info("DEATH: " + PlainTextComponentSerializer.plainText().serialize(deathMessage));
     }
 
     public void updateLocatorBar(Player player, boolean allowed) {

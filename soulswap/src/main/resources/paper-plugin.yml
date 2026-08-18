@@ -1,0 +1,10 @@
+name: Soulswap
+version: '${version}'
+api-version: '26.2'
+main: io.github.sree.soulswap.SoulSwapPlugin
+
+dependencies:
+  server:
+    sree-core:
+      load: BEFORE
+      required: true

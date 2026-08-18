@@ -11,28 +11,26 @@ repositories {
 
 allprojects {
     repositories {
-        repositories {
-            mavenCentral()
+        mavenCentral()
 
-            maven {
-                url = uri("https://repo.papermc.io/repository/maven-public/")
-            }
+        maven {
+            url = uri("https://repo.papermc.io/repository/maven-public/")
+        }
 
-            maven {
-                url = uri("https://repo.onarandombox.com/content/groups/public/")
-            }
+        maven {
+            url = uri("https://repo.onarandombox.com/content/groups/public/")
+        }
 
-            maven {
-                url = uri("https://repo.codemc.io/repository/maven-public/")
-            }
+        maven {
+            url = uri("https://repo.codemc.io/repository/maven-public/")
+        }
 
-            maven {
-                url = uri("https://maven.maxhenkel.de/repository/public")
-            }
+        maven {
+            url = uri("https://maven.maxhenkel.de/repository/public")
+        }
 
-            maven {
-                url = uri("https://repo.xenondevs.xyz/releases")
-            }
+        maven {
+            url = uri("https://repo.xenondevs.xyz/releases")
         }
     }
 }

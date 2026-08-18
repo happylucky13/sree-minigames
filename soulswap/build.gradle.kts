@@ -4,8 +4,8 @@ plugins {
     id("xyz.jpenilla.run-paper") version "3.0.2"
 }
 
-group = "io.github.sree.molecore"
-version = "1.0.0"
+group = "io.github.sree.soulswap"
+version = "0.1.0"
 
 tasks.processResources {
     val props = mapOf("version" to version)
@@ -18,23 +18,21 @@ tasks.processResources {
 }
 
 dependencies {
-    testImplementation(platform("org.junit:junit-bom:6.0.0"))
-    testImplementation("org.junit.jupiter:junit-jupiter")
-    testRuntimeOnly("org.junit.platform:junit-platform-launcher")
+    testImplementation(kotlin("test"))
     compileOnly("io.papermc.paper:paper-api:26.2.build.+")
     compileOnly(project(":sree-core"))
 }
 
-tasks.test {
-    useJUnitPlatform()
+kotlin {
+    jvmToolchain(25)
 }
 
 java {
     toolchain.languageVersion.set(JavaLanguageVersion.of(25))
 }
 
-kotlin {
-    jvmToolchain(25)
+tasks.test {
+    useJUnitPlatform()
 }
 
 tasks {

@@ -3,17 +3,15 @@ package io.github.sree.core.animations
 import kotlinx.coroutines.delay
 import net.kyori.adventure.bossbar.BossBar
 import net.kyori.adventure.text.Component
-import net.kyori.adventure.text.format.NamedTextColor
 import org.bukkit.Bukkit
 import java.time.Duration
 import java.util.UUID
 import kotlin.time.Duration.Companion.milliseconds
 
 class Timer(
-    val name: String,
+    val name: Component,
     val totalSeconds: Long,
     val location: Location,
-    val color: NamedTextColor = NamedTextColor.WHITE
 ) {
     enum class Location {
         BOSS_BAR,
@@ -48,7 +46,7 @@ class Timer(
     }
 
     private val timerBar: BossBar = BossBar.bossBar(
-        Component.text(name + formatSeconds(totalSeconds), color),
+        name.append { Component.text(formatSeconds(totalSeconds).toString()) },
         1.0f,
         BossBar.Color.GREEN,
         BossBar.Overlay.PROGRESS
@@ -89,14 +87,14 @@ class Timer(
         when(location) {
             Location.BOSS_BAR -> {
                 timerBar.progress(secondsRemaining.toFloat() / totalSeconds)
-                timerBar.name { Component.text(name + formatSeconds(secondsRemaining), color) }
+                timerBar.name { name.append { Component.text(formatSeconds(secondsRemaining).toString()) } }
                 playerIds.forEach { uuid ->
                     Bukkit.getPlayer(uuid)?.showBossBar(timerBar)
                 }
             }
 
             Location.ACTION_BAR -> {
-                val message = Component.text(name + formatSeconds(secondsRemaining))
+                val message = name.append { Component.text(formatSeconds(secondsRemaining).toString()) }
                 playerIds.forEach { uuid ->
                     Bukkit.getPlayer(uuid)?.sendActionBar { message }
                 }

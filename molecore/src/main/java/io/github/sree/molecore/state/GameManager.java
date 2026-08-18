@@ -1,6 +1,7 @@
 package io.github.sree.molecore.state;
 
 import io.github.sree.core.SreeCorePlugin;
+import io.github.sree.core.animations.Countdown;
 import io.github.sree.core.animations.Timer;
 import io.github.sree.core.combat_tag.CombatTagSettings;
 import io.github.sree.core.combat_tag.TaggingMethod;
@@ -102,7 +103,24 @@ public class GameManager {
 
     public void startGameSequence(Set<Player> players, World overworld) {
 
-        animationManager.startCountdown(players)
+        Countdown startGameCountdown = new Countdown(
+                3,
+                NamedTextColor.GOLD,
+                Sound.BLOCK_NOTE_BLOCK_PLING
+        );
+
+        Timer gracePeriodTimer = new Timer(
+                "Grace period: ",
+                gameState.getSettings().gracePeriodSeconds(),
+                Timer.Location.BOSS_BAR,
+                NamedTextColor.WHITE
+        );
+
+        Set<UUID> playerIds = players.stream()
+                .map(Player::getUniqueId)
+                .collect(Collectors.toSet());
+
+        sreeCore.countdowns().runAsync(startGameCountdown, playerIds)
                 .thenComposeAsync(ignored -> teleportPlayers(overworld), getMainThread())
                 .thenComposeAsync(ignored -> {
                     plugin.getLogger().info("Grace period started!");
@@ -119,15 +137,6 @@ public class GameManager {
                     players.forEach(player -> player.sendPlayerListHeader(playerListHeader));
 
                     plugin.getLogger().info("Grace period starting animation!");
-
-                    Timer gracePeriodTimer = new Timer(
-                            "Grace period: ",
-                            gameState.getSettings().gracePeriodSeconds(),
-                            Timer.Location.BOSS_BAR,
-                            NamedTextColor.WHITE
-                    );
-
-                    Set<UUID> playerIds = players.stream().map(Player::getUniqueId).collect(Collectors.toSet());
 
                     return sreeCore.timers().runAsync(gracePeriodTimer, playerIds, () -> false);
                 }, getMainThread())

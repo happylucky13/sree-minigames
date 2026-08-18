@@ -1,7 +1,7 @@
 package io.github.sree.core;
 
 import de.maxhenkel.voicechat.api.BukkitVoicechatService;
-
+import io.github.sree.core.animations.CountdownManager;
 import io.github.sree.core.animations.TimerManager;
 import io.github.sree.core.combat_tag.CombatTagManager;
 import io.github.sree.core.combat_tag.PlayerDamageListener;
@@ -14,7 +14,8 @@ import io.github.sree.core.local_chat.listeners.BlockedCommandListener;
 import io.github.sree.core.local_chat.listeners.PlayerChatListener;
 import io.github.sree.core.local_chat.listeners.PrivateMessageListener;
 import io.github.sree.core.pregenerate_world.PregenerateChunksService;
-import io.github.sree.core.spectators.*;
+import io.github.sree.core.spectators.GameModeChangeListener;
+import io.github.sree.core.spectators.SpectatorService;
 import org.bukkit.Bukkit;
 import org.bukkit.event.Listener;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -36,6 +37,7 @@ public class SreeCorePlugin extends JavaPlugin {
     private ChatManager chatManager;
     private PluginCoroutines coroutines;
     private TimerManager timers;
+    private CountdownManager countdowns;
 
     @Override
     public void onEnable() {
@@ -58,6 +60,7 @@ public class SreeCorePlugin extends JavaPlugin {
         combatTagManager = new CombatTagManager(this);
         chatManager = new ChatManager(informationService);
         timers = new TimerManager(coroutines.getScope());
+        countdowns = new CountdownManager(coroutines.getScope());
 
         List<Listener> listeners = List.of(
                 new PlayerDeathListener(informationEnforcer),
@@ -101,5 +104,9 @@ public class SreeCorePlugin extends JavaPlugin {
 
     public TimerManager timers() {
         return timers;
+    }
+
+    public CountdownManager countdowns() {
+        return countdowns;
     }
 }

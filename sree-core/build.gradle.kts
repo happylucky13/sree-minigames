@@ -1,5 +1,6 @@
 plugins {
     `java-library`
+    kotlin("jvm") version "2.4.0"
     id("java")
     id("com.gradleup.shadow") version "9.6.1"
 }
@@ -36,7 +37,6 @@ tasks.test {
 }
 
 tasks.shadowJar {
-    relocate("xyz.xenondevs.invui", "io.github.sree.core.libs.invui")
     archiveClassifier.set("")
 }
 
@@ -46,4 +46,8 @@ tasks.build {
 
 java {
     toolchain.languageVersion.set(JavaLanguageVersion.of(25))
+}
+
+kotlin {
+    jvmToolchain(25)
 }

@@ -34,6 +34,7 @@ public class SreeCorePlugin extends JavaPlugin {
     private CombatTagManager combatTagManager;
     private ChatManager chatManager;
     private PluginCoroutines coroutines;
+    private TimerManager timers;
 
     @Override
     public void onEnable() {
@@ -55,6 +56,7 @@ public class SreeCorePlugin extends JavaPlugin {
         informationEnforcer = new InformationEnforcer(informationService, this);
         combatTagManager = new CombatTagManager(this);
         chatManager = new ChatManager(informationService);
+        timers = new TimerManager(coroutines.getScope());
 
         List<Listener> listeners = List.of(
                 new PlayerDeathListener(informationEnforcer),
@@ -96,7 +98,7 @@ public class SreeCorePlugin extends JavaPlugin {
         return chatManager;
     }
 
-    public PluginCoroutines coroutines() {
-        return coroutines;
+    public TimerManager timers() {
+        return timers;
     }
 }

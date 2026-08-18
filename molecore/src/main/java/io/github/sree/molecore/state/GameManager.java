@@ -187,6 +187,7 @@ public class GameManager {
     public void executeSabotage(Player player) {
         if (!gameState.isGameStarted() || gameState.isGracePeriod()) {
             player.sendMessage(Component.text("Roles aren't assigned yet."));
+            return;
         }
 
         if (gameState.getRole(player) == Role.SURVIVOR) {

@@ -1,5 +1,6 @@
 package io.github.sree.core
 
+import io.papermc.paper.command.brigadier.argument.ArgumentTypes.players
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -39,6 +40,8 @@ class Timer(
         if (minutes < 10) buffer.append('0')
         buffer.append(minutes)
 
+        buffer.append(':')
+
         if (totalSeconds < 10) buffer.append('0')
         buffer.append(seconds)
 
@@ -77,16 +80,6 @@ class Timer(
         } finally {
             players.forEach { it.hideBossBar(timerBar) }
             players.forEach { it.sendActionBar { Component.empty() } }
-        }
-    }
-
-    fun runAsync(
-        scope: CoroutineScope,
-        players: Collection<Player>,
-        shouldStop: () -> Boolean = { false }
-    ) {
-        scope.launch {
-            run(players, shouldStop)
         }
     }
 

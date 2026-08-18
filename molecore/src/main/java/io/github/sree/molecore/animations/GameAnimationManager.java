@@ -5,7 +5,6 @@ import io.github.sree.molecore.enums.Objective;
 import io.github.sree.molecore.enums.Role;
 import io.github.sree.molecore.enums.Winner;
 import io.github.sree.molecore.state.GameState;
-import net.kyori.adventure.bossbar.BossBar;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.title.Title;
@@ -27,43 +26,6 @@ public class GameAnimationManager {
     public GameAnimationManager(MolecorePlugin plugin, GameState gameState) {
         this.plugin = plugin;
         this.gameState = gameState;
-    }
-
-    public CompletableFuture<Void> gracePeriodTimer(Set<Player> players, int gracePeriodSeconds) {
-        CompletableFuture<Void> future = new CompletableFuture<>();
-
-        String formattedTime = String.format("%02d:%02d", gracePeriodSeconds / 60, gracePeriodSeconds % 60);
-
-        BossBar gracePeriodTimerBar = BossBar.bossBar(
-                Component.text("Grace Period: " + formattedTime),
-                1.0f,
-                BossBar.Color.GREEN,
-                BossBar.Overlay.PROGRESS
-        );
-
-        players.forEach(player -> player.showBossBar(gracePeriodTimerBar));
-
-        new BukkitRunnable() {
-            int remainingTime = gracePeriodSeconds;
-
-            public void run() {
-                if (remainingTime <= 0) {
-                    players.forEach(player -> player.hideBossBar(gracePeriodTimerBar));
-                    future.complete(null);
-                    this.cancel();
-                }
-
-                float progress = (float) remainingTime / gracePeriodSeconds;
-                String updatedTime = String.format("%02d:%02d", remainingTime / 60, remainingTime % 60);
-
-                gracePeriodTimerBar.progress(progress);
-                gracePeriodTimerBar.name(Component.text("Grace period: " + updatedTime));
-
-                remainingTime --;
-            }
-        }.runTaskTimer(plugin, 0L, 20L);
-
-        return future;
     }
 
     public CompletableFuture<Void> sabotageOnTimer() {
@@ -212,44 +174,6 @@ public class GameAnimationManager {
                 );
             }, 80L);
         }
-    }
-
-    public CompletableFuture<Void> startCountdown(Set<Player> players) {
-        CompletableFuture<Void> future = new CompletableFuture<>();
-        for (int i = 0; i < 4; i++) {
-            int timerCount = i;
-
-            Bukkit.getScheduler().runTaskLater(plugin, () -> {
-                for (Player player : players) {
-                    if (timerCount > 2) {
-                        player.playSound(
-                                player.getLocation(),
-                                Sound.BLOCK_NOTE_BLOCK_PLING,
-                                1.0f,
-                                2.0f
-                        );
-                        future.complete(null);
-                        continue;
-                    }
-
-                    player.showTitle(
-                            Title.title(
-                                    Component.text(3 - timerCount, NamedTextColor.GOLD),
-                                    Component.empty()
-                            )
-                    );
-
-                    player.playSound(
-                            player.getLocation(),
-                            Sound.BLOCK_NOTE_BLOCK_PLING,
-                            1.0f,
-                            1.0f
-                    );
-                }
-            }, 20 * i);
-        }
-
-        return future;
     }
 
     public void endGameSequence(Winner winner, Set<Player> winners, Location endLocation) {

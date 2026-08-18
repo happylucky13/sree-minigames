@@ -1,5 +1,6 @@
-package io.github.sree.core.animations
+package io.github.sree.core.animations.java
 
+import io.github.sree.core.animations.Timer
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import java.util.UUID

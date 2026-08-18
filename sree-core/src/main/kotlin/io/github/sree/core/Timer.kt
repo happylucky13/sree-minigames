@@ -1,14 +1,12 @@
 package io.github.sree.core
 
-import io.papermc.paper.command.brigadier.argument.ArgumentTypes.players
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
 import net.kyori.adventure.bossbar.BossBar
 import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.format.NamedTextColor
+import org.bukkit.Bukkit
 import java.time.Duration
-import org.bukkit.entity.Player
+import java.util.UUID
 
 class Timer(
     val name: String,
@@ -42,7 +40,7 @@ class Timer(
 
         buffer.append(':')
 
-        if (totalSeconds < 10) buffer.append('0')
+        if (seconds < 10) buffer.append('0')
         buffer.append(seconds)
 
         return buffer
@@ -56,7 +54,7 @@ class Timer(
     )
 
     suspend fun run(
-        players: Collection<Player>,
+        playerIds: Collection<UUID>,
         shouldStop: () -> Boolean = { false }
     ): Boolean {
         val startTime = System.nanoTime()
@@ -67,33 +65,40 @@ class Timer(
                 val remaining = totalSeconds - elapsed
 
                 if (remaining <= 0) {
-                    displayTimer(players, 0)
+                    displayTimer(playerIds, 0)
                     return true
                 }
 
                 if (shouldStop()) return false
 
-                displayTimer(players, remaining.toLong())
+                displayTimer(playerIds, remaining.toLong())
 
                 delay(50)
             }
         } finally {
-            players.forEach { it.hideBossBar(timerBar) }
-            players.forEach { it.sendActionBar { Component.empty() } }
+            playerIds.forEach { uuid ->
+                val player = Bukkit.getPlayer(uuid)
+                player?.hideBossBar(timerBar)
+                player?.sendActionBar { Component.empty() }
+            }
         }
     }
 
-    private fun displayTimer(players: Collection<Player>, secondsRemaining: Long) {
+    private fun displayTimer(playerIds: Collection<UUID>, secondsRemaining: Long) {
         when(location) {
             Location.BOSS_BAR -> {
                 timerBar.progress(secondsRemaining.toFloat() / totalSeconds)
                 timerBar.name { Component.text(name + formatSeconds(secondsRemaining), color) }
-                players.forEach { it.showBossBar(timerBar) }
+                playerIds.forEach { uuid ->
+                    Bukkit.getPlayer(uuid)?.showBossBar(timerBar)
+                }
             }
 
             Location.ACTION_BAR -> {
                 val message = Component.text(name + formatSeconds(secondsRemaining))
-                players.forEach { it.sendActionBar { message } }
+                playerIds.forEach { uuid ->
+                    Bukkit.getPlayer(uuid)?.sendActionBar { message }
+                }
             }
         }
     }

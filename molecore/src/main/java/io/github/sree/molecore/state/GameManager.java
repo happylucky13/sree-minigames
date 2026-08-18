@@ -1,6 +1,7 @@
 package io.github.sree.molecore.state;
 
 import io.github.sree.core.SreeCorePlugin;
+import io.github.sree.core.Timer;
 import io.github.sree.core.combat_tag.CombatTagSettings;
 import io.github.sree.core.combat_tag.TaggingMethod;
 import io.github.sree.core.information.InformationChannel;
@@ -119,7 +120,16 @@ public class GameManager {
 
                     plugin.getLogger().info("Grace period starting animation!");
 
-                    return animationManager.gracePeriodTimer(players, gameState.getSettings().gracePeriodSeconds());
+                    Timer gracePeriodTimer = new Timer(
+                            "Grace period: ",
+                            gameState.getSettings().gracePeriodSeconds(),
+                            Timer.Location.BOSS_BAR,
+                            NamedTextColor.WHITE
+                    );
+
+                    Set<UUID> playerIds = players.stream().map(Player::getUniqueId).collect(Collectors.toSet());
+
+                    return sreeCore.timers().runAsync(gracePeriodTimer, playerIds, () -> false);
                 }, getMainThread())
                 .thenAcceptAsync(ignored -> {
                     assignRoles();

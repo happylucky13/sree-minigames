@@ -4,7 +4,7 @@ plugins {
 }
 
 group = "io.github.sree.molecore"
-version = "0.5.1"
+version = "1.0.0"
 
 tasks.processResources {
     val props = mapOf("version" to version)

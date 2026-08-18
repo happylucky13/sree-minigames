@@ -110,10 +110,9 @@ public class GameManager {
         );
 
         Timer gracePeriodTimer = new Timer(
-                "Grace period: ",
+                Component.text("Grace period: ", NamedTextColor.WHITE),
                 gameState.getSettings().gracePeriodSeconds(),
-                Timer.Location.BOSS_BAR,
-                NamedTextColor.WHITE
+                Timer.Location.BOSS_BAR
         );
 
         Set<UUID> playerIds = players.stream()
@@ -121,7 +120,17 @@ public class GameManager {
                 .collect(Collectors.toSet());
 
         sreeCore.countdowns().runAsync(startGameCountdown, playerIds)
-                .thenComposeAsync(ignored -> teleportPlayers(overworld), getMainThread())
+                .thenComposeAsync(ignored -> {
+                    players.forEach(player ->
+                            player.playSound(
+                                    player.getLocation(),
+                                    Sound.BLOCK_NOTE_BLOCK_PLING,
+                                    1.0f,
+                                    2.0f
+                            ));
+
+                    return teleportPlayers(overworld);
+                }, getMainThread())
                 .thenComposeAsync(ignored -> {
                     plugin.getLogger().info("Grace period started!");
                     gameState.setGameStarted(true);
@@ -220,17 +229,53 @@ public class GameManager {
         }
 
         gameState.setSabotageOnCooldown(true);
+
+        Component sabotageMessage = Component.text("---------------------------------", NamedTextColor.GOLD)
+                .append(Component.newline()).append(Component.text("THE LOCATOR BAR HAS BEEN SABOTAGED!"))
+                .append(Component.newline()).append(Component.text("---------------------------------"));
+
+        Timer sabotageOnTimer = new Timer(
+                Component.text("Locator bar compromised for: ", NamedTextColor.DARK_RED),
+                600,
+                Timer.Location.ACTION_BAR
+        );
+
+        Timer sabotageCooldownTimer = new Timer(
+                Component.text("Sabotage on cooldown in "),
+                1200,
+                Timer.Location.ACTION_BAR
+        );
+
+        gameState.getAlivePlayers().forEach(uuid -> {
+            Player alivePlayer = Bukkit.getPlayer(uuid);
+            assert alivePlayer != null;
+            alivePlayer.sendMessage(sabotageMessage);
+            alivePlayer.playSound(alivePlayer.getLocation(), Sound.BLOCK_RESPAWN_ANCHOR_DEPLETE, 1.0f, 1.0f);
+        });
+
         sreeCore.informationService()
                 .deny(gameState.getPlayersWithRole(Role.SURVIVOR), InformationChannel.LOCATOR_BAR);
 
-        animationManager.sabotageOnTimer()
+        sreeCore.timers().runAsync(sabotageOnTimer, gameState.getAlivePlayers(), () -> !gameState.isGameStarted())
                 .thenComposeAsync(ignored -> {
+                    gameState.getPlayersWithRole(Role.SURVIVOR)
+                            .forEach(survivor ->
+                                    survivor.sendMessage(Component.text("Locator bar back online", NamedTextColor.GOLD)));
+
                     sreeCore.informationService()
                             .allow(gameState.getPlayersWithRole(Role.SURVIVOR), InformationChannel.LOCATOR_BAR);
 
-                    return animationManager.sabotageCooldownTimer();
+                    Set<UUID> moles = gameState.getPlayersWithRole(Role.MOLE)
+                            .stream().map(Player::getUniqueId)
+                            .collect(Collectors.toSet());
+
+                    return sreeCore.timers().runAsync(sabotageCooldownTimer, moles, () -> !gameState.isGameStarted());
                 }, getMainThread())
                 .thenAccept(ignored -> {
+                    gameState.getPlayersWithRole(Role.MOLE)
+                            .forEach(mole ->
+                                    mole.sendMessage(Component.text("Sabotage off cooldown.", NamedTextColor.GOLD)));
+
                     gameState.setSabotageOnCooldown(false);
                 });
     }

@@ -1,4 +1,4 @@
-package io.github.sree.core
+package io.github.sree.core.animations
 
 import kotlinx.coroutines.delay
 import net.kyori.adventure.bossbar.BossBar

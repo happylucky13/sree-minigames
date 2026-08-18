@@ -1,7 +1,7 @@
 package io.github.sree.molecore.state;
 
 import io.github.sree.core.SreeCorePlugin;
-import io.github.sree.core.Timer;
+import io.github.sree.core.animations.Timer;
 import io.github.sree.core.combat_tag.CombatTagSettings;
 import io.github.sree.core.combat_tag.TaggingMethod;
 import io.github.sree.core.information.InformationChannel;

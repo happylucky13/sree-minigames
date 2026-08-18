@@ -28,6 +28,7 @@ dependencies {
     compileOnly("org.mvplugins.multiverse.netherportals:multiverse-netherportals:5.1.0")
     compileOnly("org.popcraft:chunky-common:1.3.38")
     compileOnly("de.maxhenkel.voicechat:voicechat-api:2.6.20")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.11.0")
     api("xyz.xenondevs.invui:invui-kotlin:2.3.0")
 
 }

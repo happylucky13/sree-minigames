@@ -12,6 +12,7 @@ class Timer(
     val name: Component,
     val totalSeconds: Long,
     val location: Location,
+    val bossBarColor: BossBar.Color = BossBar.Color.GREEN
 ) {
     enum class Location {
         BOSS_BAR,
@@ -48,7 +49,7 @@ class Timer(
     private val timerBar: BossBar = BossBar.bossBar(
         name.append { Component.text(formatSeconds(totalSeconds).toString()) },
         1.0f,
-        BossBar.Color.GREEN,
+        bossBarColor,
         BossBar.Overlay.PROGRESS
     )
 

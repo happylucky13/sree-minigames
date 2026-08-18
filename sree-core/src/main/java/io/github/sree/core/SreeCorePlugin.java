@@ -33,6 +33,7 @@ public class SreeCorePlugin extends JavaPlugin {
     private InformationEnforcer informationEnforcer;
     private CombatTagManager combatTagManager;
     private ChatManager chatManager;
+    private PluginCoroutines coroutines;
 
     @Override
     public void onEnable() {
@@ -45,7 +46,8 @@ public class SreeCorePlugin extends JavaPlugin {
         }
 
         getLogger().info("sree-core initialized");
-      
+
+        coroutines = new PluginCoroutines(this);
         worldService = new WorldService(MultiverseCoreApi.get(), getLogger());
         pregenerateChunksService = new PregenerateChunksService(Bukkit.getServer().getServicesManager().load(ChunkyAPI.class), getLogger());
         prepareDimensionSet = new PrepareDimensionSet(worldService, pregenerateChunksService);
@@ -92,5 +94,9 @@ public class SreeCorePlugin extends JavaPlugin {
 
     public ChatManager chatManager() {
         return chatManager;
+    }
+
+    public PluginCoroutines coroutines() {
+        return coroutines;
     }
 }

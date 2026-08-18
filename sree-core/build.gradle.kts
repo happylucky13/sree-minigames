@@ -29,6 +29,8 @@ dependencies {
     compileOnly("org.popcraft:chunky-common:1.3.38")
     compileOnly("de.maxhenkel.voicechat:voicechat-api:2.6.20")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.11.0")
+    implementation("com.github.shynixn.mccoroutine:mccoroutine-bukkit-core:2.9.0")
+    implementation("com.github.shynixn.mccoroutine:mccoroutine-bukkit-api:2.9.0")
     api("xyz.xenondevs.invui:invui-kotlin:2.3.0")
 
 }

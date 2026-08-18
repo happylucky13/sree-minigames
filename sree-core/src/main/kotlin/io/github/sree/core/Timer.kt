@@ -1,13 +1,15 @@
 package io.github.sree.core
 
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import net.kyori.adventure.bossbar.BossBar
 import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.format.NamedTextColor
 import java.time.Duration
 import org.bukkit.entity.Player
 
-public class Timer(
+class Timer(
     val name: String,
     val totalSeconds: Long,
     val location: Location,
@@ -75,6 +77,16 @@ public class Timer(
         } finally {
             players.forEach { it.hideBossBar(timerBar) }
             players.forEach { it.sendActionBar { Component.empty() } }
+        }
+    }
+
+    fun runAsync(
+        scope: CoroutineScope,
+        players: Collection<Player>,
+        shouldStop: () -> Boolean = { false }
+    ) {
+        scope.launch {
+            run(players, shouldStop)
         }
     }
 

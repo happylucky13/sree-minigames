@@ -7,6 +7,7 @@ import net.kyori.adventure.text.format.NamedTextColor
 import org.bukkit.Bukkit
 import java.time.Duration
 import java.util.UUID
+import kotlin.time.Duration.Companion.milliseconds
 
 class Timer(
     val name: String,
@@ -73,7 +74,7 @@ class Timer(
 
                 displayTimer(playerIds, remaining.toLong())
 
-                delay(50)
+                delay(50.milliseconds)
             }
         } finally {
             playerIds.forEach { uuid ->

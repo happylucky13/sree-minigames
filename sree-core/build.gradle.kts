@@ -1,5 +1,6 @@
 plugins {
     `java-library`
+    kotlin("jvm") version "2.4.0"
     id("java")
     id("com.gradleup.shadow") version "9.6.1"
 }
@@ -27,6 +28,9 @@ dependencies {
     compileOnly("org.mvplugins.multiverse.netherportals:multiverse-netherportals:5.1.0")
     compileOnly("org.popcraft:chunky-common:1.3.38")
     compileOnly("de.maxhenkel.voicechat:voicechat-api:2.6.20")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.11.0")
+    implementation("com.github.shynixn.mccoroutine:mccoroutine-bukkit-core:2.9.0")
+    implementation("com.github.shynixn.mccoroutine:mccoroutine-bukkit-api:2.9.0")
     api("xyz.xenondevs.invui:invui-kotlin:2.3.0")
 
 }
@@ -36,7 +40,6 @@ tasks.test {
 }
 
 tasks.shadowJar {
-    relocate("xyz.xenondevs.invui", "io.github.sree.core.libs.invui")
     archiveClassifier.set("")
 }
 
@@ -46,4 +49,8 @@ tasks.build {
 
 java {
     toolchain.languageVersion.set(JavaLanguageVersion.of(25))
+}
+
+kotlin {
+    jvmToolchain(25)
 }

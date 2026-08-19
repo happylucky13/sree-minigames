@@ -32,6 +32,10 @@ allprojects {
         maven {
             url = uri("https://repo.xenondevs.xyz/releases")
         }
+
+        maven {
+            url = uri("https://repo1.maven.org/maven2/com/github/shynixn/mccoroutine/")
+        }
     }
 }
 

@@ -39,7 +39,7 @@ kotlin {
 
 tasks {
     runServer {
-        dependsOn(":sree-core:jar")
+        dependsOn(":sree-core:shadowJar")
 
         doFirst {
             copy {

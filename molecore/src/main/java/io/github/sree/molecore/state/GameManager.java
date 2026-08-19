@@ -12,6 +12,7 @@ import io.github.sree.molecore.enums.LockedSlot;
 import io.github.sree.molecore.enums.Role;
 import io.github.sree.molecore.enums.Winner;
 import io.papermc.paper.event.block.BeaconActivatedEvent;
+import net.kyori.adventure.bossbar.BossBar;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.*;
@@ -112,7 +113,8 @@ public class GameManager {
         Timer gracePeriodTimer = new Timer(
                 Component.text("Grace period: ", NamedTextColor.WHITE),
                 gameState.getSettings().gracePeriodSeconds(),
-                Timer.Location.BOSS_BAR
+                Timer.Location.BOSS_BAR,
+                BossBar.Color.GREEN
         );
 
         Set<UUID> playerIds = players.stream()
@@ -237,13 +239,15 @@ public class GameManager {
         Timer sabotageOnTimer = new Timer(
                 Component.text("Locator bar compromised for: ", NamedTextColor.DARK_RED),
                 600,
-                Timer.Location.ACTION_BAR
+                Timer.Location.ACTION_BAR,
+                BossBar.Color.GREEN
         );
 
         Timer sabotageCooldownTimer = new Timer(
                 Component.text("Sabotage on cooldown in "),
                 1200,
-                Timer.Location.ACTION_BAR
+                Timer.Location.ACTION_BAR,
+                BossBar.Color.GREEN
         );
 
         gameState.getAlivePlayers().forEach(uuid -> {

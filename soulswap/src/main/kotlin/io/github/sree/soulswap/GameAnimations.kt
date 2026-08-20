@@ -10,6 +10,6 @@ internal fun Player.reviveAnimation() {
 
 }
 
-internal fun Player.startPurgatoryTimer() {
+internal fun Player.deathAnimation() {
 
 }

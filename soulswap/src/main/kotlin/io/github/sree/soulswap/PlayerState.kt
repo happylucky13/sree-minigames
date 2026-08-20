@@ -14,7 +14,7 @@ internal class PlayerState(
 
     val purgatoryTimer = Timer(
         name = Component.text("Time remaining: ", NamedTextColor.RED),
-        totalSeconds = settings.purgatoryTimerLength,
+        totalDuration = settings.purgatoryDuration,
         location = Timer.Location.ACTION_BAR
     )
 }

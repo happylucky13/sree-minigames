@@ -74,7 +74,7 @@ internal class GameManager(
         when (playerState.team) {
             Team.SURVIVOR -> {
                 playerState.team = Team.PURGATORY
-                this.startPurgatoryTimer()
+                this.deathAnimation()
             }
 
             Team.PURGATORY -> {

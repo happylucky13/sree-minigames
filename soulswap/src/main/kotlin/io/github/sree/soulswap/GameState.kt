@@ -15,7 +15,7 @@ internal class GameState {
 
     fun addPlayers(players: Collection<Player>) {
         alivePlayers.addAll(players.map { it.uniqueId } )
-        playerStates.putAll(players.associate { it.uniqueId to PlayerState(settings.livesLeft) } )
+        playerStates.putAll(players.associate { it.uniqueId to PlayerState(settings) } )
     }
 
     fun removePlayer(player: Player) {

@@ -14,21 +14,11 @@ internal class GameAnimations {
 }
 
 internal fun Player.reviveAnimation() {
-    ParticleBuilder(Particle.TOTEM_OF_UNDYING).apply {
-        location(location)
-        count(50)
-        offset(0.5, 1.0, 0.5)
-        extra(0.1)
-        spawn()
-    }
-
     this.playEffect(EntityEffect.PROTECTED_FROM_DEATH)
     Bukkit.getServer().broadcast(Component.text(this.name + " HAS REVIVED!", NamedTextColor.GOLD))
-
 }
 
 internal fun Player.finalDeathAnimation() {
-    Bukkit.getLogger().info("IT FREAKING RAN AT LEAST")
 
     ParticleBuilder(Particle.LARGE_SMOKE).apply {
         location(location)

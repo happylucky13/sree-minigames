@@ -3,8 +3,11 @@ package io.github.sree.soulswap
 import com.github.shynixn.mccoroutine.bukkit.launch
 import io.github.sree.core.SreeCorePlugin
 import io.github.sree.core.animations.Countdown
+import io.github.sree.core.combat_tag.CombatTagSettings
+import io.github.sree.core.combat_tag.TaggingMethod
 import io.github.sree.soulswap.state.GameState
 import io.github.sree.soulswap.state.Team
+import io.github.sree.soulswap.state.updateEffects
 import io.github.sree.soulswap.state.updateScoreboard
 import io.papermc.paper.command.brigadier.argument.ArgumentTypes.player
 import kotlinx.coroutines.future.await
@@ -16,6 +19,8 @@ import org.bukkit.Sound
 import org.bukkit.World
 import org.bukkit.entity.Player
 import org.bukkit.event.entity.PlayerDeathEvent
+import org.bukkit.potion.PotionEffect
+import org.bukkit.potion.PotionEffectType
 
 internal class GameManager(
     val gameState: GameState,
@@ -31,6 +36,7 @@ internal class GameManager(
         )
 
         val prepareDimensionSet = core.prepareDimensionSet()
+        core.combatTagManager().setCombatTagSettings(CombatTagSettings(15, TaggingMethod.LAST_HIT))
 
         plugin.launch {
             val overworld = prepareDimensionSet
@@ -45,6 +51,7 @@ internal class GameManager(
             gameState.alivePlayers.forEach { uuid ->
                 val player = Bukkit.getPlayer(uuid)
                 player?.updateScoreboard(gameState)
+                player?.updateEffects(gameState)
             }
         }
     }
@@ -55,6 +62,8 @@ internal class GameManager(
 
         killer?.handleKill()
         target.handleDeath()
+
+        if (gameState.alivePlayers.isEmpty()) endGame()
     }
 
     fun Player.handleKill() {
@@ -66,6 +75,7 @@ internal class GameManager(
         if (playerState.team == Team.PURGATORY) {
             playerState.team = Team.SURVIVOR
             this.reviveAnimation()
+            this.updateEffects(gameState)
         }
 
         this.updateScoreboard(gameState)
@@ -82,7 +92,6 @@ internal class GameManager(
                 playerState.livesLeft --
                 if (playerState.livesLeft <= 0) {
                     this.finalDeathAnimation()
-
                     gameState.removePlayer(this)
                     core.spectatorService().addSpectator(this)
                     this.updateScoreboard(gameState)
@@ -90,12 +99,16 @@ internal class GameManager(
                 }
 
                 playerState.team = Team.PURGATORY
+                this.updateEffects(gameState)
 
                 plugin.launch {
-                    val completed = playerState.purgatoryTimer.run(setOf(playerId))
+                    val completed = playerState.purgatoryTimer.run(setOf(playerId)) {
+                        playerState.team == Team.SURVIVOR || !gameState.gameStarted
+                    }
 
                     if (completed) {
                         gameState.removePlayer(this@handleDeath)
+                        this@handleDeath.finalDeathAnimation()
                         core.spectatorService().addSpectator(this@handleDeath)
                     }
                 }
@@ -116,5 +129,11 @@ internal class GameManager(
 
     private fun getWorldKey(worldName: String): NamespacedKey {
         return NamespacedKey(plugin, worldName)
+    }
+
+    private fun endGame() {
+        gameState.gameStarted = false
+        core.spectatorService().removeAllSpectators()
+        plugin.clearScoreboard()
     }
 }

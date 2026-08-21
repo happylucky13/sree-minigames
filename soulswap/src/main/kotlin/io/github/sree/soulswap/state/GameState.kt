@@ -1,7 +1,10 @@
 package io.github.sree.soulswap.state
 
+import io.papermc.paper.scoreboard.numbers.NumberFormat
 import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.format.NamedTextColor
+import net.kyori.adventure.text.format.Style
+import net.kyori.adventure.text.format.TextDecoration
 import org.bukkit.Bukkit
 import org.bukkit.entity.Player
 import org.bukkit.scoreboard.Criteria
@@ -35,16 +38,24 @@ internal fun Player.updateScoreboard(gameState: GameState) {
 
     val survivorTeam = scoreboard.getTeam("Survivors") ?: scoreboard.registerNewTeam("Survivors").apply {
         color(NamedTextColor.GREEN)
+        setAllowFriendlyFire(false)
     }
 
     val purgatoryTeam = scoreboard.getTeam("Purgatory") ?: scoreboard.registerNewTeam("Purgatory").apply {
         color(NamedTextColor.RED)
+        setAllowFriendlyFire(false)
     }
 
     val livesLeft: Objective = scoreboard.getObjective("lives_left") ?:
-        scoreboard.registerNewObjective("lives_left", Criteria.DUMMY, Component.text("Lives Left")).apply {
+        scoreboard.registerNewObjective(
+            "lives_left",
+            Criteria.DUMMY,
+            Component.text("Lives Left")
+        ).apply {
             displaySlot = DisplaySlot.BELOW_NAME
         }
+
+    livesLeft.displayName(Component.text("Lives Left", NamedTextColor.GOLD))
 
     survivorTeam.removeEntry(this.name)
     purgatoryTeam.removeEntry(this.name)
@@ -56,5 +67,6 @@ internal fun Player.updateScoreboard(gameState: GameState) {
 
     livesLeft.getScore(this.name).apply {
         score = playerState.livesLeft
+        numberFormat(NumberFormat.styled(Style.style(NamedTextColor.GOLD, TextDecoration.BOLD)))
     }
 }

@@ -6,7 +6,9 @@ import io.github.sree.core.animations.Countdown
 import io.github.sree.soulswap.state.GameState
 import io.github.sree.soulswap.state.Team
 import io.github.sree.soulswap.state.updateScoreboard
+import io.papermc.paper.command.brigadier.argument.ArgumentTypes.player
 import kotlinx.coroutines.future.await
+import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.format.NamedTextColor
 import org.bukkit.Bukkit
 import org.bukkit.NamespacedKey
@@ -39,6 +41,11 @@ internal class GameManager(
             countdown.run(gameState.alivePlayers)
             teleportPlayers(overworld)
             gameState.gameStarted = true
+
+            gameState.alivePlayers.forEach { uuid ->
+                val player = Bukkit.getPlayer(uuid)
+                player?.updateScoreboard(gameState)
+            }
         }
     }
 
@@ -74,15 +81,23 @@ internal class GameManager(
             Team.SURVIVOR -> {
                 playerState.livesLeft --
                 if (playerState.livesLeft <= 0) {
+                    this.finalDeathAnimation()
+
                     gameState.removePlayer(this)
                     core.spectatorService().addSpectator(this)
+                    this.updateScoreboard(gameState)
                     return
                 }
 
                 playerState.team = Team.PURGATORY
 
                 plugin.launch {
-                    playerState.purgatoryTimer.run(setOf(playerId))
+                    val completed = playerState.purgatoryTimer.run(setOf(playerId))
+
+                    if (completed) {
+                        gameState.removePlayer(this@handleDeath)
+                        core.spectatorService().addSpectator(this@handleDeath)
+                    }
                 }
             }
 

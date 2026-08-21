@@ -20,28 +20,35 @@ class Countdown(
         val startTime = System.nanoTime()
         var lastSecond = -1
 
-        while(true) {
-            val elapsed = (System.nanoTime() - startTime) / 1_000_000_000.0
-            val remaining = totalSeconds - elapsed
-            val second = remaining.toInt()
+        try {
+            while(true) {
+                val elapsed = (System.nanoTime() - startTime) / 1_000_000_000.0
+                val remaining = totalSeconds - elapsed
+                val second = remaining.toInt()
 
-            if (remaining <= 0) return
-            if (second == lastSecond) continue
+                if (remaining <= 0) return
+                if (second == lastSecond) continue
 
-            lastSecond = second
+                lastSecond = second
 
-            val title = Title.title(
-                Component.text(remaining.roundToInt(), textColor),
-                Component.empty()
-            )
+                val title = Title.title(
+                    Component.text(remaining.roundToInt(), textColor),
+                    Component.empty()
+                )
 
+                playerIds.forEach { uuid ->
+                    val player = Bukkit.getPlayer(uuid)
+                    player?.showTitle(title)
+                    player?.playSound(player.location, sound, 1.0f, 1.0f)
+                }
+
+                delay(50.milliseconds)
+            }
+        } finally {
             playerIds.forEach { uuid ->
                 val player = Bukkit.getPlayer(uuid)
-                player?.showTitle(title)
-                player?.playSound(player.location, sound, 1.0f, 1.0f)
+                player?.playSound(player.location, sound, 1.0f, 2.0f)
             }
-
-            delay(50.milliseconds)
         }
     }
 }

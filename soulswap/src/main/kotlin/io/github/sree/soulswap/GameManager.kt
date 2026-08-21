@@ -3,6 +3,9 @@ package io.github.sree.soulswap
 import com.github.shynixn.mccoroutine.bukkit.launch
 import io.github.sree.core.SreeCorePlugin
 import io.github.sree.core.animations.Countdown
+import io.github.sree.soulswap.state.GameState
+import io.github.sree.soulswap.state.Team
+import io.github.sree.soulswap.state.updateScoreboard
 import kotlinx.coroutines.future.await
 import net.kyori.adventure.text.format.NamedTextColor
 import org.bukkit.Bukkit

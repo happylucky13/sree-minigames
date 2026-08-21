@@ -1,4 +1,4 @@
-package io.github.sree.soulswap
+package io.github.sree.soulswap.state
 
 import io.github.sree.core.animations.Timer
 import net.kyori.adventure.text.Component

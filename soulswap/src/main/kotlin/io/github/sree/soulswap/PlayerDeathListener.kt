@@ -1,5 +1,6 @@
 package io.github.sree.soulswap
 
+import io.github.sree.soulswap.state.GameState
 import org.bukkit.event.EventHandler
 import org.bukkit.event.Listener
 import org.bukkit.event.entity.PlayerDeathEvent

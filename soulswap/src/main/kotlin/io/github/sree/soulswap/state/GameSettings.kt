@@ -1,4 +1,4 @@
-package io.github.sree.soulswap
+package io.github.sree.soulswap.state
 
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.minutes

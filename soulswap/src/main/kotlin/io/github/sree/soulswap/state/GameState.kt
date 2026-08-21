@@ -1,4 +1,4 @@
-package io.github.sree.soulswap
+package io.github.sree.soulswap.state
 
 import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.format.NamedTextColor

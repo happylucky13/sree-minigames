@@ -1,16 +1,26 @@
 package io.github.sree.soulswap.state
 
+import com.github.shynixn.mccoroutine.bukkit.launch
+import com.github.shynixn.mccoroutine.bukkit.ticks
+import io.github.sree.soulswap.SoulSwapPlugin
 import io.papermc.paper.scoreboard.numbers.NumberFormat
+import kotlinx.coroutines.delay
 import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.format.NamedTextColor
 import net.kyori.adventure.text.format.Style
 import net.kyori.adventure.text.format.TextDecoration
 import org.bukkit.Bukkit
+import org.bukkit.NamespacedKey
+import org.bukkit.attribute.Attribute
+import org.bukkit.attribute.AttributeModifier
 import org.bukkit.entity.Player
+import org.bukkit.potion.PotionEffect
+import org.bukkit.potion.PotionEffectType
 import org.bukkit.scoreboard.Criteria
 import org.bukkit.scoreboard.DisplaySlot
 import org.bukkit.scoreboard.Objective
 import java.util.UUID
+import kotlin.time.Duration.Companion.milliseconds
 
 internal class GameState {
     val alivePlayers: Set<UUID>
@@ -70,3 +80,19 @@ internal fun Player.updateScoreboard(gameState: GameState) {
         numberFormat(NumberFormat.styled(Style.style(NamedTextColor.GOLD, TextDecoration.BOLD)))
     }
 }
+
+internal fun Player.updateEffects(gameState: GameState) {
+    val playerState = gameState.playerStates[this.uniqueId] ?: return
+    val attribute = this.getAttribute(Attribute.MOVEMENT_SPEED) ?: return
+
+    when (playerState.team) {
+        Team.PURGATORY -> attribute.addModifier(PURGATORY_SPEED_MODIFIER)
+        else -> attribute.removeModifier(PURGATORY_SPEED_MODIFIER)
+    }
+}
+
+internal val PURGATORY_SPEED_MODIFIER = AttributeModifier(
+    NamespacedKey("soulswap", "purgatory_speed"),
+    0.2,
+    AttributeModifier.Operation.ADD_SCALAR
+)

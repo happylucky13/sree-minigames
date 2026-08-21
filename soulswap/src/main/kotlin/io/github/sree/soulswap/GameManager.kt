@@ -57,6 +57,8 @@ internal class GameManager(
             playerState.team = Team.SURVIVOR
             this.reviveAnimation()
         }
+
+        this.updateScoreboard(gameState)
     }
 
     fun Player.handleDeath() {
@@ -86,6 +88,8 @@ internal class GameManager(
                 playerState.purgatoryTimer.reduce(gameState.settings.purgatoryDeathReduction)
             }
         }
+
+        this.updateScoreboard(gameState)
     }
 
     private fun teleportPlayers(overworld: World) {

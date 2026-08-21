@@ -50,35 +50,40 @@ internal class GameManager(
     fun Player.handleKill() {
         if (!gameState.alivePlayers.contains(this.uniqueId)) return
 
-        val playerState = gameState.playerStates[this.uniqueId]
-        playerState?.kills ++
+        val playerState = gameState.playerStates[this.uniqueId] ?: return
+        playerState.kills ++
 
-        if (playerState?.team == Team.PURGATORY) {
+        if (playerState.team == Team.PURGATORY) {
             playerState.team = Team.SURVIVOR
             this.reviveAnimation()
         }
     }
 
     fun Player.handleDeath() {
-        if (!gameState.alivePlayers.contains(this.uniqueId)) return
+        val playerId = this.uniqueId
 
-        val playerState = gameState.playerStates[this.uniqueId] ?: return
-        if (playerState.team == Team.SURVIVOR) playerState.livesLeft --
-
-        if (playerState.livesLeft == 0) {
-            gameState.removePlayer(this)
-            core.spectatorService().addSpectator(this)
-            return
-        }
+        if (!gameState.alivePlayers.contains(playerId)) return
+        val playerState = gameState.playerStates[playerId] ?: return
 
         when (playerState.team) {
             Team.SURVIVOR -> {
+                playerState.livesLeft --
+                if (playerState.livesLeft <= 0) {
+                    gameState.removePlayer(this)
+                    core.spectatorService().addSpectator(this)
+                    return
+                }
+
                 playerState.team = Team.PURGATORY
-                this.deathAnimation()
+
+                plugin.launch {
+                    playerState.purgatoryTimer.run(setOf(playerId))
+                }
             }
 
             Team.PURGATORY -> {
-
+                this.playSound(this.location, Sound.BLOCK_BEACON_DEACTIVATE, 1.0f, 1.0f)
+                playerState.purgatoryTimer.reduce(gameState.settings.purgatoryDeathReduction)
             }
         }
     }

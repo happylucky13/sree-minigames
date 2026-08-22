@@ -36,7 +36,7 @@ internal class GameManager(
 
         plugin.launch {
             val overworld = prepareDimensionSet
-                .prepareDimensionSet(getWorldKey(worldName), plugin.logger)
+                .prepareDimensionSet(getWorldKey(worldName))
                 .await()
 
             gameState.addPlayers(Bukkit.getOnlinePlayers())
@@ -123,7 +123,7 @@ internal class GameManager(
         Bukkit.getOnlinePlayers().forEach { it.teleportAsync(overworld.spawnLocation) }
     }
 
-    private fun getWorldKey(worldName: String): NamespacedKey {
+    fun getWorldKey(worldName: String): NamespacedKey {
         return NamespacedKey(plugin, worldName)
     }
 

@@ -1,6 +1,7 @@
 package io.github.sree.soulswap
 
 import io.github.sree.core.SreeCorePlugin
+import io.github.sree.soulswap.commands.PregenerateCommand
 import io.github.sree.soulswap.commands.StartCommand
 import io.github.sree.soulswap.state.GameState
 import io.papermc.paper.command.brigadier.Commands
@@ -27,6 +28,7 @@ class SoulSwapPlugin : JavaPlugin() {
 
         val soulswapCommand = Commands.literal("soulswap")
             .then(StartCommand(gameManager).createCommand())
+            .then(PregenerateCommand(sreeCore, gameManager).createCommand())
             .build()
 
         this.lifecycleManager.registerEventHandler(LifecycleEvents.COMMANDS) { commands ->

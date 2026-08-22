@@ -54,7 +54,7 @@ public class GameManager {
     }
 
     public CompletableFuture<World> prepareDimensionSet(NamespacedKey worldKey) {
-        return sreeCore.prepareDimensionSet().prepareDimensionSet(worldKey, plugin.getLogger());
+        return sreeCore.prepareDimensionSet().prepareDimensionSet(worldKey);
     }
 
     private CompletableFuture<Void> teleportPlayers(World world) {

@@ -54,7 +54,7 @@ public class SreeCorePlugin extends JavaPlugin {
         coroutines = new PluginCoroutines(this);
         worldService = new WorldService(MultiverseCoreApi.get(), getLogger());
         pregenerateChunksService = new PregenerateChunksService(Bukkit.getServer().getServicesManager().load(ChunkyAPI.class), getLogger());
-        prepareDimensionSet = new PrepareDimensionSet(worldService, pregenerateChunksService);
+        prepareDimensionSet = new PrepareDimensionSet(getLogger(), worldService, pregenerateChunksService);
         informationService = new InformationService();
         informationEnforcer = new InformationEnforcer(informationService, this);
         combatTagManager = new CombatTagManager(this);

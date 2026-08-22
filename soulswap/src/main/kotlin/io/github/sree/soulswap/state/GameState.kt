@@ -81,13 +81,14 @@ internal fun Player.updateScoreboard(gameState: GameState) {
     }
 }
 
-internal fun Player.updateEffects(gameState: GameState) {
-    val playerState = gameState.playerStates[this.uniqueId] ?: return
+internal fun Player.purgatorySpeed(toggle: Boolean) {
     val attribute = this.getAttribute(Attribute.MOVEMENT_SPEED) ?: return
 
-    when (playerState.team) {
-        Team.PURGATORY -> attribute.addModifier(PURGATORY_SPEED_MODIFIER)
-        else -> attribute.removeModifier(PURGATORY_SPEED_MODIFIER)
+    attribute.removeModifier(PURGATORY_SPEED_MODIFIER)
+
+    if (toggle) {
+        attribute.addModifier(PURGATORY_SPEED_MODIFIER)
+        return
     }
 }
 

@@ -7,11 +7,9 @@ import io.github.sree.core.combat_tag.CombatTagSettings
 import io.github.sree.core.combat_tag.TaggingMethod
 import io.github.sree.soulswap.state.GameState
 import io.github.sree.soulswap.state.Team
-import io.github.sree.soulswap.state.updateEffects
+import io.github.sree.soulswap.state.purgatorySpeed
 import io.github.sree.soulswap.state.updateScoreboard
-import io.papermc.paper.command.brigadier.argument.ArgumentTypes.player
 import kotlinx.coroutines.future.await
-import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.format.NamedTextColor
 import org.bukkit.Bukkit
 import org.bukkit.NamespacedKey
@@ -19,8 +17,6 @@ import org.bukkit.Sound
 import org.bukkit.World
 import org.bukkit.entity.Player
 import org.bukkit.event.entity.PlayerDeathEvent
-import org.bukkit.potion.PotionEffect
-import org.bukkit.potion.PotionEffectType
 
 internal class GameManager(
     val gameState: GameState,
@@ -51,7 +47,7 @@ internal class GameManager(
             gameState.alivePlayers.forEach { uuid ->
                 val player = Bukkit.getPlayer(uuid)
                 player?.updateScoreboard(gameState)
-                player?.updateEffects(gameState)
+                player?.purgatorySpeed(false)
             }
         }
     }
@@ -75,7 +71,7 @@ internal class GameManager(
         if (playerState.team == Team.PURGATORY) {
             playerState.team = Team.SURVIVOR
             this.reviveAnimation()
-            this.updateEffects(gameState)
+            this.purgatorySpeed(false)
         }
 
         this.updateScoreboard(gameState)
@@ -99,7 +95,7 @@ internal class GameManager(
                 }
 
                 playerState.team = Team.PURGATORY
-                this.updateEffects(gameState)
+                this.purgatorySpeed(true)
 
                 plugin.launch {
                     val completed = playerState.purgatoryTimer.run(setOf(playerId)) {
@@ -135,5 +131,6 @@ internal class GameManager(
         gameState.gameStarted = false
         core.spectatorService().removeAllSpectators()
         plugin.clearScoreboard()
+        Bukkit.getOnlinePlayers().forEach { it.purgatorySpeed(false) }
     }
 }

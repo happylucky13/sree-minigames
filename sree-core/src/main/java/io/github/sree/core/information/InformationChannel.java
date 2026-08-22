@@ -6,5 +6,6 @@ public enum InformationChannel {
     GLOBAL_CHAT,
     LOCAL_CHAT,
     TAB_LIST,
-    LOCATOR_BAR
+    LOCATOR_BAR,
+    LOCATOR_BAR_TRANSMIT
 }

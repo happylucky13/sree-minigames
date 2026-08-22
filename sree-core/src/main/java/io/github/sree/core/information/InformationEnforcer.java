@@ -34,6 +34,10 @@ public class InformationEnforcer {
             Bukkit.getScheduler().runTask(plugin, () ->
                     updateTabList(player, informationService.allows(player, InformationChannel.TAB_LIST)));
         }
+
+        if (event.channels().contains(InformationChannel.LOCATOR_BAR_TRANSMIT)) {
+            updateLocatorBar(player, informationService.allows(player, InformationChannel.LOCATOR_BAR_TRANSMIT));
+        }
     }
 
     public void handleDeathMessage(PlayerDeathEvent event) {
@@ -67,6 +71,23 @@ public class InformationEnforcer {
                 if (player.isOnline() && onlinePlayer.isOnline()) {
                     player.showPlayer(plugin, onlinePlayer);
                 }
+            });
+        }
+    }
+
+    public void updateLocatorBarTransmit(Player player, boolean allowed) {
+        AttributeInstance attr = player.getAttribute(Attribute.WAYPOINT_TRANSMIT_RANGE);
+        if (attr != null) {
+            attr.setBaseValue(allowed ? 60000000.0 : 0.0);
+        }
+
+        for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
+            if (onlinePlayer.equals(player)) continue;
+
+            player.hidePlayer(plugin, onlinePlayer);
+
+            Bukkit.getScheduler().runTask(plugin, () -> {
+                if (player.isOnline() && onlinePlayer.isOnline()) player.showPlayer(plugin, onlinePlayer);
             });
         }
     }

@@ -5,6 +5,7 @@ import io.github.sree.core.SreeCorePlugin
 import io.github.sree.core.animations.Countdown
 import io.github.sree.core.combat_tag.CombatTagSettings
 import io.github.sree.core.combat_tag.TaggingMethod
+import io.github.sree.core.information.InformationChannel
 import io.github.sree.soulswap.state.GameState
 import io.github.sree.soulswap.state.Team
 import io.github.sree.soulswap.state.purgatorySpeed
@@ -33,6 +34,7 @@ internal class GameManager(
 
         val prepareDimensionSet = core.prepareDimensionSet()
         core.combatTagManager().setCombatTagSettings(CombatTagSettings(15, TaggingMethod.LAST_HIT))
+        core.informationService().reset(Bukkit.getOnlinePlayers())
 
         plugin.launch {
             val overworld = prepareDimensionSet
@@ -130,6 +132,7 @@ internal class GameManager(
     private fun endGame() {
         gameState.gameStarted = false
         core.spectatorService().removeAllSpectators()
+        core.informationService().reset(Bukkit.getOnlinePlayers())
         plugin.clearScoreboard()
         Bukkit.getOnlinePlayers().forEach { it.purgatorySpeed(false) }
     }

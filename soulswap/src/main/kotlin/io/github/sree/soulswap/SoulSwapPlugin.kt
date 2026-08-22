@@ -3,6 +3,8 @@ package io.github.sree.soulswap
 import io.github.sree.core.SreeCorePlugin
 import io.github.sree.soulswap.commands.PregenerateCommand
 import io.github.sree.soulswap.commands.StartCommand
+import io.github.sree.soulswap.listeners.PlayerDeathListener
+import io.github.sree.soulswap.listeners.WitherSkeletonDeathListener
 import io.github.sree.soulswap.state.GameState
 import io.papermc.paper.command.brigadier.Commands
 import io.papermc.paper.plugin.lifecycle.event.types.LifecycleEvents
@@ -22,6 +24,7 @@ class SoulSwapPlugin : JavaPlugin() {
 
         val listeners: List<Listener> = listOf(
             PlayerDeathListener(gameManager, gameState),
+            WitherSkeletonDeathListener(gameState)
         )
 
         listeners.forEach { listener -> server.pluginManager.registerEvents(listener, this) }

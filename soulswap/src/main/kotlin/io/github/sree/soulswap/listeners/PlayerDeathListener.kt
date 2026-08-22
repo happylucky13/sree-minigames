@@ -1,5 +1,6 @@
-package io.github.sree.soulswap
+package io.github.sree.soulswap.listeners
 
+import io.github.sree.soulswap.GameManager
 import io.github.sree.soulswap.state.GameState
 import org.bukkit.event.EventHandler
 import org.bukkit.event.Listener

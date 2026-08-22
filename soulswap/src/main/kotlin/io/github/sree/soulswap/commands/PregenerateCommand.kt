@@ -13,7 +13,9 @@ import org.bukkit.NamespacedKey
 internal class PregenerateCommand(val core: SreeCorePlugin, val gameManager: GameManager) {
     fun createCommand(): LiteralArgumentBuilder<CommandSourceStack> {
         return Commands.literal("pregenerate")
-            .then(Commands.argument("world-name", StringArgumentType.word()))
+            .then(Commands.argument("world-name", StringArgumentType.word())
+                .executes { ctx -> pregenerateWorlds(ctx) }
+            )
     }
 
     private fun pregenerateWorlds(ctx: CommandContext<CommandSourceStack>): Int {

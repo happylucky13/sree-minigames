@@ -73,6 +73,7 @@ internal class GameManager(
         if (playerState.team == Team.PURGATORY) {
             playerState.team = Team.SURVIVOR
             this.reviveAnimation()
+            core.informationService().allow(this, InformationChannel.LOCATOR_BAR_TRANSMIT)
             this.purgatorySpeed(false)
         }
 
@@ -98,6 +99,7 @@ internal class GameManager(
 
                 playerState.team = Team.PURGATORY
                 this.purgatorySpeed(true)
+                core.informationService().deny(this, InformationChannel.LOCATOR_BAR_TRANSMIT)
 
                 plugin.launch {
                     val completed = playerState.purgatoryTimer.run(setOf(playerId)) {

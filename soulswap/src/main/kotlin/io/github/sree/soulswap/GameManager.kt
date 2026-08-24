@@ -110,6 +110,8 @@ internal class GameManager(
                         gameState.removePlayer(this@handleDeath)
                         this@handleDeath.finalDeathAnimation()
                         core.spectatorService().addSpectator(this@handleDeath)
+
+                        if (gameState.alivePlayers.isEmpty()) endGame()
                     }
                 }
             }

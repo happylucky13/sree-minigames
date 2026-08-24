@@ -1,0 +1,10 @@
+package io.github.sree.soulswap.state
+
+import kotlin.time.Duration
+import kotlin.time.Duration.Companion.minutes
+
+data class GameSettings(
+    val livesLeft: Int = 2,
+    val purgatoryDuration: Duration = 30.minutes,
+    val purgatoryDeathReduction: Duration = 10.minutes
+)

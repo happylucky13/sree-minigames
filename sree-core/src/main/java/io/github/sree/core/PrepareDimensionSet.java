@@ -18,16 +18,17 @@ import java.util.stream.Collectors;
 
 public class PrepareDimensionSet {
 
+    private final Logger logger;
     private final WorldService worldService;
     private final PregenerateChunksService pregenerateChunksService;
 
-    public PrepareDimensionSet(WorldService worldService, PregenerateChunksService pregenerateChunksService) {
+    public PrepareDimensionSet(Logger logger, WorldService worldService, PregenerateChunksService pregenerateChunksService) {
+        this.logger = logger;
         this.worldService = worldService;
         this.pregenerateChunksService = pregenerateChunksService;
     }
 
-    public CompletableFuture<World> prepareDimensionSet(NamespacedKey worldKey, Logger logger) {
-
+    public CompletableFuture<World> prepareDimensionSet(NamespacedKey worldKey) {
         DimensionKeys keys = DimensionKeys.from(worldKey);
         World overworld = Bukkit.getWorld(keys.getBukkitWorldKey(keys.overworld()));
         World nether = Bukkit.getWorld(keys.getBukkitWorldKey(keys.nether()));

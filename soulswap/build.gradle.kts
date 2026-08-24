@@ -5,7 +5,7 @@ plugins {
 }
 
 group = "io.github.sree.soulswap"
-version = "0.1.0"
+version = "0.5.0"
 
 tasks.processResources {
     val props = mapOf("version" to version)
@@ -37,7 +37,7 @@ tasks.test {
 
 tasks {
     runServer {
-        dependsOn(":sree-core:jar")
+        dependsOn(":sree-core:shadowJar")
 
         doFirst {
             copy {

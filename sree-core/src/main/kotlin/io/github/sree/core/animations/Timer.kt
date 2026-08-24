@@ -7,20 +7,21 @@ import org.bukkit.Bukkit
 import kotlin.time.Duration
 import java.util.UUID
 import kotlin.time.Duration.Companion.milliseconds
+import kotlin.time.TimeMark
 import kotlin.time.TimeSource
 
 class Timer(
     val name: Component,
     val totalDuration: Duration,
     val location: Location,
-    val bossBarColor: BossBar.Color = BossBar.Color.GREEN
+    bossBarColor: BossBar.Color = BossBar.Color.GREEN
 ) {
     enum class Location {
         BOSS_BAR,
         ACTION_BAR
     }
 
-    var remaining: Duration = totalDuration
+    private var endTime: TimeMark? = null
 
     private fun formatSeconds(totalDuration: Duration): CharSequence {
         val buffer = StringBuilder(8)
@@ -51,11 +52,11 @@ class Timer(
         playerIds: Collection<UUID>,
         shouldStop: () -> Boolean = { false }
     ): Boolean {
-        val startTime = TimeSource.Monotonic.markNow()
+        endTime = TimeSource.Monotonic.markNow() + totalDuration
 
         try {
             while(true) {
-                remaining = totalDuration - startTime.elapsedNow()
+                val remaining = -endTime!!.elapsedNow()
 
                 if (remaining <= Duration.ZERO) {
                     displayTimer(playerIds, remaining)
@@ -78,7 +79,9 @@ class Timer(
     }
 
     fun reduce(duration: Duration) {
-        remaining -= duration
+        endTime?.let {
+            endTime = it - duration
+        }
     }
 
     private fun displayTimer(playerIds: Collection<UUID>, remaining: Duration) {

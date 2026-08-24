@@ -36,7 +36,7 @@ public class InformationEnforcer {
         }
 
         if (event.channels().contains(InformationChannel.LOCATOR_BAR_TRANSMIT)) {
-            updateLocatorBar(player, informationService.allows(player, InformationChannel.LOCATOR_BAR_TRANSMIT));
+            updateLocatorBarTransmit(player, informationService.allows(player, InformationChannel.LOCATOR_BAR_TRANSMIT));
         }
     }
 
@@ -62,17 +62,17 @@ public class InformationEnforcer {
             attr.setBaseValue(allowed ? 60000000.0 : 0.0);
         }
 
-        for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
-            if (onlinePlayer.equals(player)) continue;
-
-            player.hidePlayer(plugin, onlinePlayer);
-
-            Bukkit.getScheduler().runTask(plugin, () -> {
-                if (player.isOnline() && onlinePlayer.isOnline()) {
-                    player.showPlayer(plugin, onlinePlayer);
-                }
-            });
-        }
+//        for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
+//            if (onlinePlayer.equals(player)) continue;
+//
+//            player.hidePlayer(plugin, onlinePlayer);
+//
+//            Bukkit.getScheduler().runTask(plugin, () -> {
+//                if (player.isOnline() && onlinePlayer.isOnline()) {
+//                    player.showPlayer(plugin, onlinePlayer);
+//                }
+//            });
+//        }
     }
 
     public void updateLocatorBarTransmit(Player player, boolean allowed) {
@@ -81,15 +81,15 @@ public class InformationEnforcer {
             attr.setBaseValue(allowed ? 60000000.0 : 0.0);
         }
 
-        for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
-            if (onlinePlayer.equals(player)) continue;
-
-            player.hidePlayer(plugin, onlinePlayer);
-
-            Bukkit.getScheduler().runTask(plugin, () -> {
-                if (player.isOnline() && onlinePlayer.isOnline()) player.showPlayer(plugin, onlinePlayer);
-            });
-        }
+//        for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
+//            if (onlinePlayer.equals(player)) continue;
+//
+//            player.hidePlayer(plugin, onlinePlayer);
+//
+//            Bukkit.getScheduler().runTask(plugin, () -> {
+//                if (player.isOnline() && onlinePlayer.isOnline()) player.showPlayer(plugin, onlinePlayer);
+//            });
+//        }
     }
 
     public void updateTabList(Player player, boolean allowed) {

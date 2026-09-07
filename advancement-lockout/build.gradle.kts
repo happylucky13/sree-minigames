@@ -5,7 +5,7 @@ plugins {
 }
 
 group = "io.github.sree.lockout"
-version = "0.5.0"
+version = "0.1.0"
 
 tasks.processResources {
     val props = mapOf("version" to version)
